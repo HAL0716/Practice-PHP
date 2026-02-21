@@ -35,8 +35,9 @@ if ($stmt->fetchColumn()) {
 $stmt = $dbh->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
 $stmt->execute([$input->name, $input->mail, $hash]);
 
-// 成功 → そのままログイン処理へ
-$_POST[AuthInput::KEY_MAIL] = $input->mail;
-$_POST[AuthInput::KEY_PASS] = $input->pass;
-require_once __DIR__ . '/login.php';
+// 成功 → ログイン状態を作成してホームへ
+session_regenerate_id(true);
+$_SESSION['user_id'] = (int)$dbh->lastInsertId();
+$_SESSION['user_name'] = $input->name;
+header('Location: /home');
 exit;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/helpers.php';
 
-if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setToken();
 }
 

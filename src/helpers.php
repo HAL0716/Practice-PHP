@@ -25,4 +25,6 @@ function checkToken(): void
         header('Location: /auth');
         exit;
     }
+
+    unset($_SESSION['token']);
 }
