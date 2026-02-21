@@ -2,20 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setToken();
 }
 
 require_once __DIR__ . '/auth_input.php';
 
-$allowedActions = ['login', 'register'];
-
-$action = $_GET['action'] ?? 'login';
-if (!in_array($action, $allowedActions, true)) {
-    $action = 'login';
-}
+$action = getStr($_GET, 'action', 'login', ['login', 'register']);
 
 $labels = [
     'login'    => 'ログイン',

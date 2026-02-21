@@ -14,9 +14,9 @@ final class AuthInput
 
     public function __construct(array $data)
     {
-        $this->name = trim($data[self::KEY_NAME] ?? '');
-        $this->mail = trim($data[self::KEY_MAIL] ?? '');
-        $this->pass = $data[self::KEY_PASS] ?? '';
+        $this->name = trim(getStr($data, self::KEY_NAME, ''));
+        $this->mail = trim(getStr($data, self::KEY_MAIL, ''));
+        $this->pass = getStr($data, self::KEY_PASS, '');
     }
 
     public function validate(bool $isRegister): bool
