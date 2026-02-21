@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/db.php';
+
+$dbh = getDb();
+
+// POSTデータ取得 & バリデーション
+$mail = trim($_POST['mail'] ?? '');
+$pass = $_POST['pass'] ?? '';
+
+if ($mail === '' || $pass === '') {
+    $_SESSION['error'] = 'すべての項目を入力してください';
+    header('Location: /auth?action=login');
+    exit;
+}
+
+// ユーザ存在チェック
+$stmt = $dbh->prepare('SELECT id, name, password FROM users WHERE email = ?');
+$stmt->execute([$mail]);
+if (!$user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $pass = ''; // タイミング攻撃対策
+}
+
+// パスワード検証
+if (!isset($user['password']) || !password_verify($pass, $user['password'])) {
+    $_SESSION['error'] = 'メールアドレスまたはパスワードが違います';
+    header('Location: /auth?action=login');
+    exit;
+} else {
+    // ログイン成功
+    session_regenerate_id(true); // 固定化攻撃対策
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_name'] = $user['name'];
+    header('Location: /home');
+    exit;
+}
