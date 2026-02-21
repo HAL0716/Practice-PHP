@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/../src/helpers.php';
+
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $url = rtrim($url, '/');
 
