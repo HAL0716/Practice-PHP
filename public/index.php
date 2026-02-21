@@ -16,6 +16,10 @@ switch ($url) {
         phpinfo();
         exit;
 
+    case '/home':
+        require __DIR__ . '/../src/home.php';
+        exit;
+
     case '/auth':
         require __DIR__ . '/../src/auth.php';
         exit;
