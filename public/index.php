@@ -31,6 +31,14 @@ switch ($url) {
         require __DIR__ . '/../src/auth.php';
         exit;
 
+    case '/register':
+        require __DIR__ . '/../src/register.php';
+        exit;
+
+    case '/login':
+        require __DIR__ . '/../src/login.php';
+        exit;
+
     case '/logout':
         $_SESSION = array();
         session_destroy();

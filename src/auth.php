@@ -12,22 +12,9 @@ require_once __DIR__ . '/auth_input.php';
 
 $allowedActions = ['login', 'register'];
 
-$action = $_POST['action'] ?? $_GET['action'] ?? 'login';
+$action = $_GET['action'] ?? 'login';
 if (!in_array($action, $allowedActions, true)) {
     $action = 'login';
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    if ($action === 'register') {
-        require __DIR__ . '/register.php';
-        exit;
-    }
-
-    if ($action === 'login') {
-        require __DIR__ . '/login.php';
-        exit;
-    }
 }
 
 $labels = [
@@ -38,6 +25,7 @@ $labels = [
 $title = $labels[$action];
 
 $isRegister = $action === 'register';
+$isAction   = $isRegister ? 'register' : 'login';
 $toggleUrl  = $isRegister ? '/auth?action=login' : '/auth?action=register';
 $toggleText = $isRegister ? 'ログイン' : '新規作成';
 
@@ -51,7 +39,7 @@ ob_start();
     <?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
-<form action="" method="post">
+<form action="/<?= e($isAction) ?>" method="post">
     <input type="hidden" name="action" value="<?= e($action) ?>">
     <input type="hidden" name="token" value="<?= e($_SESSION['token'] ?? '') ?>">
 
