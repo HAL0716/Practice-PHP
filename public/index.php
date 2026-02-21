@@ -24,6 +24,12 @@ switch ($url) {
         require __DIR__ . '/../src/auth.php';
         exit;
 
+    case '/logout':
+        $_SESSION = array();
+        session_destroy();
+        header('Location: /auth');
+        exit;
+
     default:
         http_response_code(404);
         echo '404 Not Found';
