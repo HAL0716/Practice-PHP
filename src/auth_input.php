@@ -19,6 +19,12 @@ final class AuthInput
         $this->pass = getStr($data, self::KEY_PASS, '');
     }
 
+    /**
+     * 入力バリデーション
+     *
+     * @param bool $isRegister サインインかログインか
+     * @return bool
+     */
     public function validate(bool $isRegister): bool
     {
         if ($isRegister && $this->name === '') {
