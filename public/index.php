@@ -40,9 +40,7 @@ switch ($url) {
         exit;
 
     case '/logout':
-        $_SESSION = array();
-        session_destroy();
-        header('Location: /auth');
+        require __DIR__ . '/../src/logout.php';
         exit;
 
     default:
