@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/helpers.php';
+
+if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+    setToken();
+}
+
 require_once __DIR__ . '/auth_input.php';
 
 $allowedActions = ['login', 'register'];
@@ -47,6 +53,7 @@ ob_start();
 
 <form action="" method="post">
     <input type="hidden" name="action" value="<?= e($action) ?>">
+    <input type="hidden" name="token" value="<?= e($_SESSION['token'] ?? '') ?>">
 
     <?php if ($isRegister): ?>
         <input type="text" name="<?= e(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
