@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/auth_input.php';
+
 $allowedActions = ['login', 'register'];
 
 $action = $_POST['action'] ?? $_GET['action'] ?? 'login';
@@ -47,11 +49,11 @@ ob_start();
     <input type="hidden" name="action" value="<?= e($action) ?>">
 
     <?php if ($isRegister): ?>
-        <input type="text" name="name" placeholder="username" required><br>
+        <input type="text" name="<?= e(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
     <?php endif; ?>
 
-    <input type="email" name="mail" placeholder="email" required><br>
-    <input type="password" name="pass" placeholder="password" required><br>
+    <input type="email" name="<?= e(AuthInput::KEY_MAIL) ?>" placeholder="email" required><br>
+    <input type="password" name="<?= e(AuthInput::KEY_PASS) ?>" placeholder="password" required><br>
 
     <button><?= e($title) ?></button>
 </form>
