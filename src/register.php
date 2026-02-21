@@ -12,7 +12,7 @@ $dbh = getDb();
 // POSTデータ取得 & バリデーション
 $input = new AuthInput($_POST);
 if (!$input->validate(true)) {
-    $_SESSION['error'] = 'すべての項目を入力してください';
+    setError('すべての項目を入力してください');
     header('Location: /auth?action=register');
     exit;
 }
@@ -24,7 +24,7 @@ $hash = password_hash($input->pass, PASSWORD_DEFAULT);
 $stmt = $dbh->prepare('SELECT 1 FROM users WHERE email = ?');
 $stmt->execute([$input->mail]);
 if ($stmt->fetchColumn()) {
-    $_SESSION['error'] = '同じメールアドレスが存在します';
+    setError('そのメールアドレスは既に使われています');
     header('Location: /auth?action=register');
     exit;
 }

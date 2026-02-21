@@ -12,7 +12,7 @@ $dbh = getDb();
 // POSTデータ取得 & バリデーション
 $input = new AuthInput($_POST);
 if (!$input->validate(false)) {
-    $_SESSION['error'] = 'すべての項目を入力してください';
+    setError('すべての項目を入力してください');
     header('Location: /auth?action=login');
     exit;
 }
@@ -26,7 +26,7 @@ if (!$user = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
 // パスワード検証
 if (!isset($user['password']) || !password_verify($input->pass, $user['password'])) {
-    $_SESSION['error'] = 'メールアドレスまたはパスワードが違います';
+    setError('メールアドレスまたはパスワードが違います');
     header('Location: /auth?action=login');
     exit;
 } else {

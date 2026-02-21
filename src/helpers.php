@@ -55,3 +55,18 @@ function checkToken(): void
 
     unset($_SESSION['token']);
 }
+
+function setError(string $message): void
+{
+    $_SESSION['error'] = $message;
+}
+
+function getError(): ?string
+{
+    if (empty($_SESSION['error'])) {
+        return null;
+    }
+    $error = $_SESSION['error'];
+    unset($_SESSION['error']);
+    return $error;
+}

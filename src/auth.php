@@ -22,14 +22,15 @@ $isRegister = $action === 'register';
 $toggleUrl  = $isRegister ? '/auth?action=login' : '/auth?action=register';
 $toggleText = $isRegister ? 'ログイン' : '新規作成';
 
+$error = getError();
+
 ob_start();
 ?>
 
 <h2><?= e($title) ?></h2>
 
-<?php if (!empty($_SESSION['error'])): ?>
-    <p style="color:red;"><?= e($_SESSION['error']) ?></p>
-    <?php unset($_SESSION['error']); ?>
+<?php if ($error !== null): ?>
+    <p style="color:red;"><?= e($error) ?></p>
 <?php endif; ?>
 
 <form action="/<?= e($action) ?>" method="post">
