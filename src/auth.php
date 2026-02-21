@@ -5,12 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/auth_input.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    setToken(); // CSRFトークン生成
-}
+CsrfToken::generate(); // CSRFトークン生成
 
 // アクション取得
-$action = getStr($_GET, 'action', 'login', ['login', 'register']);
+$action = ArrayHelper::getString($_GET, 'action', 'login', ['login', 'register']);
 
 $labels = [
     'login'    => 'ログイン',
@@ -22,33 +20,33 @@ $isRegister = $action === 'register';
 $toggleUrl  = $isRegister ? '/auth?action=login' : '/auth?action=register';
 $toggleText = $isRegister ? 'ログイン' : '新規作成';
 
-$error = getError();
+$error = FlashMessage::getError();
 
 ob_start();
 ?>
 
-<h2><?= e($title) ?></h2>
+<h2><?= HtmlEscaper::escape($title) ?></h2>
 
 <?php if ($error !== null): ?>
-    <p style="color:red;"><?= e($error) ?></p>
+    <p style="color:red;"><?= HtmlEscaper::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="/<?= e($action) ?>" method="post">
-    <input type="hidden" name="action" value="<?= e($action) ?>">
-    <input type="hidden" name="token" value="<?= e($_SESSION['token'] ?? '') ?>">
+<form action="/<?= HtmlEscaper::escape($action) ?>" method="post">
+    <input type="hidden" name="action" value="<?= HtmlEscaper::escape($action) ?>">
+    <input type="hidden" name="token" value="<?= HtmlEscaper::escape($_SESSION['token'] ?? '') ?>">
 
     <?php if ($isRegister): ?>
-        <input type="text" name="<?= e(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
+        <input type="text" name="<?= HtmlEscaper::escape(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
     <?php endif; ?>
 
-    <input type="email"    name="<?= e(AuthInput::KEY_MAIL) ?>" placeholder="email"    required><br>
-    <input type="password" name="<?= e(AuthInput::KEY_PASS) ?>" placeholder="password" required><br>
+    <input type="email"    name="<?= HtmlEscaper::escape(AuthInput::KEY_MAIL) ?>" placeholder="email"    required><br>
+    <input type="password" name="<?= HtmlEscaper::escape(AuthInput::KEY_PASS) ?>" placeholder="password" required><br>
 
-    <button><?= e($title) ?></button>
+    <button><?= HtmlEscaper::escape($title) ?></button>
 </form>
 
 <p>
-    <a href="<?= e($toggleUrl) ?>"><?= e($toggleText) ?></a>
+    <a href="<?= HtmlEscaper::escape($toggleUrl) ?>"><?= HtmlEscaper::escape($toggleText) ?></a>
 </p>
 
 <?php

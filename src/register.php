@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-checkToken();
-
+require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth_input.php';
+
+CsrfToken::verify(); // CSRFトークン検証
 
 $dbh = getDb();
 
 // POSTデータ取得 & バリデーション
 $input = new AuthInput($_POST);
 if (!$input->validate(true)) {
-    setError('すべての項目を入力してください');
+    FlashMessage::setError('すべての項目を入力してください');
     header('Location: /auth?action=register');
     exit;
 }
@@ -24,7 +25,7 @@ $hash = password_hash($input->pass, PASSWORD_DEFAULT);
 $stmt = $dbh->prepare('SELECT 1 FROM users WHERE email = ?');
 $stmt->execute([$input->mail]);
 if ($stmt->fetchColumn()) {
-    setError('そのメールアドレスは既に使われています');
+    FlashMessage::setError('そのメールアドレスは既に使われています');
     header('Location: /auth?action=register');
     exit;
 }

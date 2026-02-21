@@ -2,17 +2,6 @@
 
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-    session_start();
-}
-
 require __DIR__ . '/../src/helpers.php';
 
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

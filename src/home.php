@@ -2,15 +2,19 @@
 
 declare(strict_types=1);
 
-ob_start();
+require_once __DIR__ . '/helpers.php';
 
 $title = 'ホーム';
+
+$username = SessionManager::get('user_name');
+
+ob_start();
 ?>
 
-<h2><?= e($title) ?></h2>
+<h2><?= HtmlEscaper::escape($title) ?></h2>
 
-<?php if (isset($_SESSION['user_name'])): ?>
-    <p>ようこそ、<?= e($_SESSION['user_name']) ?>さん！</p>
+<?php if ($username): ?>
+    <p>ようこそ、<?= HtmlEscaper::escape($username) ?>さん！</p>
 
     <p><a href="/logout">ログアウト</a></p>
 <?php else: ?>
@@ -18,6 +22,5 @@ $title = 'ホーム';
 <?php endif; ?>
 
 <?php
-
 $content = ob_get_clean();
 require __DIR__ . '/layouts/default.php';

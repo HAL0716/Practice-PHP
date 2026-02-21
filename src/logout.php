@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-$_SESSION = array();
-session_destroy();
+require_once __DIR__ . '/helpers.php';
+
+SessionManager::destroy();
 header('Location: /auth');
 exit;

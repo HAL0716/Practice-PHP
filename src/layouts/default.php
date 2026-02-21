@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title><?= e($title ?? '') ?></title>
+    <title><?= HtmlEscaper::escape($title ?? '') ?></title>
     <link rel="icon" href="data:,">
 </head>
 <body>
