@@ -38,6 +38,11 @@ ob_start();
 
 <h2><?= e($title) ?></h2>
 
+<?php if (isset($_SESSION['error'])): ?>
+    <p style="color: red;"><?= e($_SESSION['error']) ?></p>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
 <form action="" method="post">
     <input type="hidden" name="action" value="<?= e($action) ?>">
 
