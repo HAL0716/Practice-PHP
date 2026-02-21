@@ -12,6 +12,10 @@ switch ($url) {
         phpinfo();
         exit;
 
+    case '/auth':
+        require __DIR__ . '/../src/auth.php';
+        exit;
+
     default:
         http_response_code(404);
         echo '404 Not Found';
