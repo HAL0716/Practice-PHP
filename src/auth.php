@@ -50,4 +50,4 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-require __DIR__ . '/layouts/default.php';
+require __DIR__ . '/views/layouts/default.php';
