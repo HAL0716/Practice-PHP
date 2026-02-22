@@ -15,7 +15,7 @@ class HomeController extends Controller
             [
                 'title'      => $title,
                 'isLoggedIn' => $this->isLoggedIn(),
-                'username'   => Session::get('user_name'),
+                'username'   => Session::get(SessionKeys::USER_NAME),
             ]
         );
     }

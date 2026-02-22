@@ -51,6 +51,6 @@ abstract class Controller
 
     protected function isLoggedIn(): bool
     {
-        return Session::has('user_id');
+        return Session::has(SessionKeys::USER_ID);
     }
 }

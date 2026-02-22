@@ -12,8 +12,6 @@ class AuthController extends Controller
         'max'      => 5,
         'minutes'  => 15,
         'timeout'  => 900,
-        'key'      => 'login_attempts',
-        'time_key' => 'login_attempt_time',
     ];
 
     private const ERRORS = [
@@ -124,22 +122,22 @@ class AuthController extends Controller
         $user = User::findByEmail($email);
 
         Session::regenerate();
-        Session::set('user_id', $user['id']);
-        Session::set('user_name', $user['name']);
+        Session::set(SessionKeys::USER_ID, $user['id']);
+        Session::set(SessionKeys::USER_NAME, $user['name']);
 
         $this->redirect('/home');
     }
 
     private function backWithError(string $msg): void
     {
-        Session::flash('error', $msg);
+        Session::flash(SessionKeys::ERRORS, $msg);
         $this->redirectSelf();
     }
 
     private function isLocked(): bool
     {
-        $attempts = (int) Session::get(self::LOCK['key'], 0);
-        $last = (int) Session::get(self::LOCK['time_key'], 0);
+        $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0);
+        $last = (int) Session::get(SessionKeys::LOGIN_ATTEMPT_TIME, 0);
 
         if ($last && time() - $last > self::LOCK['timeout']) {
             $this->resetAttempts();
@@ -151,10 +149,10 @@ class AuthController extends Controller
 
     private function addAttempt(): void
     {
-        $attempts = (int) Session::get(self::LOCK['key'], 0) + 1;
+        $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0) + 1;
 
-        Session::set(self::LOCK['key'], $attempts);
-        Session::set(self::LOCK['time_key'], time());
+        Session::set(SessionKeys::LOGIN_ATTEMPTS, $attempts);
+        Session::set(SessionKeys::LOGIN_ATTEMPT_TIME, time());
 
         $msg = $attempts >= self::LOCK['max']
             ? self::ERRORS['locked']
@@ -165,7 +163,7 @@ class AuthController extends Controller
 
     private function resetAttempts(): void
     {
-        Session::remove(self::LOCK['key']);
-        Session::remove(self::LOCK['time_key']);
+        Session::remove(SessionKeys::LOGIN_ATTEMPTS);
+        Session::remove(SessionKeys::LOGIN_ATTEMPT_TIME);
     }
 }
