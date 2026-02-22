@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../../src/auth_input.php';
 
 class AuthController extends Controller
 {
@@ -15,12 +14,12 @@ class AuthController extends Controller
     ];
 
     private const ERRORS = [
-        'invalid'   => '不正なリクエストです',
-        'required'  => 'すべての項目を入力してください',
-        'exists'    => 'このメールアドレスは既に登録されています',
-        'create'    => 'ユーザーの登録に失敗しました',
-        'login'     => 'メールアドレスまたはパスワードが違います',
-        'locked'    => 'ログイン試行回数が上限に達しました。'.self::LOCK['minutes'].'分後にお試しください',
+        'invalid' => '不正なリクエストです',
+        'input'   => '不正な入力です',
+        'exists'  => 'このメールアドレスは既に登録されています',
+        'create'  => 'ユーザーの登録に失敗しました',
+        'login'   => 'メールアドレスまたはパスワードが違います',
+        'locked'  => 'ログイン試行回数が上限に達しました。'.self::LOCK['minutes'].'分後にお試しください',
     ];
 
     public function signup(): void
@@ -38,17 +37,17 @@ class AuthController extends Controller
         $this->checkCsrf();
         $input = $this->input(true);
 
-        if (User::findByEmail($input->mail)) {
+        if (User::findByEmail($input['mail'])) {
             $this->backWithError(self::ERRORS['exists']);
             return;
         }
 
-        if (!User::create($input->name, $input->mail, $input->pass)) {
+        if (!User::create($input['name'], $input['mail'], $input['pass'])) {
             $this->backWithError(self::ERRORS['create']);
             return;
         }
 
-        $this->login($input->mail);
+        $this->login($input['mail']);
     }
 
     public function signin(): void
@@ -71,13 +70,13 @@ class AuthController extends Controller
         $this->checkCsrf();
         $input = $this->input(false);
 
-        if (!User::verifyPassword($input->mail, $input->pass)) {
+        if (!User::verifyPassword($input['mail'], $input['pass'])) {
             $this->addAttempt();
             return;
         }
 
         $this->resetAttempts();
-        $this->login($input->mail);
+        $this->login($input['mail']);
     }
 
     public function signout(): void
@@ -106,15 +105,36 @@ class AuthController extends Controller
         }
     }
 
-    private function input(bool $signup): AuthInput
+    private function input(bool $signup): array
     {
-        $input = new AuthInput();
+        $data = [
+            'name' => Request::post(FormFields::NAME, ''),
+            'mail' => Request::post(FormFields::MAIL, ''),
+            'pass' => Request::post(FormFields::PASS, ''),
+        ];
 
-        if (!$input->validate($signup)) {
-            $this->backWithError(self::ERRORS['required']);
+        if ($signup) {
+            $data['pass_confirm'] = Request::post(FormFields::PASS_CONFIRM, '');
         }
 
-        return $input;
+        if ($signup && $data['name'] === '') {
+            $this->backWithError(self::ERRORS['input']);
+        }
+
+        if ($data['mail'] === '' ||
+            !filter_var($data['mail'], FILTER_VALIDATE_EMAIL)) {
+            $this->backWithError(self::ERRORS['input']);
+        }
+
+        if ($data['pass'] === '') {
+            $this->backWithError(self::ERRORS['input']);
+        }
+
+        if ($signup && $data['pass'] !== $data['pass_confirm']) {
+            $this->backWithError(self::ERRORS['input']);
+        }
+
+        return $data;
     }
 
     private function login(string $email): void
