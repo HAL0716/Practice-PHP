@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth_input.php';
 
 CsrfToken::verify(); // CSRFトークン検証
 
-$dbh = getDb();
+$db = Database::connect();
 
 // ログイン失敗回数の制限設定
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -42,7 +42,7 @@ if (!$input->validate(false)) {
 }
 
 // ユーザ存在チェック
-$stmt = $dbh->prepare('SELECT id, name, password FROM users WHERE email = ?');
+$stmt = $db->prepare('SELECT id, name, password FROM users WHERE email = ?');
 $stmt->execute([$input->mail]);
 if (!$user = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $input->pass = ''; // タイミング攻撃対策

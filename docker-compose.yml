@@ -8,6 +8,7 @@ services:
     volumes:
       - ./public:/var/www/html
       - ./src:/var/www/src
+      - ./config:/var/www/config
     depends_on:
       - mysql
     env_file:
