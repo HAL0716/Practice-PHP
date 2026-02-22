@@ -11,7 +11,7 @@ CsrfToken::verify(); // CSRFトークン検証
 $db = Database::connect();
 
 // POSTデータ取得 & バリデーション
-$input = new AuthInput($_POST);
+$input = new AuthInput();
 if (!$input->validate(true)) {
     Session::flash('error', 'すべての項目を入力してください');
     header('Location: /auth?action=register');

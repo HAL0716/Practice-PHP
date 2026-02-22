@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../src/helpers.php';
 require_once __DIR__ . '/../src/core/Html.php';
+require_once __DIR__ . '/../src/core/Request.php';
 require_once __DIR__ . '/../src/core/Session.php';
 
-$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$url = rtrim($url, '/');
+$url = Request::path();
 
 switch ($url) {
-    case '':
+    case '/':
         phpinfo();
         exit;
 

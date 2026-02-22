@@ -8,7 +8,7 @@ require_once __DIR__ . '/auth_input.php';
 CsrfToken::generate(); // CSRFトークン生成
 
 // アクション取得
-$action = ArrayHelper::getString($_GET, 'action', 'login', ['login', 'register']);
+$action = Request::query('action', 'login', ['login', 'register']);
 
 $labels = [
     'login'    => 'ログイン',

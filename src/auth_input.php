@@ -12,11 +12,11 @@ final class AuthInput
     public string $mail;
     public string $pass;
 
-    public function __construct(array $data)
+    public function __construct()
     {
-        $this->name = trim(ArrayHelper::getString($data, self::KEY_NAME, ''));
-        $this->mail = trim(ArrayHelper::getString($data, self::KEY_MAIL, ''));
-        $this->pass = ArrayHelper::getString($data, self::KEY_PASS, '');
+        $this->name = trim(Request::post(self::KEY_NAME, ''));
+        $this->mail = trim(Request::post(self::KEY_MAIL, ''));
+        $this->pass = Request::post(self::KEY_PASS, '');
     }
 
     /**

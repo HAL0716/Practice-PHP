@@ -3,31 +3,6 @@
 declare(strict_types=1);
 
 /**
- * 配列値の安全な取得・設定
- */
-final class ArrayHelper
-{
-    public static function getString(
-        array $source,
-        string $key,
-        string $default = '',
-        array $allowed = []
-    ): string {
-        $value = $source[$key] ?? $default;
-
-        if (!is_string($value)) {
-            return $default;
-        }
-
-        if ($allowed !== [] && !in_array($value, $allowed, true)) {
-            return $default;
-        }
-
-        return $value;
-    }
-}
-
-/**
  * CSRF トークン管理
  */
 final class CsrfToken

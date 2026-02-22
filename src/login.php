@@ -34,7 +34,7 @@ if ($loginAttempts >= MAX_LOGIN_ATTEMPTS) {
 }
 
 // POSTデータ取得 & バリデーション
-$input = new AuthInput($_POST);
+$input = new AuthInput();
 if (!$input->validate(false)) {
     Session::flash('error', 'すべての項目を入力してください');
     header('Location: /auth?action=login');
