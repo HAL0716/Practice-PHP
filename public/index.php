@@ -7,6 +7,8 @@ require_once __DIR__ . '/../src/core/Request.php';
 require_once __DIR__ . '/../src/core/Session.php';
 require_once __DIR__ . '/../src/core/Csrf.php';
 
+require_once __DIR__ . '/../src/controllers/HomeController.php';
+
 $url = Request::path();
 
 switch ($url) {
@@ -15,7 +17,8 @@ switch ($url) {
         exit;
 
     case '/home':
-        require __DIR__ . '/../src/home.php';
+        $controller = new HomeController();
+        $controller->index();
         exit;
 
     case '/auth':

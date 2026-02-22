@@ -1,6 +1,6 @@
 <h2><?= Html::escape($title) ?></h2>
 
-<?php if ($username): ?>
+<?php if ($isLoggedIn): ?>
     <p>ようこそ、<?= Html::escape($username) ?>さん！</p>
 
     <p><a href="/logout">ログアウト</a></p>
