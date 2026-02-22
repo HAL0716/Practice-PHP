@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
-
 $title = 'ホーム';
 
 $username = Session::get('user_name');

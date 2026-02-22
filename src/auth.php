@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/auth_input.php';
 
-CsrfToken::generate(); // CSRFトークン生成
+$token = Csrf::token(); // CSRFトークン生成
 
 // アクション取得
 $action = Request::query('action', 'login', ['login', 'register']);
@@ -33,7 +32,7 @@ ob_start();
 
 <form action="/<?= Html::escape($action) ?>" method="post">
     <input type="hidden" name="action" value="<?= Html::escape($action) ?>">
-    <input type="hidden" name="token" value="<?= Html::escape(Session::get('token')) ?>">
+    <input type="hidden" name="token"  value="<?= Html::escape($token)  ?>">
 
     <?php if ($isRegister): ?>
         <input type="text" name="<?= Html::escape(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>

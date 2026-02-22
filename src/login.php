@@ -3,10 +3,15 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/auth_input.php';
 
-CsrfToken::verify(); // CSRFトークン検証
+ // CSRFトークン検証
+$token = Request::post('token');
+if (!Csrf::verify($token)) {
+    Session::flash('error', '不正なリクエストです');
+    header('Location: /auth?action=login');
+    exit;
+}
 
 $db = Database::connect();
 
