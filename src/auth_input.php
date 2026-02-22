@@ -14,8 +14,8 @@ final class AuthInput
 
     public function __construct()
     {
-        $this->name = trim(Request::post(self::KEY_NAME, ''));
-        $this->mail = trim(Request::post(self::KEY_MAIL, ''));
+        $this->name = Request::post(self::KEY_NAME, '');
+        $this->mail = Request::post(self::KEY_MAIL, '');
         $this->pass = Request::post(self::KEY_PASS, '');
     }
 
