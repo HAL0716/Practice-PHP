@@ -25,28 +25,28 @@ $error = FlashMessage::getError();
 ob_start();
 ?>
 
-<h2><?= HtmlEscaper::escape($title) ?></h2>
+<h2><?= Html::escape($title) ?></h2>
 
 <?php if ($error !== null): ?>
-    <p style="color:red;"><?= HtmlEscaper::escape($error) ?></p>
+    <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="/<?= HtmlEscaper::escape($action) ?>" method="post">
-    <input type="hidden" name="action" value="<?= HtmlEscaper::escape($action) ?>">
-    <input type="hidden" name="token" value="<?= HtmlEscaper::escape($_SESSION['token'] ?? '') ?>">
+<form action="/<?= Html::escape($action) ?>" method="post">
+    <input type="hidden" name="action" value="<?= Html::escape($action) ?>">
+    <input type="hidden" name="token" value="<?= Html::escape($_SESSION['token'] ?? '') ?>">
 
     <?php if ($isRegister): ?>
-        <input type="text" name="<?= HtmlEscaper::escape(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
+        <input type="text" name="<?= Html::escape(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>
     <?php endif; ?>
 
-    <input type="email"    name="<?= HtmlEscaper::escape(AuthInput::KEY_MAIL) ?>" placeholder="email"    required><br>
-    <input type="password" name="<?= HtmlEscaper::escape(AuthInput::KEY_PASS) ?>" placeholder="password" required><br>
+    <input type="email"    name="<?= Html::escape(AuthInput::KEY_MAIL) ?>" placeholder="email"    required><br>
+    <input type="password" name="<?= Html::escape(AuthInput::KEY_PASS) ?>" placeholder="password" required><br>
 
-    <button><?= HtmlEscaper::escape($title) ?></button>
+    <button><?= Html::escape($title) ?></button>
 </form>
 
 <p>
-    <a href="<?= HtmlEscaper::escape($toggleUrl) ?>"><?= HtmlEscaper::escape($toggleText) ?></a>
+    <a href="<?= Html::escape($toggleUrl) ?>"><?= Html::escape($toggleText) ?></a>
 </p>
 
 <?php

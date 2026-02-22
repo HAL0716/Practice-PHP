@@ -3,21 +3,6 @@
 declare(strict_types=1);
 
 /**
- * HTML エスケープ処理
- */
-final class HtmlEscaper
-{
-    public static function escape(
-        string $string,
-        int $flags = ENT_QUOTES,
-        ?string $encoding = 'UTF-8',
-        bool $double_encode = true
-    ): string {
-        return htmlspecialchars($string, $flags, $encoding, $double_encode);
-    }
-}
-
-/**
  * セッション管理
  */
 final class SessionManager

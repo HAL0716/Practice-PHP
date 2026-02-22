@@ -11,10 +11,10 @@ $username = SessionManager::get('user_name');
 ob_start();
 ?>
 
-<h2><?= HtmlEscaper::escape($title) ?></h2>
+<h2><?= Html::escape($title) ?></h2>
 
 <?php if ($username): ?>
-    <p>ようこそ、<?= HtmlEscaper::escape($username) ?>さん！</p>
+    <p>ようこそ、<?= Html::escape($username) ?>さん！</p>
 
     <p><a href="/logout">ログアウト</a></p>
 <?php else: ?>
