@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/auth_input.php';
+require_once __DIR__ . '/models/User.php';
 
- // CSRFトークン検証
+// CSRFトークン検証
 $token = Request::post('token');
 if (!Csrf::verify($token)) {
     Session::flash('error', '不正なリクエストです');
     header('Location: /auth?action=login');
     exit;
 }
-
-$db = Database::connect();
 
 // ログイン失敗回数の制限設定
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -46,15 +44,19 @@ if (!$input->validate(false)) {
     exit;
 }
 
-// ユーザ存在チェック
-$stmt = $db->prepare('SELECT id, name, password FROM users WHERE email = ?');
-$stmt->execute([$input->mail]);
-if (!$user = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $input->pass = ''; // タイミング攻撃対策
-}
-
 // パスワード検証
-if (!isset($user['password']) || !password_verify($input->pass, $user['password'])) {
+if (User::verifyPassword($input->mail, $input->pass)) {
+    // ログイン成功：失敗回数をリセット
+    Session::regenerate(); // 固定化攻撃対策
+    Session::remove('login_attempts');
+    Session::remove('login_attempt_time');
+
+    $user = User::findByEmail($input->mail);
+    Session::set('user_id', $user['id']);
+    Session::set('user_name', $user['name']);
+    header('Location: /home');
+    exit;
+} else {
     // ログイン失敗時：失敗回数をインクリメント
     $loginAttempts++;
     Session::set('login_attempts', $loginAttempts);
@@ -68,15 +70,5 @@ if (!isset($user['password']) || !password_verify($input->pass, $user['password'
     }
 
     header('Location: /auth?action=login');
-    exit;
-} else {
-    // ログイン成功：失敗回数をリセット
-    Session::regenerate(); // 固定化攻撃対策
-    Session::remove('login_attempts');
-    Session::remove('login_attempt_time');
-
-    Session::set('user_id', $user['id']);
-    Session::set('user_name', $user['name']);
-    header('Location: /home');
     exit;
 }
