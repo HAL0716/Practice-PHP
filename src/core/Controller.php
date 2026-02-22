@@ -15,7 +15,7 @@ abstract class Controller
         extract($data, EXTR_SKIP);
 
         ob_start();
-        include $this->viewPath($view);;
+        include $this->viewPath($view);
         $content = ob_get_clean();
 
         if ($useLayout) {
@@ -28,10 +28,11 @@ abstract class Controller
 
     private function viewPath(string $name): string
     {
-        return __DIR__ . '/../views/' . $name . '.php';
+        $path = __DIR__ . '/../views/' . $name . '.php';
         if (!file_exists($path)) {
             throw new RuntimeException("View not found: {$name}");
         }
+        return $path;
     }
 
     protected function redirect(string $url): void
