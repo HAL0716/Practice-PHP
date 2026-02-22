@@ -20,7 +20,7 @@ $isRegister = $action === 'register';
 $toggleUrl  = $isRegister ? '/auth?action=login' : '/auth?action=register';
 $toggleText = $isRegister ? 'ログイン' : '新規作成';
 
-$error = FlashMessage::getError();
+$error = Session::getFlash('error');
 
 ob_start();
 ?>
@@ -33,7 +33,7 @@ ob_start();
 
 <form action="/<?= Html::escape($action) ?>" method="post">
     <input type="hidden" name="action" value="<?= Html::escape($action) ?>">
-    <input type="hidden" name="token" value="<?= Html::escape($_SESSION['token'] ?? '') ?>">
+    <input type="hidden" name="token" value="<?= Html::escape(Session::get('token')) ?>">
 
     <?php if ($isRegister): ?>
         <input type="text" name="<?= Html::escape(AuthInput::KEY_NAME) ?>" placeholder="username" required><br>

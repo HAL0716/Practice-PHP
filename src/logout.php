@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/helpers.php';
 
-SessionManager::destroy();
+Session::destroy();
 header('Location: /auth');
 exit;

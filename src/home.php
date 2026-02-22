@@ -6,7 +6,7 @@ require_once __DIR__ . '/helpers.php';
 
 $title = 'ホーム';
 
-$username = SessionManager::get('user_name');
+$username = Session::get('user_name');
 
 ob_start();
 ?>
