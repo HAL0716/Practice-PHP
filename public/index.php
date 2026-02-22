@@ -25,11 +25,11 @@ switch ($url) {
         require __DIR__ . '/../src/auth.php';
         exit;
 
-    case '/register':
+    case '/signup':
         require __DIR__ . '/../src/register.php';
         exit;
 
-    case '/login':
+    case '/signin':
         require __DIR__ . '/../src/login.php';
         exit;
 

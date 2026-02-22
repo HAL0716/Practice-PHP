@@ -4,24 +4,30 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/auth_input.php';
 
-$token = Csrf::token(); // CSRFトークン生成
+$token  = Csrf::token(); // CSRFトークン生成
+$action = Request::query('action', 'signin', ['signin', 'signup']);
+$error  = Session::getFlash('error');
 
-// アクション取得
-$action = Request::query('action', 'login', ['login', 'register']);
+switch ($action) {
+    case 'signup':
+        $title      = 'サインアップ';
+        $actionUrl  = '/signup';
+        $toggleUrl  = '/auth?action=signin';
+        $toggleText = 'サインイン';
+        $viewpath   = __DIR__ . '/views/auth/signup.php';
 
-$labels = [
-    'login'    => 'ログイン',
-    'register' => '新規作成',
-];
+        break;
+    case 'signin':
+        $title = 'サインイン';
+        $actionUrl = '/signin';
+        $toggleUrl = '/auth?action=signup';
+        $toggleText = 'サインアップ';
+        $viewpath = __DIR__ . '/views/auth/signin.php';
 
-$title = $labels[$action] ?? 'ログイン';
-$isRegister = $action === 'register';
-$toggleUrl  = $isRegister ? '/auth?action=login' : '/auth?action=register';
-$toggleText = $isRegister ? 'ログイン' : '新規作成';
-
-$error = Session::getFlash('error');
+        break;
+}
 
 ob_start();
-require __DIR__ . "/views/auth.php";
+require $viewpath;
 $content = ob_get_clean();
 require __DIR__ . '/views/layouts/default.php';
