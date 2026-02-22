@@ -45,8 +45,7 @@ abstract class Controller
 
     protected function redirectSelf(): void
     {
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
-        $this->redirect($uri);
+        $this->redirect(Request::path());
     }
 
     protected function isLoggedIn(): bool
