@@ -5,24 +5,24 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="token"  value="<?= Html::escape($token)  ?>">
+    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>"  value="<?= Html::escape($token)  ?>">
 
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= Html::escape(AuthInput::KEY_NAME) ?>" required></td>
+            <td><input type="text" name="<?= Html::escape(FormFields::NAME) ?>" required></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(AuthInput::KEY_MAIL) ?>" required></td>
+            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" required></td>
         </tr>
         <tr>
             <td>パスワード</td>
-            <td><input type="password" name="<?= Html::escape(AuthInput::KEY_PASS) ?>"required></td>
+            <td><input type="password" name="<?= Html::escape(FormFields::PASS) ?>"required></td>
         </tr>
         <tr>
             <td>パスワード（確認）</td>
-            <td><input type="password" name="<?= Html::escape(AuthInput::KEY_PASS_CONFIRM) ?>" required></td>
+            <td><input type="password" name="<?= Html::escape(FormFields::PASS_CONFIRM) ?>" required></td>
         </tr>
         <tr>
             <td colspan="2" style="text-align: center;">

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '../src/constants/FormFields.php';
+
 require_once __DIR__ . '/../src/core/Html.php';
 require_once __DIR__ . '/../src/core/Request.php';
 require_once __DIR__ . '/../src/core/Session.php';

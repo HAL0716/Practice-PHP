@@ -103,7 +103,7 @@ class AuthController extends Controller
 
     private function checkCsrf(): void
     {
-        if (!Csrf::verify(Request::post('token'))) {
+        if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
             $this->backWithError(self::ERRORS['invalid']);
         }
     }
