@@ -5,7 +5,6 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="action" value="<?= Html::escape($action) ?>">
     <input type="hidden" name="token"  value="<?= Html::escape($token)  ?>">
 
     <table>

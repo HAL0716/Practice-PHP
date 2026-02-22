@@ -2,8 +2,10 @@
 
 <?php if ($isLoggedIn): ?>
     <p>ようこそ、<?= Html::escape($username) ?>さん！</p>
-
-    <p><a href="/logout">ログアウト</a></p>
+    <p><a href="/signout">サインアウトはこちら</a></p>
 <?php else: ?>
-    <p><a href="/auth?action=login">ログイン</a> または <a href="/auth?action=register">新規作成</a> してください。</p>
+    <p>
+        <a href="/signin">サインインはこちら</a><br>
+        <a href="/signup">サインアップはこちら</a>
+    </p>
 <?php endif; ?>

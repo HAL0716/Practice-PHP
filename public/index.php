@@ -8,6 +8,7 @@ require_once __DIR__ . '/../src/core/Session.php';
 require_once __DIR__ . '/../src/core/Csrf.php';
 
 require_once __DIR__ . '/../src/controllers/HomeController.php';
+require_once __DIR__ . '/../src/controllers/AuthController.php';
 
 $url = Request::path();
 
@@ -21,20 +22,19 @@ switch ($url) {
         $controller->index();
         exit;
 
-    case '/auth':
-        require __DIR__ . '/../src/auth.php';
-        exit;
-
     case '/signup':
-        require __DIR__ . '/../src/register.php';
+        $controller = new AuthController();
+        $controller->signup();
         exit;
 
     case '/signin':
-        require __DIR__ . '/../src/login.php';
+        $controller = new AuthController();
+        $controller->signin();
         exit;
 
-    case '/logout':
-        require __DIR__ . '/../src/logout.php';
+    case '/signout':
+        $controller = new AuthController();
+        $controller->signout();
         exit;
 
     default:
