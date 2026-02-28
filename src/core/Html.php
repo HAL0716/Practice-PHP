@@ -9,7 +9,7 @@ final class Html
         int $flags = ENT_QUOTES,
         string $encoding = 'UTF-8',
         bool $double_encode = true
-    ): void {
-        echo htmlspecialchars($string ?? '', $flags, $encoding, $double_encode);
+    ): string {
+        return htmlspecialchars($string ?? '', $flags, $encoding, $double_encode);
     }
 }
