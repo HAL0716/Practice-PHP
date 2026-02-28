@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 final class Csrf
 {
-    private const TOKEN_LENGTH   = 32;
-    private const TOKEN_TIMEOUT  = 3600;
+    private const TOKEN_LENGTH  = 32;
+    private const TOKEN_MINUTE  = 60;
+    private const TOKEN_TIMEOUT = self::TOKEN_MINUTE * 60;
 
     private function __construct()
     {
