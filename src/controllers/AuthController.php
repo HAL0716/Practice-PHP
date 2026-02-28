@@ -128,6 +128,7 @@ class AuthController extends Controller
             FormFields::NAME,
             FormFields::MAIL,
             FormFields::PASS,
+            FormFields::PASS_CONFIRM,
             FormFields::PASS_CURRENT,
         ]);
 
@@ -179,7 +180,12 @@ class AuthController extends Controller
         foreach ($fields as $field) {
             $data[$field] = Request::post($field, '');
         }
-        $this->flashOld($data);
+
+        $this->flashOld([
+            FormFields::NAME => $data[FormFields::NAME] ?? '',
+            FormFields::MAIL => $data[FormFields::MAIL] ?? '',
+        ]);
+
         return $data;
     }
 
