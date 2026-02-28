@@ -14,6 +14,8 @@ abstract class Controller
         // 変数展開（衝突防止）
         extract($data, EXTR_SKIP);
 
+        $error = Session::getFlash(SessionKeys::ERRORS);
+
         ob_start();
         include $this->viewPath($view);
         $content = ob_get_clean();
