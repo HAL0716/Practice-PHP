@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/constants/FormFields.php';
+require_once __DIR__ . '/../src/constants/Routes.php';
 require_once __DIR__ . '/../src/constants/SessionKeys.php';
 
 require_once __DIR__ . '/../src/core/Html.php';
@@ -20,27 +21,27 @@ switch ($url) {
         phpinfo();
         exit;
 
-    case '/home':
+    case Routes::HOME:
         $controller = new HomeController();
         $controller->index();
         exit;
 
-    case '/signup':
+    case Routes::SIGNUP:
         $controller = new AuthController();
         $controller->signup();
         exit;
 
-    case '/signin':
+    case Routes::SIGNIN:
         $controller = new AuthController();
         $controller->signin();
         exit;
 
-    case '/signout':
+    case Routes::SIGNOUT:
         $controller = new AuthController();
         $controller->signout();
         exit;
 
-    case '/mypage':
+    case Routes::MYPAGE:
         $controller = new AuthController();
         $controller->mypage();
         exit;

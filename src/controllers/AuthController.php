@@ -27,9 +27,7 @@ class AuthController extends Controller
         if (Request::isGet()) {
             $this->render('auth/signup', $this->viewData(
                 'サインアップ',
-                '/signup',
-                '/signin',
-                'サインインはこちら'
+                Routes::SIGNUP,
             ));
             return;
         }
@@ -55,9 +53,7 @@ class AuthController extends Controller
         if (Request::isGet()) {
             $this->render('auth/signin', $this->viewData(
                 'サインイン',
-                '/signin',
-                '/signup',
-                'サインアップはこちら'
+                Routes::SIGNIN,
             ));
             return;
         }
@@ -136,15 +132,13 @@ class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function viewData(string $title, string $action, string $toggleUrl, string $toggleText): array
+    private function viewData(string $title, string $action): array
     {
         return [
             'title'      => $title,
             'token'      => Csrf::token(),
             'error'      => Session::getFlash('error'),
             'actionUrl'  => $action,
-            'toggleUrl'  => $toggleUrl,
-            'toggleText' => $toggleText,
         ];
     }
 

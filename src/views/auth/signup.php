@@ -5,7 +5,7 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token)  ?>">
+    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
     <table>
         <tr>
@@ -33,5 +33,5 @@
 </form>
 
 <p>
-    <a href="<?= Html::escape($toggleUrl) ?>"><?= Html::escape($toggleText) ?></a>
+    <a href="<?= Html::escape(Routes::SIGNIN) ?>">サインインはこちら</a>
 </p>

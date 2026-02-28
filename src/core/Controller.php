@@ -53,7 +53,7 @@ abstract class Controller
     protected function requireLogin(): void
     {
         if (!Session::has(SessionKeys::USER_ID)) {
-            $this->redirect('/signin');
+            $this->redirect(Routes::SIGNIN);
         }
     }
 }

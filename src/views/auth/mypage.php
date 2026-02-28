@@ -33,7 +33,7 @@
     </table>
 </form>
 
-<p><a href="/signout">サインアウトはこちら</a></p>
+<p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">
     <div style="background: #fff; padding: 20px;">
