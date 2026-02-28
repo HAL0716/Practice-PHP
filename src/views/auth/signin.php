@@ -18,7 +18,7 @@
         </tr>
         <tr>
             <td colspan="2" style="text-align: center;">
-                <input type="submit" value="<?= Html::escape($title) ?>">
+                <input type="submit" value="サインイン">
             </td>
         </tr>
     </table>
