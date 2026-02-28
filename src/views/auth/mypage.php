@@ -36,7 +36,7 @@
 <p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">
-    <div style="background: #fff; padding: 20px;">
+    <div class="modal-content">
         現在のパスワード
         <input type="password" class="current-password">
         <button class="submit">OK</button>
@@ -56,12 +56,12 @@
     const hiddenPassword = form.elements["<?= FormFields::PASS_CURRENT ?>"];
 
     const open = () => {
-        modal.style.display = "flex";
+        modal.classList.add("is-open");
         modalPassword.focus();
     };
 
     const close = () => {
-        modal.style.display = "none";
+        modal.classList.remove("is-open");
         modalPassword.value = "";
     };
 
