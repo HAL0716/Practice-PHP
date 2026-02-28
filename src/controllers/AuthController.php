@@ -86,6 +86,14 @@ class AuthController extends Controller
         $this->redirect('/signin');
     }
 
+    public function mypage(): void
+    {
+        $this->render('auth/mypage', [
+            'title' => 'マイページ',
+            'username' => Session::get(SessionKeys::USER_NAME, 'ゲスト'),
+        ]);
+    }
+
     private function viewData(string $title, string $action, string $toggleUrl, string $toggleText): array
     {
         return [

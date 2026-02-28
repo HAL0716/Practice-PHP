@@ -40,6 +40,11 @@ switch ($url) {
         $controller->signout();
         exit;
 
+    case '/mypage':
+        $controller = new AuthController();
+        $controller->mypage();
+        exit;
+
     default:
         http_response_code(404);
         echo '404 Not Found';
