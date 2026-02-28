@@ -37,7 +37,7 @@
 
 <div class="modal">
     <div style="background: #fff; padding: 20px;">
-        <p>現在のパスワード</p>
+        現在のパスワード
         <input type="password" class="current-password">
         <button class="submit">OK</button>
     </div>
