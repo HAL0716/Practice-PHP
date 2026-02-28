@@ -17,9 +17,6 @@ require_once __DIR__ . '/../src/controllers/AuthController.php';
 $url = Request::path();
 
 switch ($url) {
-    case '/':
-        phpinfo();
-        exit;
 
     case Routes::HOME:
         $controller = new HomeController();
