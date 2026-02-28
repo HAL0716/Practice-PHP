@@ -81,6 +81,8 @@ class AuthController extends Controller
 
     public function signout(): void
     {
+        $this->requireLogin();
+
         Session::destroy();
         Session::regenerate();
         $this->redirect('/signin');
@@ -88,6 +90,8 @@ class AuthController extends Controller
 
     public function mypage(): void
     {
+        $this->requireLogin();
+
         $this->render('auth/mypage', [
             'title' => 'マイページ',
             'username' => Session::get(SessionKeys::USER_NAME, 'ゲスト'),

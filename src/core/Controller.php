@@ -48,8 +48,10 @@ abstract class Controller
         $this->redirect(Request::path());
     }
 
-    protected function isLoggedIn(): bool
+    protected function requireLogin(): void
     {
-        return Session::has(SessionKeys::USER_ID);
+        if (!Session::has(SessionKeys::USER_ID)) {
+            $this->redirect('/signin');
+        }
     }
 }

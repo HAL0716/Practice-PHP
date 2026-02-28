@@ -8,13 +8,14 @@ class HomeController extends Controller
 {
     public function index(): void
     {
+        $this->requireLogin();
+
         $title = 'ホーム';
 
         $this->render(
             'home',
             [
                 'title'      => $title,
-                'isLoggedIn' => $this->isLoggedIn(),
                 'username'   => Session::get(SessionKeys::USER_NAME),
             ]
         );
