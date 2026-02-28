@@ -11,7 +11,6 @@ abstract class Controller
         array $data = [],
         bool $useLayout = true
     ): void {
-        // 変数展開（衝突防止）
         extract($data, EXTR_SKIP);
 
         ob_start();

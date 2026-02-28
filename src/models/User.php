@@ -13,7 +13,7 @@ final class User
     private const COL_EMAIL    = 'email';
     private const COL_PASSWORD = 'password';
 
-    private const DUMMY_HASH = '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG'; // タイミング攻撃対策用のダミーハッシュ
+    private const DUMMY_HASH = '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
 
     private function __construct()
     {
@@ -44,7 +44,7 @@ final class User
         try {
             $stmt->execute([$name, $email, $hashed]);
         } catch (PDOException $e) {
-            return null; // email重複など
+            return null;
         }
 
         return self::findByEmail($email);
@@ -73,10 +73,10 @@ final class User
         }
 
         if (empty($fields)) {
-            return false; // 更新するフィールドがない
+            return false;
         }
 
-        $params[] = $id; // WHERE句のID
+        $params[] = $id;
 
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s = ?",
@@ -89,7 +89,7 @@ final class User
             $stmt = self::db()->prepare($sql);
             return $stmt->execute($params);
         } catch (PDOException $e) {
-            return false; // email重複など
+            return false;
         }
     }
 

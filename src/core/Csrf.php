@@ -5,7 +5,7 @@ declare(strict_types=1);
 final class Csrf
 {
     private const TOKEN_LENGTH   = 32;
-    private const TOKEN_TIMEOUT  = 3600; // seconds
+    private const TOKEN_TIMEOUT  = 3600;
 
     private function __construct()
     {
@@ -43,7 +43,6 @@ final class Csrf
 
         $valid = hash_equals($sessionToken, $token);
 
-        // ワンタイムトークン
         if ($valid) {
             self::clear();
         }

@@ -8,10 +8,6 @@ final class Request
     {
     }
 
-    /* =========================
-     * INPUT HELPERS
-     * ========================= */
-
     public static function post(
         string $key,
         string $default = '',
@@ -68,10 +64,6 @@ final class Request
         );
     }
 
-    /* =========================
-     * HTTP METHOD
-     * ========================= */
-
     public static function method(): string
     {
         return $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -91,10 +83,6 @@ final class Request
     {
         return self::method() === strtoupper($method);
     }
-
-    /* =========================
-     * URI
-     * ========================= */
 
     public static function path(): string
     {
