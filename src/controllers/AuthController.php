@@ -92,10 +92,48 @@ class AuthController extends Controller
     {
         $this->requireLogin();
 
-        $this->render('auth/mypage', [
-            'title' => 'マイページ',
-            'username' => Session::get(SessionKeys::USER_NAME, 'ゲスト'),
-        ]);
+        if (Request::isGet()) {
+            $this->render('auth/mypage', [
+                'title'     => 'マイページ',
+                'token'     => Csrf::token(),
+                'user'      => User::findById(Session::get(SessionKeys::USER_ID)),
+                'actionUrl' => '/mypage',
+            ]);
+            return;
+        }
+
+        $this->checkCsrf();
+        $input = [
+            'name' => Request::post(FormFields::NAME, ''),
+            'mail' => Request::post(FormFields::MAIL, ''),
+            'pass' => Request::post(FormFields::PASS, ''),
+            'pass_current' => Request::post(FormFields::PASS_CURRENT, ''),
+        ];
+
+        if ($input['pass'] && $input['pass'] !== Request::post(FormFields::PASS_CONFIRM, '')) {
+            $this->backWithError(self::ERRORS['input']);
+            return;
+        }
+
+        $userId = Session::get(SessionKeys::USER_ID);
+        $user   = User::findById($userId);
+
+        if (!User::verifyPassword($user['email'], $input['pass_current'])) {
+            $this->backWithError(self::ERRORS['input']);
+            return;
+        }
+
+        if (!User::update(
+            $userId,
+            $input['name'] ?: null,
+            $input['mail'] ?: null,
+            $input['pass'] ?: null
+        )) {
+            $this->backWithError('更新に失敗しました');
+            return;
+        }
+
+        $this->redirectSelf();
     }
 
     private function viewData(string $title, string $action, string $toggleUrl, string $toggleText): array

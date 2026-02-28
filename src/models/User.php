@@ -50,6 +50,69 @@ final class User
         return self::findByEmail($email);
     }
 
+    public static function update(
+        int $id,
+        ?string $name = null,
+        ?string $email = null,
+        ?string $password = null
+    ): bool {
+        $fields = [];
+        $params = [];
+
+        if ($name !== null) {
+            $fields[] = self::COL_NAME . ' = ?';
+            $params[] = $name;
+        }
+        if ($email !== null) {
+            $fields[] = self::COL_EMAIL . ' = ?';
+            $params[] = $email;
+        }
+        if ($password !== null) {
+            $fields[] = self::COL_PASSWORD . ' = ?';
+            $params[] = password_hash($password, PASSWORD_DEFAULT);
+        }
+
+        if (empty($fields)) {
+            return false; // 更新するフィールドがない
+        }
+
+        $params[] = $id; // WHERE句のID
+
+        $sql = sprintf(
+            "UPDATE %s SET %s WHERE %s = ?",
+            self::TABLE,
+            implode(', ', $fields),
+            self::COL_ID
+        );
+
+        try {
+            $stmt = self::db()->prepare($sql);
+            return $stmt->execute($params);
+        } catch (PDOException $e) {
+            return false; // email重複など
+        }
+    }
+
+    public static function findById(int $id): ?array
+    {
+        $sql = sprintf(
+            "SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
+            self::COL_ID,
+            self::COL_NAME,
+            self::COL_EMAIL,
+            self::COL_PASSWORD,
+            self::TABLE,
+            self::COL_ID
+        );
+
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute([$id]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user !== false ? $user : null;
+    }
+
     public static function findByEmail(string $email): ?array
     {
         $sql = sprintf(
