@@ -7,72 +7,93 @@ require_once __DIR__ . '/../models/User.php';
 
 class AuthController extends Controller
 {
-    private const LOCK = [
-        'max'      => 5,
-        'minutes'  => 15,
-        'timeout'  => 900,
-    ];
+    private const LOCK_MAX = 5;
+    private const LOCK_MINUTES = 15;
+    private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
-    private const ERRORS = [
-        'invalid' => '不正なリクエストです',
-        'input'   => '不正な入力です',
-        'exists'  => 'このメールアドレスは既に登録されています',
-        'create'  => 'ユーザーの登録に失敗しました',
-        'login'   => 'メールアドレスまたはパスワードが違います',
-        'locked'  => 'ログイン試行回数が上限に達しました。'.self::LOCK['minutes'].'分後にお試しください',
-    ];
+    private const ERROR_CSRF              = '不正なリクエストです。再度お試しください';
+    private const ERROR_INVALID_INPUT     = '入力内容を確認してください';
+    private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
+    private const ERROR_CURRENT_PASSWORD  = '現在のパスワードが正しくありません';
+    private const ERROR_EXISTS            = 'このメールアドレスは既に登録されています';
+    private const ERROR_LOGIN             = 'メールアドレスまたはパスワードが正しくありません';
+    private const ERROR_LOCKED            = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
+    private const ERROR_SYSTEM            = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function signup(): void
     {
         if (Request::isGet()) {
-            $this->render('auth/signup', $this->viewData(
-                'サインアップ',
-                Routes::SIGNUP,
-            ));
+            $this->renderForm('auth/signup', 'サインアップ', Routes::SIGNUP);
             return;
         }
 
         $this->checkCsrf();
-        $input = $this->input(true);
 
-        if (User::findByEmail($input['mail'])) {
-            $this->backWithError(self::ERRORS['exists']);
+        $form = $this->postForm([
+            FormFields::NAME,
+            FormFields::MAIL,
+            FormFields::PASS,
+            FormFields::PASS_CONFIRM,
+        ]);
+
+        if ($this->hasEmpty($form)) {
+            $this->backWithError(self::ERROR_INVALID_INPUT);
             return;
         }
 
-        if (!User::create($input['name'], $input['mail'], $input['pass'])) {
-            $this->backWithError(self::ERRORS['create']);
+        if (!$this->passwordConfirmed($form)) {
+            $this->backWithError(self::ERROR_PASSWORD_MISMATCH);
             return;
         }
 
-        $this->login($input['mail']);
+        if (User::findByEmail($form[FormFields::MAIL])) {
+            $this->backWithError(self::ERROR_EXISTS);
+            return;
+        }
+
+        if (!User::create(
+            $form[FormFields::NAME],
+            $form[FormFields::MAIL],
+            $form[FormFields::PASS]
+        )) {
+            $this->backWithError(self::ERROR_SYSTEM);
+            return;
+        }
+
+        $this->login($form[FormFields::MAIL]);
     }
 
     public function signin(): void
     {
         if (Request::isGet()) {
-            $this->render('auth/signin', $this->viewData(
-                'サインイン',
-                Routes::SIGNIN,
-            ));
+            $this->renderForm('auth/signin', 'サインイン', Routes::SIGNIN);
             return;
         }
 
         if ($this->isLocked()) {
-            $this->backWithError(self::ERRORS['locked']);
+            $this->backWithError(self::ERROR_LOCKED);
             return;
         }
 
         $this->checkCsrf();
-        $input = $this->input(false);
 
-        if (!User::verifyPassword($input['mail'], $input['pass'])) {
+        $form = $this->postForm([
+            FormFields::MAIL,
+            FormFields::PASS,
+        ]);
+
+        if ($this->hasEmpty($form)) {
+            $this->backWithError(self::ERROR_INVALID_INPUT);
+            return;
+        }
+
+        if (!User::verifyPassword($form[FormFields::MAIL], $form[FormFields::PASS])) {
             $this->addAttempt();
             return;
         }
 
         $this->resetAttempts();
-        $this->login($input['mail']);
+        $this->login($form[FormFields::MAIL]);
     }
 
     public function signout(): void
@@ -81,7 +102,8 @@ class AuthController extends Controller
 
         Session::destroy();
         Session::regenerate();
-        $this->redirect('/signin');
+
+        $this->redirect(Routes::SIGNIN);
     }
 
     public function mypage(): void
@@ -92,93 +114,92 @@ class AuthController extends Controller
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
                 'token'     => Csrf::token(),
+                'error'     => Session::getFlash(SessionKeys::ERRORS),
                 'user'      => User::findById(Session::get(SessionKeys::USER_ID)),
-                'actionUrl' => '/mypage',
+                'actionUrl' => Routes::MYPAGE,
             ]);
             return;
         }
 
         $this->checkCsrf();
-        $input = [
-            'name' => Request::post(FormFields::NAME, ''),
-            'mail' => Request::post(FormFields::MAIL, ''),
-            'pass' => Request::post(FormFields::PASS, ''),
-            'pass_current' => Request::post(FormFields::PASS_CURRENT, ''),
-        ];
 
-        if ($input['pass'] && $input['pass'] !== Request::post(FormFields::PASS_CONFIRM, '')) {
-            $this->backWithError(self::ERRORS['input']);
+        $form = $this->postForm([
+            FormFields::NAME,
+            FormFields::MAIL,
+            FormFields::PASS,
+            FormFields::PASS_CURRENT,
+        ]);
+
+        if ($form[FormFields::NAME] === '' || $form[FormFields::MAIL] === '') {
+            $this->backWithError(self::ERROR_INVALID_INPUT);
+            return;
+        }
+
+        if ($form[FormFields::PASS] && !$this->passwordConfirmed($form)) {
+            $this->backWithError(self::ERROR_PASSWORD_MISMATCH);
             return;
         }
 
         $userId = Session::get(SessionKeys::USER_ID);
         $user   = User::findById($userId);
 
-        if (!User::verifyPassword($user['email'], $input['pass_current'])) {
-            $this->backWithError(self::ERRORS['input']);
+        if (!User::verifyPassword($user['email'], $form[FormFields::PASS_CURRENT])) {
+            $this->backWithError(self::ERROR_CURRENT_PASSWORD);
             return;
         }
 
         if (!User::update(
             $userId,
-            $input['name'] ?: null,
-            $input['mail'] ?: null,
-            $input['pass'] ?: null
+            $form[FormFields::NAME] ?: null,
+            $form[FormFields::MAIL] ?: null,
+            $form[FormFields::PASS] ?: null
         )) {
-            $this->backWithError('更新に失敗しました');
+            $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
 
         $this->redirectSelf();
     }
 
-    private function viewData(string $title, string $action): array
+    private function renderForm(string $view, string $title, string $action): void
     {
-        return [
-            'title'      => $title,
-            'token'      => Csrf::token(),
-            'error'      => Session::getFlash('error'),
-            'actionUrl'  => $action,
-        ];
+        $this->render($view, [
+            'title'     => $title,
+            'token'     => Csrf::token(),
+            'error'     => Session::getFlash(SessionKeys::ERRORS),
+            'actionUrl' => $action,
+        ]);
+    }
+
+    private function postForm(array $fields): array
+    {
+        $data = [];
+        foreach ($fields as $field) {
+            $data[$field] = Request::post($field, '');
+        }
+        return $data;
+    }
+
+    private function hasEmpty(array $data): bool
+    {
+        foreach ($data as $value) {
+            if ($value === '') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function passwordConfirmed(array $form): bool
+    {
+        return $form[FormFields::PASS] === $form[FormFields::PASS_CONFIRM];
     }
 
     private function checkCsrf(): void
     {
         if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
-            $this->backWithError(self::ERRORS['invalid']);
+            $this->backWithError(self::ERROR_CSRF);
         }
-    }
-
-    private function input(bool $signup): array
-    {
-        $data = [
-            'name' => Request::post(FormFields::NAME, ''),
-            'mail' => Request::post(FormFields::MAIL, ''),
-            'pass' => Request::post(FormFields::PASS, ''),
-        ];
-
-        if ($signup) {
-            $data['pass_confirm'] = Request::post(FormFields::PASS_CONFIRM, '');
-        }
-
-        if ($signup && $data['name'] === '') {
-            $this->backWithError(self::ERRORS['input']);
-        }
-
-        if ($data['mail'] === '' ||
-            !filter_var($data['mail'], FILTER_VALIDATE_EMAIL)) {
-            $this->backWithError(self::ERRORS['input']);
-        }
-
-        if ($data['pass'] === '') {
-            $this->backWithError(self::ERRORS['input']);
-        }
-
-        if ($signup && $data['pass'] !== $data['pass_confirm']) {
-            $this->backWithError(self::ERRORS['input']);
-        }
-
-        return $data;
     }
 
     private function login(string $email): void
@@ -189,7 +210,7 @@ class AuthController extends Controller
         Session::set(SessionKeys::USER_ID, $user['id']);
         Session::set(SessionKeys::USER_NAME, $user['name']);
 
-        $this->redirect('/home');
+        $this->redirect(Routes::HOME);
     }
 
     private function backWithError(string $msg): void
@@ -201,14 +222,14 @@ class AuthController extends Controller
     private function isLocked(): bool
     {
         $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0);
-        $last = (int) Session::get(SessionKeys::LOGIN_ATTEMPT_TIME, 0);
+        $last     = (int) Session::get(SessionKeys::LOGIN_ATTEMPT_TIME, 0);
 
-        if ($last && time() - $last > self::LOCK['timeout']) {
+        if ($last && time() - $last > self::LOCK_TIMEOUT) {
             $this->resetAttempts();
             return false;
         }
 
-        return $attempts >= self::LOCK['max'];
+        return $attempts >= self::LOCK_MAX;
     }
 
     private function addAttempt(): void
@@ -218,9 +239,9 @@ class AuthController extends Controller
         Session::set(SessionKeys::LOGIN_ATTEMPTS, $attempts);
         Session::set(SessionKeys::LOGIN_ATTEMPT_TIME, time());
 
-        $msg = $attempts >= self::LOCK['max']
-            ? self::ERRORS['locked']
-            : self::ERRORS['login'];
+        $msg = $attempts >= self::LOCK_MAX
+            ? self::ERROR_LOCKED
+            : self::ERROR_LOGIN;
 
         $this->backWithError($msg);
     }
