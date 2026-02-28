@@ -10,7 +10,7 @@
     <table>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" required></td>
+            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" value="<?= Html::escape($old[FormFields::MAIL] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>パスワード</td>

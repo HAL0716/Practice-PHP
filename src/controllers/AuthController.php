@@ -115,6 +115,7 @@ class AuthController extends Controller
                 'title'     => 'マイページ',
                 'token'     => Csrf::token(),
                 'error'     => Session::getFlash(SessionKeys::ERRORS),
+                'old'       => Session::getFlash(SessionKeys::OLD),
                 'user'      => User::findById(Session::get(SessionKeys::USER_ID)),
                 'actionUrl' => Routes::MYPAGE,
             ]);
@@ -167,6 +168,7 @@ class AuthController extends Controller
             'title'     => $title,
             'token'     => Csrf::token(),
             'error'     => Session::getFlash(SessionKeys::ERRORS),
+            'old'       => Session::getFlash(SessionKeys::OLD),
             'actionUrl' => $action,
         ]);
     }
@@ -177,6 +179,7 @@ class AuthController extends Controller
         foreach ($fields as $field) {
             $data[$field] = Request::post($field, '');
         }
+        $this->flashOld($data);
         return $data;
     }
 

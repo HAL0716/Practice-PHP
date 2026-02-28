@@ -11,6 +11,7 @@ class SessionKeys
     public const USER_NAME = 'user_name';
 
     public const ERRORS = 'errors';
+    public const OLD = 'old';
 
     public const LOGIN_ATTEMPTS = 'login_attempts';
     public const LOGIN_ATTEMPT_TIME = 'login_attempt_time';

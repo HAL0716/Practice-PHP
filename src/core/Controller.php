@@ -54,4 +54,9 @@ abstract class Controller
             $this->redirect(Routes::SIGNIN);
         }
     }
+
+    protected function flashOld(array $data): void
+    {
+        Session::flash(SessionKeys::OLD, $data);
+    }
 }

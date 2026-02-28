@@ -10,11 +10,11 @@
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= Html::escape(FormFields::NAME) ?>" required></td>
+            <td><input type="text" name="<?= Html::escape(FormFields::NAME) ?>" value="<?= Html::escape($old[FormFields::NAME] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" required></td>
+            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" value="<?= Html::escape($old[FormFields::MAIL] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>パスワード</td>
