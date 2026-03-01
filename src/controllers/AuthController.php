@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/UserRepository.php';
 
 class AuthController extends Controller
 {
@@ -46,12 +46,12 @@ class AuthController extends Controller
             return;
         }
 
-        if (User::findByEmail($form[FormFields::MAIL])) {
+        if (UserRepository::findByEmail($form[FormFields::MAIL])) {
             $this->backWithError(self::ERROR_EXISTS);
             return;
         }
 
-        if (!User::create(
+        if (!UserRepository::create(
             $form[FormFields::NAME],
             $form[FormFields::MAIL],
             $form[FormFields::PASS]
@@ -87,7 +87,9 @@ class AuthController extends Controller
             return;
         }
 
-        if (!User::verifyPassword($form[FormFields::MAIL], $form[FormFields::PASS])) {
+        $user = UserRepository::findByEmail($form[FormFields::MAIL]);
+
+        if (!$user || !$user->verifyPassword($form[FormFields::PASS])) {
             $this->addAttempt();
             return;
         }
@@ -116,7 +118,7 @@ class AuthController extends Controller
                 'token'     => Csrf::token(),
                 'error'     => Session::getFlash(SessionKeys::ERRORS),
                 'old'       => Session::getFlash(SessionKeys::OLD),
-                'user'      => User::findById(Session::get(SessionKeys::USER_ID)),
+                'user'      => UserRepository::findById(Session::get(SessionKeys::USER_ID)),
                 'actionUrl' => Routes::MYPAGE,
             ]);
             return;
@@ -143,14 +145,14 @@ class AuthController extends Controller
         }
 
         $userId = Session::get(SessionKeys::USER_ID);
-        $user   = User::findById($userId);
+        $user   = UserRepository::findById($userId);
 
-        if (!User::verifyPassword($user[User::FIELD_EMAIL], $form[FormFields::PASS_CURRENT])) {
+        if (!$user || !$user->verifyPassword($form[FormFields::PASS_CURRENT])) {
             $this->backWithError(self::ERROR_CURRENT_PASSWORD);
             return;
         }
 
-        if (!User::update(
+        if (!UserRepository::update(
             $userId,
             $form[FormFields::NAME] ?: null,
             $form[FormFields::MAIL] ?: null,
@@ -213,11 +215,10 @@ class AuthController extends Controller
 
     private function login(string $email): void
     {
-        $user = User::findByEmail($email);
+        $user = UserRepository::findByEmail($email);
 
         Session::regenerate();
-        Session::set(SessionKeys::USER_ID, $user[User::FIELD_ID]);
-        Session::set(SessionKeys::USER_NAME, $user[User::FIELD_USERNAME]);
+        Session::set(SessionKeys::USER_ID, $user->id());
 
         $this->redirect(Routes::HOME);
     }
