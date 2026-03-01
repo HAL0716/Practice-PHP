@@ -15,8 +15,8 @@ class HomeController extends Controller
         $this->requireLogin();
 
         $this->render('home', [
-                'title'      => 'ホーム',
-                'username'   => Session::get(SessionKeys::USER_NAME),
+                'title' => 'ホーム',
+                'posts' => Post::findAll(),
             ]
         );
     }
