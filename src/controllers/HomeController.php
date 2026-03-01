@@ -7,8 +7,9 @@ require_once __DIR__ . '/../models/Post.php';
 
 class HomeController extends Controller
 {
+    private const ERROR_CSRF             = '不正なリクエストです。再度お試しください';
     private const ERROR_COMMENT_REQUIRED = 'コメントは必須です。';
-    private const ERROR_SYSTEM = '処理に失敗しました。時間をおいて再度お試しください';
+    private const ERROR_SYSTEM           = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function index(): void
     {
@@ -31,6 +32,8 @@ class HomeController extends Controller
             exit;
         }
 
+        $this->checkCsrf();
+
         $this->requireLogin();
 
         $form = $this->postForm([
@@ -50,6 +53,13 @@ class HomeController extends Controller
         }
 
         $this->redirect(Routes::HOME);
+    }
+
+    private function checkCsrf(): void
+    {
+        if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
+            $this->backWithError(self::ERROR_CSRF);
+        }
     }
 
     private function postForm(array $fields): array

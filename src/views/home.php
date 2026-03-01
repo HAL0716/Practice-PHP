@@ -25,6 +25,7 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape(Routes::POST_CREATE) ?>" method="post">
+    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token) ?>">
     <textarea name="comment" required></textarea>
     <button type="submit">投稿する</button>
 </form>
