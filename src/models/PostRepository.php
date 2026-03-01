@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../database/Database.php';
+require_once __DIR__ . '/../core/Repository.php';
 require_once __DIR__ . '/../database/schema/UsersTable.php';
 require_once __DIR__ . '/../database/schema/PostsTable.php';
 require_once __DIR__ . '/../entities/PostEntity.php';
 
-final class PostRepository
+final class PostRepository extends Repository
 {
-    private function __construct()
+    protected static function hydrate(array $row): PostEntity
     {
+        return new PostEntity(
+            (int)$row[PostsTable::ID],
+            (int)$row[PostsTable::USER_ID],
+            (string)$row[PostsTable::COMMENT],
+            $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME]
+        );
     }
 
-    private static function db(): PDO
-    {
-        return Database::connect();
-    }
-
-    private static function baseSelect(): string
+    protected static function baseSelect(): string
     {
         return sprintf(
             "SELECT
@@ -50,83 +51,41 @@ final class PostRepository
         );
     }
 
-    private static function hydrate(array $row): PostEntity
-    {
-        return new PostEntity(
-            (int)$row[PostsTable::ID],
-            (int)$row[PostsTable::USER_ID],
-            (string)$row[PostsTable::COMMENT],
-            $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME]
-        );
-    }
+    public static function create(
+        int $userId,
+        string $comment
+    ): ?PostEntity {
 
-    private static function fetchOne(PDOStatement $stmt): ?PostEntity
-    {
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? self::hydrate($row) : null;
-    }
+        $db = self::db();
 
-    private static function fetchAll(PDOStatement $stmt): array
-    {
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return array_map(
-            fn (array $row) => self::hydrate($row),
-            $rows
-        );
-    }
-
-    public static function create(int $userId, string $comment): ?PostEntity
-    {
         $sql = sprintf(
-            "INSERT INTO %s (%s, %s) VALUES (?, ?)",
+            "INSERT INTO %s (%s, %s)
+             VALUES (?, ?)",
             PostsTable::TABLE,
             PostsTable::USER_ID,
             PostsTable::COMMENT
         );
 
-        $stmt = self::db()->prepare($sql);
+        $params = [
+            $userId,
+            $comment
+        ];
 
         try {
-            $stmt->execute([
-                $userId,
-                $comment
-            ]);
-        } catch (PDOException $e) {
-            error_log($e->getMessage());
+            self::execute($sql, $params);
+        } catch (PDOException) {
             return null;
         }
 
-        return self::findById((int)self::db()->lastInsertId());
+        return self::findById((int)$db->lastInsertId());
     }
 
     public static function findById(int $id): ?PostEntity
     {
-        $sql = self::baseSelect() .
-            sprintf(
-                " WHERE %s.%s = ?",
-                PostsTable::ALIAS,
-                PostsTable::ID
-            );
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute([$id]);
-
-        return self::fetchOne($stmt);
+        return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }
 
-    public static function findAll(): array
-    {
-        $sql = self::baseSelect() .
-            sprintf(
-                " ORDER BY %s.%s",
-                PostsTable::ALIAS,
-                PostsTable::ID
-            );
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute();
-
-        return self::fetchAll($stmt);
+    public static function findAll(): array {
+        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
     }
 }

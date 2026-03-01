@@ -2,22 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../database/Database.php';
+require_once __DIR__ . '/../core/Repository.php';
 require_once __DIR__ . '/../database/schema/UsersTable.php';
 require_once __DIR__ . '/../entities/UserEntity.php';
 
-final class UserRepository
+final class UserRepository extends Repository
 {
-    private function __construct()
-    {
-    }
-
-    private static function db(): PDO
-    {
-        return Database::connect();
-    }
-
-    private static function hydrate(array $row): UserEntity
+    protected static function hydrate(array $row): UserEntity
     {
         return new UserEntity(
             (int)$row[UsersTable::ID],
@@ -27,11 +18,21 @@ final class UserRepository
         );
     }
 
+    protected static function baseSelect(): string
+    {
+        return sprintf(
+            "SELECT * FROM %s",
+            UsersTable::TABLE
+        );
+    }
+
     public static function create(
         string $name,
         string $email,
         string $password
     ): ?UserEntity {
+
+        $db = self::db();
 
         $sql = sprintf(
             "INSERT INTO %s (%s, %s, %s)
@@ -42,19 +43,19 @@ final class UserRepository
             UsersTable::PASSWORD
         );
 
-        $stmt = self::db()->prepare($sql);
+        $params = [
+            $name,
+            $email,
+            password_hash($password, PASSWORD_DEFAULT)
+        ];
 
         try {
-            $stmt->execute([
-                $name,
-                $email,
-                password_hash($password, PASSWORD_DEFAULT)
-            ]);
+            self::execute($sql, $params);
         } catch (PDOException) {
             return null;
         }
 
-        return self::findById((int)self::db()->lastInsertId());
+        return self::findById((int)$db->lastInsertId());
     }
 
     public static function update(
@@ -96,7 +97,8 @@ final class UserRepository
         );
 
         try {
-            return self::db()->prepare($sql)->execute($params);
+            self::execute($sql, $params);
+            return true;
         } catch (PDOException) {
             return false;
         }
@@ -104,33 +106,11 @@ final class UserRepository
 
     public static function findById(int $id): ?UserEntity
     {
-        $sql = sprintf(
-            "SELECT * FROM %s WHERE %s = ?",
-            UsersTable::TABLE,
-            UsersTable::ID
-        );
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute([$id]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? self::hydrate($row) : null;
+        return self::findOneBy(UsersTable::ID, [$id]);
     }
 
     public static function findByEmail(string $email): ?UserEntity
     {
-        $sql = sprintf(
-            "SELECT * FROM %s WHERE %s = ?",
-            UsersTable::TABLE,
-            UsersTable::EMAIL
-        );
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute([$email]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? self::hydrate($row) : null;
+        return self::findOneBy(UsersTable::EMAIL, [$email]);
     }
 }
