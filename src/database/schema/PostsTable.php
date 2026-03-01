@@ -10,4 +10,8 @@ final class PostsTable
     public const ID      = 'id';
     public const USER_ID = 'user_id';
     public const COMMENT = 'comment';
+
+    private function __construct()
+    {
+    }
 }

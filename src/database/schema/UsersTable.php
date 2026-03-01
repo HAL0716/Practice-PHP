@@ -11,4 +11,8 @@ final class UsersTable
     public const USERNAME = 'username';
     public const EMAIL    = 'email';
     public const PASSWORD = 'password';
+
+    private function __construct()
+    {
+    }
 }
