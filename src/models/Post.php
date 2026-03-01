@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../database/Database.php';
+require_once __DIR__ . '/../database/schema/UsersTable.php';
+require_once __DIR__ . '/../database/schema/PostsTable.php';
 
 final class Post
 {
-    private const TABLE = 'posts';
-
-    private const COL_ID       = 'id';
-    private const COL_USER_ID  = 'user_id';
-    private const COL_COMMENT  = 'comment';
+    public const FIELD_ID       = 'id';
+    public const FIELD_USERNAME = 'username';
+    public const FIELD_COMMENT  = 'comment';
 
     private function __construct()
     {
@@ -27,16 +27,19 @@ final class Post
     ): ?array {
         $sql = sprintf(
             "INSERT INTO %s (%s, %s) VALUES (?, ?)",
-            self::TABLE,
-            self::COL_USER_ID,
-            self::COL_COMMENT
+            PostsTable::TABLE,
+            PostsTable::USER_ID,
+            PostsTable::COMMENT
         );
 
         $stmt = self::db()->prepare($sql);
 
         try {
-            $stmt->execute([$userId, $comment]);
-        } catch (PDOException $e) {
+            $stmt->execute([
+                $userId,
+                $comment
+            ]);
+        } catch (PDOException) {
             return null;
         }
 
@@ -46,9 +49,32 @@ final class Post
     public static function findById(int $id): ?array
     {
         $sql = sprintf(
-            "SELECT * FROM %s WHERE %s = ?",
-            self::TABLE,
-            self::COL_ID
+            "SELECT
+                %s.%s AS %s,
+                %s.%s AS %s,
+                %s.%s AS %s
+             FROM %s %s
+             LEFT JOIN %s %s ON %s.%s = %s.%s
+             WHERE %s.%s = ?",
+            PostsTable::ALIAS,
+            PostsTable::ID,
+            self::FIELD_ID,
+            UsersTable::ALIAS,
+            UsersTable::USERNAME,
+            self::FIELD_USERNAME,
+            PostsTable::ALIAS,
+            PostsTable::COMMENT,
+            self::FIELD_COMMENT,
+            PostsTable::TABLE,
+            PostsTable::ALIAS,
+            UsersTable::TABLE,
+            UsersTable::ALIAS,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            UsersTable::ALIAS,
+            UsersTable::ID,
+            PostsTable::ALIAS,
+            PostsTable::ID
         );
 
         $stmt = self::db()->prepare($sql);
@@ -57,5 +83,39 @@ final class Post
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $post ?: null;
+    }
+
+    public static function findAll(): array
+    {
+        $sql = sprintf(
+            "SELECT
+                %s.%s AS %s,
+                %s.%s AS %s,
+                %s.%s AS %s
+             FROM %s %s
+             LEFT JOIN %s %s ON %s.%s = %s.%s
+             ORDER BY %s.%s",
+            PostsTable::ALIAS,
+            PostsTable::ID,
+            self::FIELD_ID,
+            UsersTable::ALIAS,
+            UsersTable::USERNAME,
+            self::FIELD_USERNAME,
+            PostsTable::ALIAS,
+            PostsTable::COMMENT,
+            self::FIELD_COMMENT,
+            PostsTable::TABLE,
+            PostsTable::ALIAS,
+            UsersTable::TABLE,
+            UsersTable::ALIAS,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            UsersTable::ALIAS,
+            UsersTable::ID,
+            PostsTable::ALIAS,
+            PostsTable::ID
+        );
+
+        return self::db()->query($sql)->fetchAll();
     }
 }

@@ -145,7 +145,7 @@ class AuthController extends Controller
         $userId = Session::get(SessionKeys::USER_ID);
         $user   = User::findById($userId);
 
-        if (!User::verifyPassword($user['email'], $form[FormFields::PASS_CURRENT])) {
+        if (!User::verifyPassword($user[User::FIELD_EMAIL], $form[FormFields::PASS_CURRENT])) {
             $this->backWithError(self::ERROR_CURRENT_PASSWORD);
             return;
         }
@@ -216,8 +216,8 @@ class AuthController extends Controller
         $user = User::findByEmail($email);
 
         Session::regenerate();
-        Session::set(SessionKeys::USER_ID, $user['id']);
-        Session::set(SessionKeys::USER_NAME, $user['name']);
+        Session::set(SessionKeys::USER_ID, $user[User::FIELD_ID]);
+        Session::set(SessionKeys::USER_NAME, $user[User::FIELD_USERNAME]);
 
         $this->redirect(Routes::HOME);
     }
