@@ -9,6 +9,7 @@ require_once __DIR__ . '/../database/schema/PostsTable.php';
 final class Post
 {
     public const FIELD_ID       = 'id';
+    public const FIELD_USER_ID  = 'user_id';
     public const FIELD_USERNAME = 'username';
     public const FIELD_COMMENT  = 'comment';
 
@@ -52,6 +53,7 @@ final class Post
             "SELECT
                 %s.%s AS %s,
                 %s.%s AS %s,
+                %s.%s AS %s,
                 %s.%s AS %s
              FROM %s %s
              LEFT JOIN %s %s ON %s.%s = %s.%s
@@ -59,6 +61,9 @@ final class Post
             PostsTable::ALIAS,
             PostsTable::ID,
             self::FIELD_ID,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            self::FIELD_USER_ID,
             UsersTable::ALIAS,
             UsersTable::USERNAME,
             self::FIELD_USERNAME,
@@ -91,6 +96,7 @@ final class Post
             "SELECT
                 %s.%s AS %s,
                 %s.%s AS %s,
+                %s.%s AS %s,
                 %s.%s AS %s
              FROM %s %s
              LEFT JOIN %s %s ON %s.%s = %s.%s
@@ -101,6 +107,9 @@ final class Post
             UsersTable::ALIAS,
             UsersTable::USERNAME,
             self::FIELD_USERNAME,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            self::FIELD_USER_ID,
             PostsTable::ALIAS,
             PostsTable::COMMENT,
             self::FIELD_COMMENT,
