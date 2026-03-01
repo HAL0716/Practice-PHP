@@ -7,7 +7,7 @@
 <?php else : ?>
     <div id="posts" style="max-height: 300px; width: 300px; overflow-y: auto; border: 1px solid #000; padding: 10px;">
         <table>
-            <?php foreach ($posts as $post) { ?>
+            <?php foreach ($posts as $post) : ?>
                 <tr>
                     <?php if ($post[Post::FIELD_USER_ID] === Session::get(SessionKeys::USER_ID)) : ?>
                         <td></td>
@@ -19,7 +19,7 @@
                         <td></td>
                     <?php endif; ?>
                 </tr>
-            <?php } ?>
+            <?php endforeach; ?>
         </table>
     </div>
 <?php endif; ?>
