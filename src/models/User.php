@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../config/Database.php';
+require_once __DIR__ . '/../database/Database.php';
+require_once __DIR__ . '/../database/schema/UsersTable.php';
 
 final class User
 {
-    private const TABLE = 'users';
-
-    private const COL_ID       = 'id';
-    private const COL_NAME     = 'name';
-    private const COL_EMAIL    = 'email';
-    private const COL_PASSWORD = 'password';
+    public const FIELD_ID       = 'id';
+    public const FIELD_USERNAME = 'username';
+    public const FIELD_EMAIL    = 'email';
+    public const FIELD_PASSWORD = 'password';
 
     private const DUMMY_HASH = '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
 
@@ -29,25 +28,28 @@ final class User
         string $email,
         string $password
     ): ?array {
+
         $sql = sprintf(
             "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)",
-            self::TABLE,
-            self::COL_NAME,
-            self::COL_EMAIL,
-            self::COL_PASSWORD
+            UsersTable::TABLE,
+            UsersTable::USERNAME,
+            UsersTable::EMAIL,
+            UsersTable::PASSWORD
         );
 
         $stmt = self::db()->prepare($sql);
 
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-
         try {
-            $stmt->execute([$name, $email, $hashed]);
-        } catch (PDOException $e) {
+            $stmt->execute([
+                $name,
+                $email,
+                password_hash($password, PASSWORD_DEFAULT)
+            ]);
+        } catch (PDOException) {
             return null;
         }
 
-        return self::findByEmail($email);
+        return self::findById((int)self::db()->lastInsertId());
     }
 
     public static function update(
@@ -60,15 +62,15 @@ final class User
         $params = [];
 
         if ($name !== null) {
-            $fields[] = self::COL_NAME . ' = ?';
+            $fields[] = UsersTable::USERNAME . ' = ?';
             $params[] = $name;
         }
         if ($email !== null) {
-            $fields[] = self::COL_EMAIL . ' = ?';
+            $fields[] = UsersTable::EMAIL . ' = ?';
             $params[] = $email;
         }
         if ($password !== null) {
-            $fields[] = self::COL_PASSWORD . ' = ?';
+            $fields[] = UsersTable::PASSWORD . ' = ?';
             $params[] = password_hash($password, PASSWORD_DEFAULT);
         }
 
@@ -80,9 +82,9 @@ final class User
 
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s = ?",
-            self::TABLE,
+            UsersTable::TABLE,
             implode(', ', $fields),
-            self::COL_ID
+            UsersTable::ID
         );
 
         try {
@@ -96,13 +98,20 @@ final class User
     public static function findById(int $id): ?array
     {
         $sql = sprintf(
-            "SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
-            self::COL_ID,
-            self::COL_NAME,
-            self::COL_EMAIL,
-            self::COL_PASSWORD,
-            self::TABLE,
-            self::COL_ID
+            "SELECT
+                %s AS %s,
+                %s AS %s,
+                %s AS %s
+             FROM %s
+             WHERE %s = ?",
+            UsersTable::ID,
+            User::FIELD_ID,
+            UsersTable::USERNAME,
+            User::FIELD_USERNAME,
+            UsersTable::EMAIL,
+            User::FIELD_EMAIL,
+            UsersTable::TABLE,
+            UsersTable::ID
         );
 
         $stmt = self::db()->prepare($sql);
@@ -110,19 +119,29 @@ final class User
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $user !== false ? $user : null;
+        return $user ?: null;
     }
 
     public static function findByEmail(string $email): ?array
     {
         $sql = sprintf(
-            "SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
-            self::COL_ID,
-            self::COL_NAME,
-            self::COL_EMAIL,
-            self::COL_PASSWORD,
-            self::TABLE,
-            self::COL_EMAIL
+            "SELECT
+                %s AS %s,
+                %s AS %s,
+                %s AS %s,
+                %s AS %s
+             FROM %s
+             WHERE %s = ?",
+            UsersTable::ID,
+            User::FIELD_ID,
+            UsersTable::USERNAME,
+            User::FIELD_USERNAME,
+            UsersTable::EMAIL,
+            User::FIELD_EMAIL,
+            UsersTable::PASSWORD,
+            User::FIELD_PASSWORD,
+            UsersTable::TABLE,
+            UsersTable::EMAIL
         );
 
         $stmt = self::db()->prepare($sql);
@@ -137,7 +156,7 @@ final class User
     {
         $user = self::findByEmail($email);
 
-        $hash = $user[self::COL_PASSWORD] ?? self::DUMMY_HASH;
+        $hash = $user[User::FIELD_PASSWORD] ?? self::DUMMY_HASH;
 
         return password_verify($password, $hash);
     }

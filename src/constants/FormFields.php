@@ -11,4 +11,6 @@ class FormFields
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'current_pass';
     public const TOKEN = 'token';
+
+    public const COMMENT = 'comment';
 }
