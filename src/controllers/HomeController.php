@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../models/Post.php';
+require_once __DIR__ . '/../models/PostRepository.php';
 
 class HomeController extends Controller
 {
@@ -19,7 +19,7 @@ class HomeController extends Controller
                 'title'  => 'ホーム',
                 'token'  => Csrf::token(),
                 'errors' => Session::getFlash(SessionKeys::ERRORS),
-                'posts'  => Post::findAll(),
+                'posts'  => PostRepository::findAll(),
             ]
         );
     }
@@ -47,7 +47,7 @@ class HomeController extends Controller
 
         $userId  = Session::userId();
 
-        if (!Post::create($userId, $form[FormFields::COMMENT])) {
+        if (!PostRepository::create($userId, $form[FormFields::COMMENT])) {
             $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
