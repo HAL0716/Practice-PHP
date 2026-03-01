@@ -15,14 +15,22 @@ class HomeController extends Controller
         $this->requireLogin();
 
         $this->render('home', [
-                'title' => 'ホーム',
-                'posts' => Post::findAll(),
+                'title'  => 'ホーム',
+                'token'  => Csrf::token(),
+                'errors' => Session::getFlash(SessionKeys::ERRORS),
+                'posts'  => Post::findAll(),
             ]
         );
     }
 
     public function createPost(): void
     {
+        if (!Request::isPost()) {
+            http_response_code(405);
+            echo '405 Method Not Allowed';
+            exit;
+        }
+
         $this->requireLogin();
 
         $form = $this->postForm([
