@@ -2,16 +2,25 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../entities/UserEntity.php';
+require_once __DIR__ . '/../constants/SessionKeys.php';
+
 final class Session
 {
-    public static function start(): void
+    private const FLASH_PREFIX = '_flash_';
+
+    private function __construct()
+    {
+    }
+
+    private static function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    public static function regenerate(): void
+    private static function regenerate(): void
     {
         self::start();
         session_regenerate_id(true);
@@ -29,34 +38,71 @@ final class Session
         return $_SESSION[$key] ?? $default;
     }
 
-    public static function has(string $key): bool
-    {
-        self::start();
-        return isset($_SESSION[$key]);
-    }
-
     public static function remove(string $key): void
     {
         self::start();
         unset($_SESSION[$key]);
     }
 
-    public static function destroy(): void
+    public static function clear(): void
     {
         self::start();
         $_SESSION = [];
-        session_destroy();
     }
 
     public static function flash(string $key, mixed $value): void
     {
-        self::set("_flash_$key", $value);
+        self::set(self::FLASH_PREFIX . $key, $value);
     }
 
     public static function getFlash(string $key, mixed $default = null): mixed
     {
-        $value = self::get("_flash_$key", $default);
-        self::remove("_flash_$key");
+        $flashKey = self::FLASH_PREFIX . $key;
+
+        $value = self::get($flashKey, $default);
+        self::remove($flashKey);
+
         return $value;
+    }
+
+    public static function login(UserEntity $user): void
+    {
+        self::regenerate();
+        $_SESSION[SessionKeys::USER_ID] = $user->id();
+    }
+
+    public static function logout(): void
+    {
+        self::start();
+
+        $_SESSION = [];
+
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
+
+        session_destroy();
+    }
+
+    public static function isLoggedIn(): bool
+    {
+        return self::userId() !== null;
+    }
+
+    public static function userId(): ?int
+    {
+        $id = self::get(SessionKeys::USER_ID);
+
+        return is_int($id) ? $id : null;
     }
 }

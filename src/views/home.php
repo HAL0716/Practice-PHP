@@ -9,7 +9,7 @@
         <table>
             <?php foreach ($posts as $post) : ?>
                 <tr>
-                    <?php if ($post[Post::FIELD_USER_ID] === Session::get(SessionKeys::USER_ID)) : ?>
+                    <?php if ($post[Post::FIELD_USER_ID] === Session::userId()) : ?>
                         <td></td>
                         <td><?= Html::escape($post[Post::FIELD_COMMENT]) ?></td>
                         <td><?= Html::escape($post[Post::FIELD_USERNAME]) ?></td>

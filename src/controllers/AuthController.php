@@ -51,16 +51,19 @@ class AuthController extends Controller
             return;
         }
 
-        if (!UserRepository::create(
+        $user = UserRepository::create(
             $form[FormFields::NAME],
             $form[FormFields::MAIL],
             $form[FormFields::PASS]
-        )) {
+        );
+
+        if (!$user) {
             $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
 
-        $this->login($form[FormFields::MAIL]);
+        Session::login($user);
+        $this->redirect(Routes::HOME);
     }
 
     public function signin(): void
@@ -95,15 +98,16 @@ class AuthController extends Controller
         }
 
         $this->resetAttempts();
-        $this->login($form[FormFields::MAIL]);
+
+        Session::login($user);
+        $this->redirect(Routes::HOME);
     }
 
     public function signout(): void
     {
         $this->requireLogin();
 
-        Session::destroy();
-        Session::regenerate();
+        Session::logout();
 
         $this->redirect(Routes::SIGNIN);
     }
@@ -118,7 +122,7 @@ class AuthController extends Controller
                 'token'     => Csrf::token(),
                 'error'     => Session::getFlash(SessionKeys::ERRORS),
                 'old'       => Session::getFlash(SessionKeys::OLD),
-                'user'      => UserRepository::findById(Session::get(SessionKeys::USER_ID)),
+                'user'      => UserRepository::findById(Session::userId()),
                 'actionUrl' => Routes::MYPAGE,
             ]);
             return;
@@ -144,7 +148,7 @@ class AuthController extends Controller
             return;
         }
 
-        $userId = Session::get(SessionKeys::USER_ID);
+        $userId = Session::userId();
         $user   = UserRepository::findById($userId);
 
         if (!$user || !$user->verifyPassword($form[FormFields::PASS_CURRENT])) {
@@ -211,16 +215,6 @@ class AuthController extends Controller
         if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
             $this->backWithError(self::ERROR_CSRF);
         }
-    }
-
-    private function login(string $email): void
-    {
-        $user = UserRepository::findByEmail($email);
-
-        Session::regenerate();
-        Session::set(SessionKeys::USER_ID, $user->id());
-
-        $this->redirect(Routes::HOME);
     }
 
     private function backWithError(string $msg): void

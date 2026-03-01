@@ -45,7 +45,7 @@ class HomeController extends Controller
             return;
         }
 
-        $userId  = Session::get(SessionKeys::USER_ID);
+        $userId  = Session::userId();
 
         if (!Post::create($userId, $form[FormFields::COMMENT])) {
             $this->backWithError(self::ERROR_SYSTEM);
