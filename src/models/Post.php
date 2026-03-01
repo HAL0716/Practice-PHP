@@ -125,6 +125,14 @@ final class Post
             PostsTable::ID
         );
 
-        return self::db()->query($sql)->fetchAll();
+        $stmt = self::db()->prepare($sql);
+
+        try {
+            $stmt->execute();
+        } catch (PDOException) {
+            return [];
+        }
+
+        return $stmt->fetchAll();
     }
 }
