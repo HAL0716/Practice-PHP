@@ -24,6 +24,7 @@ class HomeController extends Controller
                     'posts' => PostRepository::findAll(),
                 ]
             );
+            return;
         }
 
         $form = new PostForm();
