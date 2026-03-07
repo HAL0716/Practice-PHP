@@ -83,6 +83,7 @@ class AuthController extends Controller
         $form = new SigninForm();
 
         if ($error = $form->validate()) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError($error);
             return;
         }
@@ -90,7 +91,9 @@ class AuthController extends Controller
         $user = UserRepository::findByEmail($form->mail());
 
         if (!$user || !$user->verifyPassword($form->pass())) {
-            $this->addAttempt();
+            Session::flash(SessionKeys::OLD, $form->old());
+            $msg = $this->addAttempt();
+            $this->backWithError($msg);
             return;
         }
 
@@ -233,7 +236,7 @@ class AuthController extends Controller
         return $attempts >= self::LOCK_MAX;
     }
 
-    private function addAttempt(): void
+    private function addAttempt(): string
     {
         $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0) + 1;
 
@@ -244,7 +247,7 @@ class AuthController extends Controller
             ? self::ERROR_LOCKED
             : self::ERROR_LOGIN;
 
-        $this->backWithError($msg);
+        return $msg;
     }
 
     private function resetAttempts(): void
