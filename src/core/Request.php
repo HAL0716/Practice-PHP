@@ -67,14 +67,19 @@ final class Request
         );
     }
 
-    public static function isPost(): bool
+    public static function method(): string
     {
-        return $_SERVER['REQUEST_METHOD'] === 'POST';
+        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
     }
 
     public static function isGet(): bool
     {
-        return $_SERVER['REQUEST_METHOD'] === 'GET';
+        return self::method() === 'GET';
+    }
+
+    public static function isPost(): bool
+    {
+        return self::method() === 'POST';
     }
 
     public static function path(): string
