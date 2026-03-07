@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../src/constants/FormFields.php';
 require_once __DIR__ . '/../src/constants/Routes.php';
-require_once __DIR__ . '/../src/constants/SessionKeys.php';
 
 require_once __DIR__ . '/../src/core/Html.php';
 require_once __DIR__ . '/../src/core/Request.php';
@@ -13,6 +11,13 @@ require_once __DIR__ . '/../src/core/Csrf.php';
 
 require_once __DIR__ . '/../src/controllers/HomeController.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
+
+require_once __DIR__ . '/../src/forms/SigninForm.php';
+require_once __DIR__ . '/../src/forms/SignupForm.php';
+require_once __DIR__ . '/../src/forms/MypageForm.php';
+require_once __DIR__ . '/../src/forms/PostForm.php';
+
+Session::init();
 
 $url = Request::path();
 
@@ -41,11 +46,6 @@ switch ($url) {
     case Routes::MYPAGE:
         $controller = new AuthController();
         $controller->mypage();
-        exit;
-
-    case Routes::POST_CREATE:
-        $controller = new HomeController();
-        $controller->createPost();
         exit;
 
     default:

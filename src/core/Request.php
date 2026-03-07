@@ -6,6 +6,9 @@ final class Request
 {
     private function __construct()
     {
+        throw new LogicException(
+            'Cannot instantiate ' . static::class
+        );
     }
 
     public static function post(
@@ -69,19 +72,14 @@ final class Request
         return $_SERVER['REQUEST_METHOD'] ?? 'GET';
     }
 
-    public static function isPost(): bool
-    {
-        return self::method() === 'POST';
-    }
-
     public static function isGet(): bool
     {
         return self::method() === 'GET';
     }
 
-    public static function isMethod(string $method): bool
+    public static function isPost(): bool
     {
-        return self::method() === strtoupper($method);
+        return self::method() === 'POST';
     }
 
     public static function path(): string

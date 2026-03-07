@@ -8,10 +8,16 @@ class Database
 
     private function __construct()
     {
+        throw new LogicException(
+            'Cannot instantiate ' . static::class
+        );
     }
 
     private function __clone()
     {
+        throw new LogicException(
+            'Cannot clone ' . static::class
+        );
     }
 
     public static function connect(): PDO

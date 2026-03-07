@@ -6,6 +6,8 @@ abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
 
+    private const ERROR_CSRF = '不正なリクエストです。再度お試しください';
+
     protected function render(
         string $view,
         array $data = [],
@@ -14,48 +16,68 @@ abstract class Controller
         extract($data, EXTR_SKIP);
 
         ob_start();
-        include $this->viewPath($view);
+        require $this->viewFile($view);
         $content = ob_get_clean();
 
-        if ($useLayout) {
-            include $this->viewPath(static::LAYOUT);
+        if (!$useLayout) {
+            echo $content;
             return;
         }
 
-        echo $content;
+        require $this->viewFile(static::LAYOUT);
     }
 
-    private function viewPath(string $name): string
-    {
-        $path = __DIR__ . '/../views/' . $name . '.php';
-        if (!file_exists($path)) {
-            throw new RuntimeException("View not found: {$name}");
+    protected function redirect(
+        string $url,
+        string $error = '',
+        array $old = []
+    ): void {
+        if ($error !== '') {
+            Session::flashError($error);
         }
-        return $path;
-    }
 
-    protected function redirect(string $url): void
-    {
+        if ($old !== []) {
+            Session::flashOld($old);
+        }
+
         if (!headers_sent()) {
-            header('Location: ' . $url);
+            header("Location: {$url}");
         }
+
         exit;
     }
 
-    protected function redirectSelf(): void
-    {
-        $this->redirect(Request::path());
+    protected function redirectSelf(
+        string $error = '',
+        array $old = []
+    ): void {
+        $this->redirect(Request::path(), $error, $old);
     }
 
     protected function requireLogin(): void
     {
-        if (!Session::has(SessionKeys::USER_ID)) {
+        if (!Session::isLoggedIn()) {
             $this->redirect(Routes::SIGNIN);
         }
     }
 
-    protected function flashOld(array $data): void
+    final protected function checkCsrf(string $token): void
     {
-        Session::flash(SessionKeys::OLD, $data);
+        if (Csrf::verify($token)) {
+            return;
+        }
+
+        $this->redirectSelf(self::ERROR_CSRF);
+    }
+
+    private function viewFile(string $view): string
+    {
+        $path = __DIR__ . '/../views/' . $view . '.php';
+
+        if (!is_file($path)) {
+            throw new RuntimeException("View not found: {$view}");
+        }
+
+        return $path;
     }
 }

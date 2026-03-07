@@ -9,13 +9,13 @@
         <table>
             <?php foreach ($posts as $post) : ?>
                 <tr>
-                    <?php if ($post[Post::FIELD_USER_ID] === Session::get(SessionKeys::USER_ID)) : ?>
+                    <?php if ($post->userId() === Session::userId()) : ?>
                         <td></td>
-                        <td><?= Html::escape($post[Post::FIELD_COMMENT]) ?></td>
-                        <td><?= Html::escape($post[Post::FIELD_USERNAME]) ?></td>
+                        <td><?= Html::escape($post->comment()) ?></td>
+                        <td><?= Html::escape($post->username()) ?></td>
                     <?php else : ?>
-                        <td><?= Html::escape($post[Post::FIELD_USERNAME] ?? '匿名') ?></td>
-                        <td><?= Html::escape($post[Post::FIELD_COMMENT]) ?></td>
+                        <td><?= Html::escape($post->username() ?? '匿名') ?></td>
+                        <td><?= Html::escape($post->comment()) ?></td>
                         <td></td>
                     <?php endif; ?>
                 </tr>
@@ -24,9 +24,9 @@
     </div>
 <?php endif; ?>
 
-<form action="<?= Html::escape(Routes::POST_CREATE) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <textarea name="comment" required></textarea>
+<form action="<?= Html::escape(Routes::HOME) ?>" method="post">
+    <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
     <button type="submit">投稿する</button>
 </form>
 

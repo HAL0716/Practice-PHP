@@ -5,16 +5,16 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <input type="hidden" name="<?= Html::escape(SigninForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
     <table>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" value="<?= Html::escape($old[FormFields::MAIL] ?? '') ?>" required></td>
+            <td><input type="email" name="<?= Html::escape(SigninForm::MAIL) ?>" value="<?= Html::escape($old[SigninForm::MAIL] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>パスワード</td>
-            <td><input type="password" name="<?= Html::escape(FormFields::PASS) ?>" required></td>
+            <td><input type="password" name="<?= Html::escape(SigninForm::PASS) ?>" required></td>
         </tr>
         <tr>
             <td colspan="2" style="text-align: center;">
