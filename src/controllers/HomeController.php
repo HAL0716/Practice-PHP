@@ -27,6 +27,10 @@ class HomeController extends Controller
             return;
         }
 
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
+        }
+
         $form = new PostForm();
 
         $this->checkCsrf($form->token());

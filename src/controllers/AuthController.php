@@ -21,6 +21,10 @@ class AuthController extends Controller
             return;
         }
 
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
+        }
+
         $form = new SignupForm();
 
         $this->checkCsrf($form->token());
@@ -55,6 +59,10 @@ class AuthController extends Controller
             return;
         }
 
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
+        }
+
         if (LoginThrottle::isLocked()) {
             $this->redirectSelf(self::ERROR_LOCKED);
         }
@@ -87,6 +95,10 @@ class AuthController extends Controller
 
     public function signout(): void
     {
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
+        }
+
         $this->requireLogin();
 
         Session::logout();
@@ -97,6 +109,10 @@ class AuthController extends Controller
     public function mypage(): void
     {
         $this->requireLogin();
+
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
+        }
 
         if (Request::isGet()) {
             $this->render('auth/mypage', [
