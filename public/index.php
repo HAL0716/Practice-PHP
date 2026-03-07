@@ -14,6 +14,8 @@ require_once __DIR__ . '/../src/core/Csrf.php';
 require_once __DIR__ . '/../src/controllers/HomeController.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
 
+require_once __DIR__ . '/../src/form/SigninForm.php';
+
 $url = Request::path();
 
 switch ($url) {

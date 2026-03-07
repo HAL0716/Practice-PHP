@@ -80,19 +80,16 @@ class AuthController extends Controller
 
         $this->checkCsrf();
 
-        $form = $this->postForm([
-            FormFields::MAIL,
-            FormFields::PASS,
-        ]);
+        $form = new SigninForm();
 
-        if ($this->hasEmpty($form)) {
-            $this->backWithError(self::ERROR_INVALID_INPUT);
+        if ($error = $form->validate()) {
+            $this->backWithError($error);
             return;
         }
 
-        $user = UserRepository::findByEmail($form[FormFields::MAIL]);
+        $user = UserRepository::findByEmail($form->mail());
 
-        if (!$user || !$user->verifyPassword($form[FormFields::PASS])) {
+        if (!$user || !$user->verifyPassword($form->pass())) {
             $this->addAttempt();
             return;
         }
