@@ -3,17 +3,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../core/LoginThrottle.php';
 require_once __DIR__ . '/../models/UserRepository.php';
 
 class AuthController extends Controller
 {
-    private const LOCK_MAX     = 5;
-    private const LOCK_MINUTES = 15;
-    private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
-
-    private const SESSION_LOGIN = 'login_attempts';
-    private const SESSION_TIME  = 'login_attempt_time';
-
     private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
@@ -61,7 +55,7 @@ class AuthController extends Controller
             return;
         }
 
-        if ($this->isLocked()) {
+        if (LoginThrottle::isLocked()) {
             $this->redirectSelf(self::ERROR_LOCKED);
         }
 
@@ -76,10 +70,15 @@ class AuthController extends Controller
         $user = UserRepository::findByEmail($form->mail());
 
         if (!$user || !$user->verifyPassword($form->pass())) {
-            $this->redirectSelf($this->addAttempt(), $form->old());
+
+            if (LoginThrottle::hit()) {
+                $this->redirectSelf(self::ERROR_LOCKED, $form->old());
+            }
+
+            $this->redirectSelf(self::ERROR_LOGIN, $form->old());
         }
 
-        $this->resetAttempts();
+        LoginThrottle::clear();
 
         Session::login($user);
 
@@ -147,36 +146,5 @@ class AuthController extends Controller
             'old'       => Session::old(),
             'actionUrl' => $action,
         ]);
-    }
-
-    private function isLocked(): bool
-    {
-        $attempts = (int) Session::get(self::SESSION_LOGIN, 0);
-        $last     = (int) Session::get(self::SESSION_TIME, 0);
-
-        if ($last && time() - $last > self::LOCK_TIMEOUT) {
-            $this->resetAttempts();
-            return false;
-        }
-
-        return $attempts >= self::LOCK_MAX;
-    }
-
-    private function addAttempt(): string
-    {
-        $attempts = (int) Session::get(self::SESSION_LOGIN, 0) + 1;
-
-        Session::set(self::SESSION_LOGIN, $attempts);
-        Session::set(self::SESSION_TIME, time());
-
-        return $attempts >= self::LOCK_MAX
-            ? self::ERROR_LOCKED
-            : self::ERROR_LOGIN;
-    }
-
-    private function resetAttempts(): void
-    {
-        Session::remove(self::SESSION_LOGIN);
-        Session::remove(self::SESSION_TIME);
     }
 }
