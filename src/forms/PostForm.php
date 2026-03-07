@@ -19,7 +19,7 @@ final class PostForm extends Form
 
     public function comment(): string
     {
-        return $this->data[self::COMMENT];
+        return trim($this->data[self::COMMENT]);
     }
 
     public function validate(): ?string

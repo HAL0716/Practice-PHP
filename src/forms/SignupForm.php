@@ -27,12 +27,12 @@ final class SignupForm extends Form
 
     public function name(): string
     {
-        return $this->data[self::NAME];
+        return trim($this->data[self::NAME]);
     }
 
     public function mail(): string
     {
-        return $this->data[self::MAIL];
+        return strtolower(trim($this->data[self::MAIL]));
     }
 
     public function pass(): string
