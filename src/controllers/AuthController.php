@@ -11,6 +11,9 @@ class AuthController extends Controller
     private const LOCK_MINUTES = 15;
     private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
+    private const SESSION_LOGIN = 'login_attempts';
+    private const SESSION_TIME  = 'login_attempt_time';
+
     private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
@@ -148,8 +151,8 @@ class AuthController extends Controller
 
     private function isLocked(): bool
     {
-        $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0);
-        $last     = (int) Session::get(SessionKeys::LOGIN_ATTEMPT_TIME, 0);
+        $attempts = (int) Session::get(self::SESSION_LOGIN, 0);
+        $last     = (int) Session::get(self::SESSION_TIME, 0);
 
         if ($last && time() - $last > self::LOCK_TIMEOUT) {
             $this->resetAttempts();
@@ -161,10 +164,10 @@ class AuthController extends Controller
 
     private function addAttempt(): string
     {
-        $attempts = (int) Session::get(SessionKeys::LOGIN_ATTEMPTS, 0) + 1;
+        $attempts = (int) Session::get(self::SESSION_LOGIN, 0) + 1;
 
-        Session::set(SessionKeys::LOGIN_ATTEMPTS, $attempts);
-        Session::set(SessionKeys::LOGIN_ATTEMPT_TIME, time());
+        Session::set(self::SESSION_LOGIN, $attempts);
+        Session::set(self::SESSION_TIME, time());
 
         return $attempts >= self::LOCK_MAX
             ? self::ERROR_LOCKED
@@ -173,7 +176,7 @@ class AuthController extends Controller
 
     private function resetAttempts(): void
     {
-        Session::remove(SessionKeys::LOGIN_ATTEMPTS);
-        Session::remove(SessionKeys::LOGIN_ATTEMPT_TIME);
+        Session::remove(self::SESSION_LOGIN);
+        Session::remove(self::SESSION_TIME);
     }
 }

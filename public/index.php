@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/constants/Routes.php';
-require_once __DIR__ . '/../src/constants/SessionKeys.php';
 
 require_once __DIR__ . '/../src/core/Html.php';
 require_once __DIR__ . '/../src/core/Request.php';
