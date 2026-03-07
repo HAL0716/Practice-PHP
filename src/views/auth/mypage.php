@@ -5,23 +5,23 @@
 <?php endif; ?>
 
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(FormFields::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <input type="hidden" name="<?= Html::escape(FormFields::PASS_CURRENT) ?>">
+    <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
 
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= Html::escape(FormFields::NAME) ?>" value="<?= Html::escape($user->username()) ?>"></td>
+            <td><input type="text" name="<?= Html::escape(MypageForm::NAME) ?>" value="<?= Html::escape($user->username()) ?>"></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(FormFields::MAIL) ?>" value="<?= Html::escape($user->email()) ?>"></td>
+            <td><input type="email" name="<?= Html::escape(MypageForm::MAIL) ?>" value="<?= Html::escape($user->email()) ?>"></td>
         </tr>
         <tr>
             <td>新しいパスワード</td>
             <td>
-                <input type="password" name="<?= Html::escape(FormFields::PASS) ?>"><br>
-                <input type="password" name="<?= Html::escape(FormFields::PASS_CONFIRM) ?>" placeholder="確認用">
+                <input type="password" name="<?= Html::escape(MypageForm::PASS) ?>"><br>
+                <input type="password" name="<?= Html::escape(MypageForm::PASS_CONFIRM) ?>" placeholder="確認用">
             </td>
         </tr>
 
@@ -53,7 +53,7 @@
     const submitBtn = modal.querySelector(".submit");
 
     const modalPassword  = modal.querySelector(".current-password");
-    const hiddenPassword = form.elements["<?= FormFields::PASS_CURRENT ?>"];
+    const hiddenPassword = form.elements["<?= MypageForm::PASS_CURRENT ?>"];
 
     const open = () => {
         modal.classList.add("is-open");
