@@ -6,7 +6,6 @@ require_once __DIR__ . '/../core/Form.php';
 
 final class SigninForm extends Form
 {
-    public const TOKEN = 'token';
     public const MAIL  = 'mail';
     public const PASS  = 'pass';
 
@@ -16,15 +15,9 @@ final class SigninForm extends Form
     public function __construct()
     {
         parent::__construct([
-            self::TOKEN,
             self::MAIL,
             self::PASS,
         ]);
-    }
-
-    public function token(): string
-    {
-        return $this->data[self::TOKEN];
     }
 
     public function mail(): string

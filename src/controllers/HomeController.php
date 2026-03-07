@@ -26,19 +26,20 @@ class HomeController extends Controller
 
     public function createPost(): void
     {
+        $this->requireLogin();
+
         if (!Request::isPost()) {
             http_response_code(405);
             echo '405 Method Not Allowed';
             exit;
         }
 
-        $this->checkCsrf();
-
-        $this->requireLogin();
-
         $form = $this->postForm([
+            FormFields::TOKEN,
             FormFields::COMMENT,
         ]);
+
+        $this->checkCsrf($form[FormFields::TOKEN]);
 
         if ($this->hasEmpty($form)) {
             $this->backWithError(self::ERROR_COMMENT_REQUIRED);
@@ -53,13 +54,6 @@ class HomeController extends Controller
         }
 
         $this->redirect(Routes::HOME);
-    }
-
-    private function checkCsrf(): void
-    {
-        if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
-            $this->backWithError(self::ERROR_CSRF);
-        }
     }
 
     private function postForm(array $fields): array

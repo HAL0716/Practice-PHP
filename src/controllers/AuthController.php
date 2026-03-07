@@ -11,7 +11,6 @@ class AuthController extends Controller
     private const LOCK_MINUTES = 15;
     private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
-    private const ERROR_CSRF              = '不正なリクエストです。再度お試しください';
     private const ERROR_INVALID_INPUT     = '入力内容を確認してください';
     private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
     private const ERROR_CURRENT_PASSWORD  = '現在のパスワードが正しくありません';
@@ -27,9 +26,9 @@ class AuthController extends Controller
             return;
         }
 
-        $this->checkCsrf();
-
         $form = new SignupForm();
+
+        $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
             Session::flash(SessionKeys::OLD, $form->old());
@@ -71,9 +70,9 @@ class AuthController extends Controller
             return;
         }
 
-        $this->checkCsrf();
-
         $form = new SigninForm();
+
+        $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
             Session::flash(SessionKeys::OLD, $form->old());
@@ -121,8 +120,6 @@ class AuthController extends Controller
             return;
         }
 
-        $this->checkCsrf();
-
         $form = $this->postForm([
             FormFields::NAME,
             FormFields::MAIL,
@@ -130,6 +127,8 @@ class AuthController extends Controller
             FormFields::PASS_CONFIRM,
             FormFields::PASS_CURRENT,
         ]);
+
+        $this->checkCsrf($form[FormFields::TOKEN]);
 
         if ($form[FormFields::NAME] === '' || $form[FormFields::MAIL] === '') {
             $this->backWithError(self::ERROR_INVALID_INPUT);
@@ -191,13 +190,6 @@ class AuthController extends Controller
     private function passwordConfirmed(array $form): bool
     {
         return $form[FormFields::PASS] === $form[FormFields::PASS_CONFIRM];
-    }
-
-    private function checkCsrf(): void
-    {
-        if (!Csrf::verify(Request::post(FormFields::TOKEN))) {
-            $this->backWithError(self::ERROR_CSRF);
-        }
     }
 
     private function backWithError(string $msg): void

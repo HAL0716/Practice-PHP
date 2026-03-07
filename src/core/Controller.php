@@ -6,6 +6,8 @@ abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
 
+    private const ERROR_CSRF = '不正なリクエストです。再度お試しください';
+
     protected function render(
         string $view,
         array $data = [],
@@ -57,5 +59,13 @@ abstract class Controller
     protected function flashOld(array $data): void
     {
         Session::flash(SessionKeys::OLD, $data);
+    }
+
+    final protected function checkCsrf(string $token): void
+    {
+        if (!Csrf::verify($token)) {
+            Session::flash(SessionKeys::ERRORS, self::ERROR_CSRF);
+            $this->redirectSelf();
+        }
     }
 }
