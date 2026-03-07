@@ -4,6 +4,8 @@
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
+<p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
+
 <form action="<?= Html::escape($actionUrl) ?>" method="post">
     <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
     <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
