@@ -117,12 +117,19 @@ class AuthController extends Controller
         $this->requireLogin();
 
         if (Request::isGet()) {
+            $user = UserRepository::findById(Session::userId());
+
+            if (!$user) {
+                Session::logout();
+                $this->redirect(Routes::SIGNIN);
+            }
+
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
                 'token'     => Csrf::token(),
                 'error'     => Session::error(),
                 'old'       => Session::old(),
-                'user'      => UserRepository::findById(Session::userId()),
+                'user'      => $user,
                 'actionUrl' => Routes::MYPAGE,
             ]);
             return;
