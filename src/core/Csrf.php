@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 final class Csrf
 {
-    private const TOKEN_LENGTH  = 32;
-    private const TOKEN_MINUTE  = 60;
+    private const TOKEN_LENGTH = 32;
+    private const TOKEN_MINUTE = 60;
     private const TOKEN_TIMEOUT = self::TOKEN_MINUTE * 60;
+
+    private const SESSION_TOKEN = 'csrf_token';
+    private const SESSION_TIME  = 'csrf_token_time';
 
     private function __construct()
     {
@@ -21,12 +24,13 @@ final class Csrf
             self::clear();
         }
 
-        $token = Session::get(SessionKeys::CSRF_TOKEN);
+        $token = Session::get(self::SESSION_TOKEN);
 
         if (!$token) {
             $token = self::generateToken();
-            Session::set(SessionKeys::CSRF_TOKEN, $token);
-            Session::set(SessionKeys::CSRF_TOKEN_TIME, time());
+
+            Session::set(self::SESSION_TOKEN, $token);
+            Session::set(self::SESSION_TIME, time());
         }
 
         return $token;
@@ -39,7 +43,7 @@ final class Csrf
             return false;
         }
 
-        $sessionToken = Session::get(SessionKeys::CSRF_TOKEN);
+        $sessionToken = Session::get(self::SESSION_TOKEN);
 
         if (!$sessionToken) {
             return false;
@@ -61,7 +65,7 @@ final class Csrf
 
     private static function isExpired(): bool
     {
-        $tokenTime = Session::get(SessionKeys::CSRF_TOKEN_TIME);
+        $tokenTime = Session::get(self::SESSION_TIME);
 
         if (!$tokenTime) {
             return true;
@@ -72,7 +76,7 @@ final class Csrf
 
     private static function clear(): void
     {
-        Session::remove(SessionKeys::CSRF_TOKEN);
-        Session::remove(SessionKeys::CSRF_TOKEN_TIME);
+        Session::remove(self::SESSION_TOKEN);
+        Session::remove(self::SESSION_TIME);
     }
 }
