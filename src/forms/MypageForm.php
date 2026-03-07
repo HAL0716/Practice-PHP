@@ -55,7 +55,7 @@ final class MypageForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->name() === '' || $this->mail() === '' || $this->passCurrent() === '' || $this->pass() === '' || $this->passConfirm() === '') {
+        if ($this->name() === '' || $this->mail() === '' || $this->passCurrent() === '') {
             return self::ERROR_INVALID_INPUT;
         }
 
@@ -63,12 +63,15 @@ final class MypageForm extends Form
             return self::ERROR_INVALID_EMAIL;
         }
 
-        if ($this->pass() !== $this->passConfirm()) {
-            return self::ERROR_PASSWORD_MISMATCH;
-        }
+        // パスワードは任意だが、入力された場合は確認と現在のパスワードも必須
+        if ($this->pass()) {
+            if ($this->pass() === $this->passCurrent()) {
+                return self::ERROR_SAME_PASSWORD;
+            }
 
-        if ($this->pass() === $this->passCurrent()) {
-            return self::ERROR_SAME_PASSWORD;
+            if ($this->pass() !== $this->passConfirm()) {
+                return self::ERROR_PASSWORD_MISMATCH;
+            }
         }
 
         return null;
