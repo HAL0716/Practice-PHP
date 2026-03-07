@@ -116,10 +116,6 @@ class AuthController extends Controller
     {
         $this->requireLogin();
 
-        if (!Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
-        }
-
         if (Request::isGet()) {
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
@@ -130,6 +126,10 @@ class AuthController extends Controller
                 'actionUrl' => Routes::MYPAGE,
             ]);
             return;
+        }
+
+        if (!Request::isPost()) {
+            $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
         $form = new MypageForm();
