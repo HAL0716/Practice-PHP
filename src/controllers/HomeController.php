@@ -7,19 +7,18 @@ require_once __DIR__ . '/../models/PostRepository.php';
 
 class HomeController extends Controller
 {
-    private const ERROR_CSRF             = '不正なリクエストです。再度お試しください';
-    private const ERROR_COMMENT_REQUIRED = 'コメントは必須です。';
-    private const ERROR_SYSTEM           = '処理に失敗しました。時間をおいて再度お試しください';
+    private const ERROR_SYSTEM = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function index(): void
     {
         $this->requireLogin();
 
         $this->render('home', [
-                'title'  => 'ホーム',
-                'token'  => Csrf::token(),
-                'errors' => Session::getFlash(SessionKeys::ERRORS),
-                'posts'  => PostRepository::findAll(),
+                'title' => 'ホーム',
+                'token' => Csrf::token(),
+                'error' => Session::getFlash(SessionKeys::ERRORS),
+                'old'   => Session::getFlash(SessionKeys::OLD),
+                'posts' => PostRepository::findAll(),
             ]
         );
     }
@@ -34,50 +33,25 @@ class HomeController extends Controller
             exit;
         }
 
-        $form = $this->postForm([
-            FormFields::TOKEN,
-            FormFields::COMMENT,
-        ]);
+        $form = new PostForm();
 
-        $this->checkCsrf($form[FormFields::TOKEN]);
+        $this->checkCsrf($form->token());
 
-        if ($this->hasEmpty($form)) {
-            $this->backWithError(self::ERROR_COMMENT_REQUIRED);
+        if ($error = $form->validate()) {
+            Session::flash(SessionKeys::OLD, $form->old());
+            $this->backWithError($error);
             return;
         }
 
         $userId  = Session::userId();
 
-        if (!PostRepository::create($userId, $form[FormFields::COMMENT])) {
+        if (!PostRepository::create($userId, $form->comment())) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
 
         $this->redirect(Routes::HOME);
-    }
-
-    private function postForm(array $fields): array
-    {
-        $data = [];
-        foreach ($fields as $field) {
-            $data[$field] = Request::post($field, '');
-        }
-
-        $this->flashOld([
-            FormFields::COMMENT => $data[FormFields::COMMENT] ?? '',
-        ]);
-
-        return $data;
-    }
-
-    private function hasEmpty(array $data): bool
-    {
-        foreach ($data as $value) {
-            if ($value === '') {
-                return true;
-            }
-        }
-        return false;
     }
 
     private function backWithError(string $msg): void

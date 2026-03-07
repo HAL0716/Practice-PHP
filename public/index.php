@@ -17,6 +17,7 @@ require_once __DIR__ . '/../src/controllers/AuthController.php';
 require_once __DIR__ . '/../src/form/SigninForm.php';
 require_once __DIR__ . '/../src/form/SignupForm.php';
 require_once __DIR__ . '/../src/form/MypageForm.php';
+require_once __DIR__ . '/../src/form/PostForm.php';
 
 $url = Request::path();
 
