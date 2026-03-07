@@ -11,6 +11,9 @@ final class Session
 
     private function __construct()
     {
+        throw new LogicException(
+            'Cannot instantiate ' . static::class
+        );
     }
 
     private static function start(): void

@@ -10,6 +10,9 @@ final class Csrf
 
     private function __construct()
     {
+        throw new LogicException(
+            'Cannot instantiate ' . static::class
+        );
     }
 
     public static function token(): string
