@@ -11,11 +11,11 @@ class AuthController extends Controller
     private const LOCK_MINUTES = 15;
     private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
-    private const ERROR_CURRENT_PASSWORD = '現在のパスワードが正しくありません';
-    private const ERROR_EXISTS           = 'このメールアドレスは既に登録されています';
-    private const ERROR_LOGIN            = 'メールアドレスまたはパスワードが正しくありません';
-    private const ERROR_LOCKED           = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
-    private const ERROR_SYSTEM           = '処理に失敗しました。時間をおいて再度お試しください';
+    private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
+    private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
+    private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
+    private const ERROR_LOCKED   = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
+    private const ERROR_SYSTEM   = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function signup(): void
     {
@@ -120,7 +120,7 @@ class AuthController extends Controller
         $user   = UserRepository::findById($userId);
 
         if (!$user || !$user->verifyPassword($form->passCurrent())) {
-            $this->redirectSelf(self::ERROR_CURRENT_PASSWORD, $form->old());
+            $this->redirectSelf(self::ERROR_PASSWORD, $form->old());
         }
 
         if (!UserRepository::update(
