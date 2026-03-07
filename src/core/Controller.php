@@ -36,17 +36,23 @@ abstract class Controller
         return $path;
     }
 
-    protected function redirect(string $url): void
+    protected function redirect(string $url, string $error = '', array $old = []): void
     {
+        if ($error) {
+            Session::flash(SessionKeys::ERRORS, $error);
+        }
+        if ($old) {
+            Session::flash(SessionKeys::OLD, $old);
+        }
         if (!headers_sent()) {
             header('Location: ' . $url);
         }
         exit;
     }
 
-    protected function redirectSelf(): void
+    protected function redirectSelf(string $error = '', array $old = []): void
     {
-        $this->redirect(Request::path());
+        $this->redirect(Request::path(), $error, $old);
     }
 
     protected function requireLogin(): void

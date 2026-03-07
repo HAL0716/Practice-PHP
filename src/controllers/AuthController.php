@@ -29,14 +29,12 @@ class AuthController extends Controller
         $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError($error);
+            $this->redirectSelf($error, $form->old());
             return;
         }
 
         if (UserRepository::findByEmail($form->mail())) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError(self::ERROR_EXISTS);
+            $this->redirectSelf(self::ERROR_EXISTS, $form->old());
             return;
         }
 
@@ -47,8 +45,7 @@ class AuthController extends Controller
         );
 
         if (!$user) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError(self::ERROR_SYSTEM);
+            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
             return;
         }
 
@@ -64,7 +61,7 @@ class AuthController extends Controller
         }
 
         if ($this->isLocked()) {
-            $this->backWithError(self::ERROR_LOCKED);
+            $this->redirectSelf(self::ERROR_LOCKED);
             return;
         }
 
@@ -73,17 +70,15 @@ class AuthController extends Controller
         $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError($error);
+            $this->redirectSelf($error, $form->old());
             return;
         }
 
         $user = UserRepository::findByEmail($form->mail());
 
         if (!$user || !$user->verifyPassword($form->pass())) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $msg = $this->addAttempt();
-            $this->backWithError($msg);
+            $error = $this->addAttempt();
+            $this->redirectSelf($error, $form->old());
             return;
         }
 
@@ -123,8 +118,7 @@ class AuthController extends Controller
         $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError($error);
+            $this->redirectSelf($error, $form->old());
             return;
         }
 
@@ -132,8 +126,7 @@ class AuthController extends Controller
         $user   = UserRepository::findById($userId);
 
         if (!$user || !$user->verifyPassword($form->passCurrent())) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError(self::ERROR_CURRENT_PASSWORD);
+            $this->redirectSelf(self::ERROR_CURRENT_PASSWORD, $form->old());
             return;
         }
 
@@ -143,8 +136,7 @@ class AuthController extends Controller
             $form->mail() ?: null,
             $form->pass() ?: null
         )) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError(self::ERROR_SYSTEM);
+            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
             return;
         }
 
@@ -160,12 +152,6 @@ class AuthController extends Controller
             'old'       => Session::getFlash(SessionKeys::OLD),
             'actionUrl' => $action,
         ]);
-    }
-
-    private function backWithError(string $msg): void
-    {
-        Session::flash(SessionKeys::ERRORS, $msg);
-        $this->redirectSelf();
     }
 
     private function isLocked(): bool

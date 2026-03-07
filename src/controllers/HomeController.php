@@ -38,25 +38,17 @@ class HomeController extends Controller
         $this->checkCsrf($form->token());
 
         if ($error = $form->validate()) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError($error);
+            $this->redirectSelf($error, $form->old());
             return;
         }
 
         $userId  = Session::userId();
 
         if (!PostRepository::create($userId, $form->comment())) {
-            Session::flash(SessionKeys::OLD, $form->old());
-            $this->backWithError(self::ERROR_SYSTEM);
+            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
             return;
         }
 
         $this->redirect(Routes::HOME);
-    }
-
-    private function backWithError(string $msg): void
-    {
-        Session::flash(SessionKeys::ERRORS, $msg);
-        $this->redirectSelf();
     }
 }
