@@ -8,6 +8,8 @@ require_once __DIR__ . '/../models/UserRepository.php';
 
 class AuthController extends Controller
 {
+    private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
+
     private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
@@ -77,7 +79,11 @@ class AuthController extends Controller
 
         $user = UserRepository::findByEmail($form->mail());
 
-        if (!$user || !$user->verifyPassword($form->pass())) {
+        $valid = $user
+            ? $user->verifyPassword($form->pass())
+            : password_verify($form->pass(), self::DUMMY_HASH);
+
+        if (!$valid) {
 
             if (LoginThrottle::hit()) {
                 $this->redirectSelf(self::ERROR_LOCKED, $form->old());
