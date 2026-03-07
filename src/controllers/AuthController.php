@@ -11,8 +11,6 @@ class AuthController extends Controller
     private const LOCK_MINUTES = 15;
     private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
-    private const ERROR_INVALID_INPUT     = '入力内容を確認してください';
-    private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
     private const ERROR_CURRENT_PASSWORD  = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS            = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN             = 'メールアドレスまたはパスワードが正しくありません';
@@ -120,40 +118,32 @@ class AuthController extends Controller
             return;
         }
 
-        $form = $this->postForm([
-            FormFields::NAME,
-            FormFields::MAIL,
-            FormFields::PASS,
-            FormFields::PASS_CONFIRM,
-            FormFields::PASS_CURRENT,
-        ]);
+        $form = new MypageForm();
 
-        $this->checkCsrf($form[FormFields::TOKEN]);
+        $this->checkCsrf($form->token());
 
-        if ($form[FormFields::NAME] === '' || $form[FormFields::MAIL] === '') {
-            $this->backWithError(self::ERROR_INVALID_INPUT);
-            return;
-        }
-
-        if ($form[FormFields::PASS] && !$this->passwordConfirmed($form)) {
-            $this->backWithError(self::ERROR_PASSWORD_MISMATCH);
+        if ($error = $form->validate()) {
+            Session::flash(SessionKeys::OLD, $form->old());
+            $this->backWithError($error);
             return;
         }
 
         $userId = Session::userId();
         $user   = UserRepository::findById($userId);
 
-        if (!$user || !$user->verifyPassword($form[FormFields::PASS_CURRENT])) {
+        if (!$user || !$user->verifyPassword($form->passCurrent())) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError(self::ERROR_CURRENT_PASSWORD);
             return;
         }
 
         if (!UserRepository::update(
             $userId,
-            $form[FormFields::NAME] ?: null,
-            $form[FormFields::MAIL] ?: null,
-            $form[FormFields::PASS] ?: null
+            $form->name() ?: null,
+            $form->mail() ?: null,
+            $form->pass() ?: null
         )) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
@@ -170,26 +160,6 @@ class AuthController extends Controller
             'old'       => Session::getFlash(SessionKeys::OLD),
             'actionUrl' => $action,
         ]);
-    }
-
-    private function postForm(array $fields): array
-    {
-        $data = [];
-        foreach ($fields as $field) {
-            $data[$field] = Request::post($field, '');
-        }
-
-        $this->flashOld([
-            FormFields::NAME => $data[FormFields::NAME] ?? '',
-            FormFields::MAIL => $data[FormFields::MAIL] ?? '',
-        ]);
-
-        return $data;
-    }
-
-    private function passwordConfirmed(array $form): bool
-    {
-        return $form[FormFields::PASS] === $form[FormFields::PASS_CONFIRM];
     }
 
     private function backWithError(string $msg): void
