@@ -29,35 +29,28 @@ class AuthController extends Controller
 
         $this->checkCsrf();
 
-        $form = $this->postForm([
-            FormFields::NAME,
-            FormFields::MAIL,
-            FormFields::PASS,
-            FormFields::PASS_CONFIRM,
-        ]);
+        $form = new SignupForm();
 
-        if ($this->hasEmpty($form)) {
-            $this->backWithError(self::ERROR_INVALID_INPUT);
+        if ($error = $form->validate()) {
+            Session::flash(SessionKeys::OLD, $form->old());
+            $this->backWithError($error);
             return;
         }
 
-        if (!$this->passwordConfirmed($form)) {
-            $this->backWithError(self::ERROR_PASSWORD_MISMATCH);
-            return;
-        }
-
-        if (UserRepository::findByEmail($form[FormFields::MAIL])) {
+        if (UserRepository::findByEmail($form->mail())) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError(self::ERROR_EXISTS);
             return;
         }
 
         $user = UserRepository::create(
-            $form[FormFields::NAME],
-            $form[FormFields::MAIL],
-            $form[FormFields::PASS]
+            $form->name(),
+            $form->mail(),
+            $form->pass()
         );
 
         if (!$user) {
+            Session::flash(SessionKeys::OLD, $form->old());
             $this->backWithError(self::ERROR_SYSTEM);
             return;
         }
@@ -193,16 +186,6 @@ class AuthController extends Controller
         ]);
 
         return $data;
-    }
-
-    private function hasEmpty(array $data): bool
-    {
-        foreach ($data as $value) {
-            if ($value === '') {
-                return true;
-            }
-        }
-        return false;
     }
 
     private function passwordConfirmed(array $form): bool
