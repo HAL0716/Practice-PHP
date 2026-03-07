@@ -12,10 +12,10 @@ require_once __DIR__ . '/../src/core/Csrf.php';
 require_once __DIR__ . '/../src/controllers/HomeController.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
 
-require_once __DIR__ . '/../src/form/SigninForm.php';
-require_once __DIR__ . '/../src/form/SignupForm.php';
-require_once __DIR__ . '/../src/form/MypageForm.php';
-require_once __DIR__ . '/../src/form/PostForm.php';
+require_once __DIR__ . '/../src/forms/SigninForm.php';
+require_once __DIR__ . '/../src/forms/SignupForm.php';
+require_once __DIR__ . '/../src/forms/MypageForm.php';
+require_once __DIR__ . '/../src/forms/PostForm.php';
 
 Session::init();
 
