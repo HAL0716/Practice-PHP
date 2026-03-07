@@ -149,9 +149,9 @@ class AuthController extends Controller
 
         if (!UserRepository::update(
             $userId,
-            $form->name() ?: null,
-            $form->mail() ?: null,
-            $form->pass() ?: null
+            $form->name() === '' ? null : $form->name(),
+            $form->mail() === '' ? null : $form->mail(),
+            $form->pass() === '' ? null : $form->pass()
         )) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
