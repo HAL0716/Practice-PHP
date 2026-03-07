@@ -3,82 +3,61 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../entities/UserEntity.php';
-require_once __DIR__ . '/../constants/SessionKeys.php';
 
 final class Session
 {
+    private const USER_ID = 'user_id';
+
     private const FLASH_PREFIX = '_flash_';
+    private const FLASH_ERROR  = 'error';
+    private const FLASH_OLD    = 'old';
 
     private function __construct()
     {
-        throw new LogicException(
-            'Cannot instantiate ' . static::class
-        );
+        throw new LogicException('Cannot instantiate ' . static::class);
     }
 
-    private static function start(): void
+    public static function init(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
     }
 
-    private static function regenerate(): void
+    private static function regenerate(bool $delete_old_session = true): void
     {
-        self::start();
-        session_regenerate_id(true);
+        session_regenerate_id($delete_old_session);
     }
 
     public static function set(string $key, mixed $value): void
     {
-        self::start();
         $_SESSION[$key] = $value;
     }
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        self::start();
         return $_SESSION[$key] ?? $default;
     }
 
     public static function remove(string $key): void
     {
-        self::start();
         unset($_SESSION[$key]);
     }
 
     public static function clear(): void
     {
-        self::start();
         $_SESSION = [];
-    }
-
-    public static function flash(string $key, mixed $value): void
-    {
-        self::set(self::FLASH_PREFIX . $key, $value);
-    }
-
-    public static function getFlash(string $key, mixed $default = null): mixed
-    {
-        $flashKey = self::FLASH_PREFIX . $key;
-
-        $value = self::get($flashKey, $default);
-        self::remove($flashKey);
-
-        return $value;
     }
 
     public static function login(UserEntity $user): void
     {
         self::regenerate();
-        $_SESSION[SessionKeys::USER_ID] = $user->id();
+        $_SESSION[self::USER_ID] = $user->id();
     }
 
     public static function logout(): void
     {
-        self::start();
-
-        $_SESSION = [];
+        self::clear();
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
@@ -104,8 +83,44 @@ final class Session
 
     public static function userId(): ?int
     {
-        $id = self::get(SessionKeys::USER_ID);
+        $id = self::get(self::USER_ID);
 
         return is_int($id) ? $id : null;
+    }
+
+    public static function flash(string $key, mixed $value): void
+    {
+        self::set(self::FLASH_PREFIX . $key, $value);
+    }
+
+    public static function getFlash(string $key, mixed $default = null): mixed
+    {
+        $flashKey = self::FLASH_PREFIX . $key;
+
+        $value = self::get($flashKey, $default);
+
+        self::remove($flashKey);
+
+        return $value;
+    }
+
+    public static function flashError(string $message): void
+    {
+        self::flash(self::FLASH_ERROR, $message);
+    }
+
+    public static function error(): ?string
+    {
+        return self::getFlash(self::FLASH_ERROR);
+    }
+
+    public static function flashOld(array $data): void
+    {
+        self::flash(self::FLASH_OLD, $data);
+    }
+
+    public static function old(): array
+    {
+        return self::getFlash(self::FLASH_OLD, []);
     }
 }

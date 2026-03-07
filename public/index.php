@@ -18,6 +18,8 @@ require_once __DIR__ . '/../src/form/SignupForm.php';
 require_once __DIR__ . '/../src/form/MypageForm.php';
 require_once __DIR__ . '/../src/form/PostForm.php';
 
+Session::init();
+
 $url = Request::path();
 
 switch ($url) {

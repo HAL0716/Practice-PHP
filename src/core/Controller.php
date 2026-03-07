@@ -33,11 +33,11 @@ abstract class Controller
         array $old = []
     ): void {
         if ($error !== '') {
-            Session::flash(SessionKeys::ERRORS, $error);
+            Session::flashError($error);
         }
 
         if ($old !== []) {
-            Session::flash(SessionKeys::OLD, $old);
+            Session::flashOld($old);
         }
 
         if (!headers_sent()) {

@@ -100,8 +100,8 @@ class AuthController extends Controller
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
                 'token'     => Csrf::token(),
-                'error'     => Session::getFlash(SessionKeys::ERRORS),
-                'old'       => Session::getFlash(SessionKeys::OLD),
+                'error'     => Session::error(),
+                'old'       => Session::old(),
                 'user'      => UserRepository::findById(Session::userId()),
                 'actionUrl' => Routes::MYPAGE,
             ]);
@@ -140,8 +140,8 @@ class AuthController extends Controller
         $this->render($view, [
             'title'     => $title,
             'token'     => Csrf::token(),
-            'error'     => Session::getFlash(SessionKeys::ERRORS),
-            'old'       => Session::getFlash(SessionKeys::OLD),
+            'error'     => Session::error(),
+            'old'       => Session::old(),
             'actionUrl' => $action,
         ]);
     }

@@ -19,8 +19,8 @@ class HomeController extends Controller
                 [
                     'title' => 'ホーム',
                     'token' => Csrf::token(),
-                    'error' => Session::getFlash(SessionKeys::ERRORS),
-                    'old'   => Session::getFlash(SessionKeys::OLD),
+                    'error' => Session::error(),
+                    'old'   => Session::old(),
                     'posts' => PostRepository::findAll(),
                 ]
             );
