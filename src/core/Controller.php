@@ -16,42 +16,41 @@ abstract class Controller
         extract($data, EXTR_SKIP);
 
         ob_start();
-        include $this->viewPath($view);
+        require $this->viewFile($view);
         $content = ob_get_clean();
 
-        if ($useLayout) {
-            include $this->viewPath(static::LAYOUT);
+        if (!$useLayout) {
+            echo $content;
             return;
         }
 
-        echo $content;
+        require $this->viewFile(static::LAYOUT);
     }
 
-    private function viewPath(string $name): string
-    {
-        $path = __DIR__ . '/../views/' . $name . '.php';
-        if (!file_exists($path)) {
-            throw new RuntimeException("View not found: {$name}");
-        }
-        return $path;
-    }
-
-    protected function redirect(string $url, string $error = '', array $old = []): void
-    {
-        if ($error) {
+    protected function redirect(
+        string $url,
+        string $error = '',
+        array $old = []
+    ): void {
+        if ($error !== '') {
             Session::flash(SessionKeys::ERRORS, $error);
         }
-        if ($old) {
+
+        if ($old !== []) {
             Session::flash(SessionKeys::OLD, $old);
         }
+
         if (!headers_sent()) {
-            header('Location: ' . $url);
+            header("Location: {$url}");
         }
+
         exit;
     }
 
-    protected function redirectSelf(string $error = '', array $old = []): void
-    {
+    protected function redirectSelf(
+        string $error = '',
+        array $old = []
+    ): void {
         $this->redirect(Request::path(), $error, $old);
     }
 
@@ -62,16 +61,23 @@ abstract class Controller
         }
     }
 
-    protected function flashOld(array $data): void
-    {
-        Session::flash(SessionKeys::OLD, $data);
-    }
-
     final protected function checkCsrf(string $token): void
     {
-        if (!Csrf::verify($token)) {
-            Session::flash(SessionKeys::ERRORS, self::ERROR_CSRF);
-            $this->redirectSelf();
+        if (Csrf::verify($token)) {
+            return;
         }
+
+        $this->redirectSelf(self::ERROR_CSRF);
+    }
+
+    private function viewFile(string $view): string
+    {
+        $path = __DIR__ . '/../views/' . $view . '.php';
+
+        if (!is_file($path)) {
+            throw new RuntimeException("View not found: {$view}");
+        }
+
+        return $path;
     }
 }

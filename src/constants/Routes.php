@@ -9,6 +9,4 @@ final class Routes
     public const SIGNIN  = '/signin';
     public const SIGNOUT = '/signout';
     public const MYPAGE  = '/mypage';
-
-    public const POST_CREATE = '/post/create';
 }

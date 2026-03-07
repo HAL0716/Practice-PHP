@@ -47,11 +47,6 @@ switch ($url) {
         $controller->mypage();
         exit;
 
-    case Routes::POST_CREATE:
-        $controller = new HomeController();
-        $controller->createPost();
-        exit;
-
     default:
         http_response_code(404);
         echo '404 Not Found';

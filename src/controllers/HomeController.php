@@ -13,24 +13,17 @@ class HomeController extends Controller
     {
         $this->requireLogin();
 
-        $this->render('home', [
-                'title' => 'ホーム',
-                'token' => Csrf::token(),
-                'error' => Session::getFlash(SessionKeys::ERRORS),
-                'old'   => Session::getFlash(SessionKeys::OLD),
-                'posts' => PostRepository::findAll(),
-            ]
-        );
-    }
-
-    public function createPost(): void
-    {
-        $this->requireLogin();
-
-        if (!Request::isPost()) {
-            http_response_code(405);
-            echo '405 Method Not Allowed';
-            exit;
+        if (Request::isGet()) {
+            $this->render(
+                'home',
+                [
+                    'title' => 'ホーム',
+                    'token' => Csrf::token(),
+                    'error' => Session::getFlash(SessionKeys::ERRORS),
+                    'old'   => Session::getFlash(SessionKeys::OLD),
+                    'posts' => PostRepository::findAll(),
+                ]
+            );
         }
 
         $form = new PostForm();
@@ -39,14 +32,12 @@ class HomeController extends Controller
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
-            return;
         }
 
         $userId  = Session::userId();
 
         if (!PostRepository::create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
         }
 
         $this->redirect(Routes::HOME);

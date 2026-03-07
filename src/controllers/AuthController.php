@@ -7,15 +7,15 @@ require_once __DIR__ . '/../models/UserRepository.php';
 
 class AuthController extends Controller
 {
-    private const LOCK_MAX = 5;
+    private const LOCK_MAX     = 5;
     private const LOCK_MINUTES = 15;
     private const LOCK_TIMEOUT = self::LOCK_MINUTES * 60;
 
-    private const ERROR_CURRENT_PASSWORD  = '現在のパスワードが正しくありません';
-    private const ERROR_EXISTS            = 'このメールアドレスは既に登録されています';
-    private const ERROR_LOGIN             = 'メールアドレスまたはパスワードが正しくありません';
-    private const ERROR_LOCKED            = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
-    private const ERROR_SYSTEM            = '処理に失敗しました。時間をおいて再度お試しください';
+    private const ERROR_CURRENT_PASSWORD = '現在のパスワードが正しくありません';
+    private const ERROR_EXISTS           = 'このメールアドレスは既に登録されています';
+    private const ERROR_LOGIN            = 'メールアドレスまたはパスワードが正しくありません';
+    private const ERROR_LOCKED           = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
+    private const ERROR_SYSTEM           = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function signup(): void
     {
@@ -30,12 +30,10 @@ class AuthController extends Controller
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
-            return;
         }
 
         if (UserRepository::findByEmail($form->mail())) {
             $this->redirectSelf(self::ERROR_EXISTS, $form->old());
-            return;
         }
 
         $user = UserRepository::create(
@@ -46,10 +44,10 @@ class AuthController extends Controller
 
         if (!$user) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
         }
 
         Session::login($user);
+
         $this->redirect(Routes::HOME);
     }
 
@@ -62,7 +60,6 @@ class AuthController extends Controller
 
         if ($this->isLocked()) {
             $this->redirectSelf(self::ERROR_LOCKED);
-            return;
         }
 
         $form = new SigninForm();
@@ -71,20 +68,18 @@ class AuthController extends Controller
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
-            return;
         }
 
         $user = UserRepository::findByEmail($form->mail());
 
         if (!$user || !$user->verifyPassword($form->pass())) {
-            $error = $this->addAttempt();
-            $this->redirectSelf($error, $form->old());
-            return;
+            $this->redirectSelf($this->addAttempt(), $form->old());
         }
 
         $this->resetAttempts();
 
         Session::login($user);
+
         $this->redirect(Routes::HOME);
     }
 
@@ -119,7 +114,6 @@ class AuthController extends Controller
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
-            return;
         }
 
         $userId = Session::userId();
@@ -127,7 +121,6 @@ class AuthController extends Controller
 
         if (!$user || !$user->verifyPassword($form->passCurrent())) {
             $this->redirectSelf(self::ERROR_CURRENT_PASSWORD, $form->old());
-            return;
         }
 
         if (!UserRepository::update(
@@ -137,7 +130,6 @@ class AuthController extends Controller
             $form->pass() ?: null
         )) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
         }
 
         $this->redirectSelf();
@@ -174,11 +166,9 @@ class AuthController extends Controller
         Session::set(SessionKeys::LOGIN_ATTEMPTS, $attempts);
         Session::set(SessionKeys::LOGIN_ATTEMPT_TIME, time());
 
-        $msg = $attempts >= self::LOCK_MAX
+        return $attempts >= self::LOCK_MAX
             ? self::ERROR_LOCKED
             : self::ERROR_LOGIN;
-
-        return $msg;
     }
 
     private function resetAttempts(): void
