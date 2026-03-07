@@ -39,13 +39,11 @@ final class SigninForm extends Form
 
     public function validate(): ?string
     {
-        foreach ($this->data as $value) {
-            if (empty($value)) {
-                return self::ERROR_INVALID_INPUT;
-            }
+        if ($this->mail() === '' || $this->pass() === '') {
+            return self::ERROR_INVALID_INPUT;
         }
 
-        if (!filter_var($this->data[self::MAIL], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
             return self::ERROR_INVALID_EMAIL;
         }
 
