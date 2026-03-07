@@ -11,11 +11,14 @@ final class PostRepository extends Repository
 {
     protected static function hydrate(array $row): PostEntity
     {
+        $userId = $row[PostsTable::USER_ID];
+        $username = $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME];
+
         return new PostEntity(
-            (int)$row[PostsTable::ID],
-            (int)$row[PostsTable::USER_ID],
-            (string)$row[PostsTable::COMMENT],
-            $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME]
+            (int) $row[PostsTable::ID],
+            $userId !== null ? (int) $userId : null,
+            (string) $row[PostsTable::COMMENT],
+            $username !== null ? (string) $username : null
         );
     }
 

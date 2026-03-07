@@ -6,9 +6,9 @@ final class PostEntity
 {
     public function __construct(
         private int $id,
-        private int $userId,
+        private ?int $userId,
         private string $comment,
-        private string $username
+        private ?string $username
     ) {
     }
 
@@ -17,7 +17,7 @@ final class PostEntity
         return $this->id;
     }
 
-    public function userId(): int
+    public function userId(): ?int
     {
         return $this->userId;
     }
@@ -27,7 +27,7 @@ final class PostEntity
         return $this->comment;
     }
 
-    public function username(): string
+    public function username(): ?string
     {
         return $this->username;
     }
