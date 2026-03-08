@@ -1,29 +1,37 @@
-<h2><?= \App\Core\Html::escape($title) ?></h2>
+<?php
+declare(strict_types=1);
+
+use App\Constants\Routes;
+use App\Core\Html;
+use App\Forms\MypageForm;
+?>
+
+<h2><?= Html::escape($title) ?></h2>
 
 <?php if ($error !== null): ?>
-    <p style="color:red;"><?= \App\Core\Html::escape($error) ?></p>
+    <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<p><a href="<?= \App\Core\Html::escape(\App\Constants\Routes::HOME) ?>">ホームへ戻る</a></p>
+<p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
 
-<form action="<?= \App\Core\Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::TOKEN) ?>" value="<?= \App\Core\Html::escape($token) ?>">
-    <input type="hidden" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::PASS_CURRENT) ?>">
+<form action="<?= Html::escape($actionUrl) ?>" method="post">
+    <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
 
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::NAME) ?>" value="<?= \App\Core\Html::escape($user->username()) ?>"></td>
+            <td><input type="text" name="<?= Html::escape(MypageForm::NAME) ?>" value="<?= Html::escape($user->username()) ?>"></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::MAIL) ?>" value="<?= \App\Core\Html::escape($user->email()) ?>"></td>
+            <td><input type="email" name="<?= Html::escape(MypageForm::MAIL) ?>" value="<?= Html::escape($user->email()) ?>"></td>
         </tr>
         <tr>
             <td>新しいパスワード</td>
             <td>
-                <input type="password" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::PASS) ?>"><br>
-                <input type="password" name="<?= \App\Core\Html::escape(\App\Forms\MypageForm::PASS_CONFIRM) ?>" placeholder="確認用">
+                <input type="password" name="<?= Html::escape(MypageForm::PASS) ?>"><br>
+                <input type="password" name="<?= Html::escape(MypageForm::PASS_CONFIRM) ?>" placeholder="確認用">
             </td>
         </tr>
 
@@ -35,7 +43,7 @@
     </table>
 </form>
 
-<p><a href="<?= \App\Core\Html::escape(\App\Constants\Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
+<p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">
     <div class="modal-content">
@@ -55,7 +63,7 @@
     const submitBtn = modal.querySelector(".submit");
 
     const modalPassword  = modal.querySelector(".current-password");
-    const hiddenPassword = form.elements["<?= \App\Forms\MypageForm::PASS_CURRENT ?>"];
+    const hiddenPassword = form.elements["<?= Html::escape(MypageForm::PASS_CURRENT) ?>"];
 
     const open = () => {
         modal.classList.add("is-open");
