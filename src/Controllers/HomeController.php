@@ -4,27 +4,34 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-final class HomeController extends \App\Core\Http\Controller
+use App\Core\Http\Controller;
+use App\Core\Http\Request;
+use App\Core\Http\Session;
+use App\Core\Security\Csrf;
+use App\Forms\PostForm;
+use App\Models\PostRepository;
+
+final class HomeController extends Controller
 {
     public function index(): void
     {
         $this->requireLogin();
 
-        if (\App\Core\Http\Request::isGet()) {
+        if (Request::isGet()) {
             $this->render(
                 'home',
                 [
                     'title' => 'ホーム',
-                    'token' => \App\Core\Security\Csrf::token(),
-                    'error' => \App\Core\Http\Session::error(),
-                    'old'   => \App\Core\Http\Session::old(),
-                    'posts' => \App\Models\PostRepository::findAll(),
+                    'token' => Csrf::token(),
+                    'error' => Session::error(),
+                    'old'   => Session::old(),
+                    'posts' => PostRepository::findAll(),
                 ]
             );
             return;
         }
 
-        if (\App\Core\Http\Request::isPost()) {
+        if (Request::isPost()) {
             $this->indexPost();
             return;
         }
@@ -34,7 +41,7 @@ final class HomeController extends \App\Core\Http\Controller
 
     private function indexPost(): void
     {
-        $form = new \App\Forms\PostForm();
+        $form = new PostForm();
 
         if ($error = $this->checkCsrf($form->token())) {
             $this->redirectSelf($error, $form->old());
@@ -44,9 +51,9 @@ final class HomeController extends \App\Core\Http\Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId = \App\Core\Http\Session::userId();
+        $userId = Session::userId();
 
-        if (!\App\Models\PostRepository::create($userId, $form->comment())) {
+        if (!PostRepository::create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 

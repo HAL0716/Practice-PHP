@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Core\Http;
 
+use App\Constants\Routes;
+use App\Core\Security\Csrf;
+
 abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
@@ -60,13 +63,13 @@ abstract class Controller
     protected function requireLogin(): void
     {
         if (!Session::isLoggedIn()) {
-            $this->redirect(\App\Constants\Routes::SIGNIN);
+            $this->redirect(Routes::SIGNIN);
         }
     }
 
     final protected function checkCsrf(string $token): ?string
     {
-        return \App\Core\Security\Csrf::verify($token) ? null : static::ERROR_CSRF;
+        return Csrf::verify($token) ? null : static::ERROR_CSRF;
     }
 
     private function viewFile(string $view): string
