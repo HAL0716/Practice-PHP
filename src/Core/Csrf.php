@@ -26,13 +26,13 @@ final class Csrf
             self::clear();
         }
 
-        $token = \App\Core\Session::get(self::SESSION_TOKEN);
+        $token = Session::get(self::SESSION_TOKEN);
 
         if (!$token) {
             $token = self::generateToken();
 
-            \App\Core\Session::set(self::SESSION_TOKEN, $token);
-            \App\Core\Session::set(self::SESSION_TIME, time());
+            Session::set(self::SESSION_TOKEN, $token);
+            Session::set(self::SESSION_TIME, time());
         }
 
         return $token;
@@ -45,7 +45,7 @@ final class Csrf
             return false;
         }
 
-        $sessionToken = \App\Core\Session::get(self::SESSION_TOKEN);
+        $sessionToken = Session::get(self::SESSION_TOKEN);
 
         if (!$sessionToken) {
             return false;
@@ -67,7 +67,7 @@ final class Csrf
 
     private static function isExpired(): bool
     {
-        $tokenTime = \App\Core\Session::get(self::SESSION_TIME);
+        $tokenTime = Session::get(self::SESSION_TIME);
 
         if (!$tokenTime) {
             return true;
@@ -78,7 +78,7 @@ final class Csrf
 
     private static function clear(): void
     {
-        \App\Core\Session::remove(self::SESSION_TOKEN);
-        \App\Core\Session::remove(self::SESSION_TIME);
+        Session::remove(self::SESSION_TOKEN);
+        Session::remove(self::SESSION_TIME);
     }
 }
