@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core\Security;
 
+use App\Core\Http\Session;
+
 final class Csrf
 {
     private const TOKEN_LENGTH = 32;
@@ -26,13 +28,13 @@ final class Csrf
             self::clear();
         }
 
-        $token = \App\Core\Http\Session::get(self::SESSION_TOKEN);
+        $token = Session::get(self::SESSION_TOKEN);
 
         if (!$token) {
             $token = self::generateToken();
 
-            \App\Core\Http\Session::set(self::SESSION_TOKEN, $token);
-            \App\Core\Http\Session::set(self::SESSION_TIME, time());
+            Session::set(self::SESSION_TOKEN, $token);
+            Session::set(self::SESSION_TIME, time());
         }
 
         return $token;
@@ -45,7 +47,7 @@ final class Csrf
             return false;
         }
 
-        $sessionToken = \App\Core\Http\Session::get(self::SESSION_TOKEN);
+        $sessionToken = Session::get(self::SESSION_TOKEN);
 
         if (!$sessionToken) {
             return false;
@@ -67,7 +69,7 @@ final class Csrf
 
     private static function isExpired(): bool
     {
-        $tokenTime = \App\Core\Http\Session::get(self::SESSION_TIME);
+        $tokenTime = Session::get(self::SESSION_TIME);
 
         if (!$tokenTime) {
             return true;
@@ -78,7 +80,7 @@ final class Csrf
 
     private static function clear(): void
     {
-        \App\Core\Http\Session::remove(self::SESSION_TOKEN);
-        \App\Core\Http\Session::remove(self::SESSION_TIME);
+        Session::remove(self::SESSION_TOKEN);
+        Session::remove(self::SESSION_TIME);
     }
 }

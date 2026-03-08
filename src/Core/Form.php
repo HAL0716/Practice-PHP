@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Http\Request;
+
 abstract class Form
 {
     public const TOKEN = 'token';
@@ -12,9 +14,9 @@ abstract class Form
 
     public function __construct(array $fields = [])
     {
-        $this->data[self::TOKEN] = \App\Core\Http\Request::post(self::TOKEN, '');
+        $this->data[self::TOKEN] = Request::post(self::TOKEN, '');
         foreach ($fields as $field) {
-            $this->data[$field] = \App\Core\Http\Request::post($field, '');
+            $this->data[$field] = Request::post($field, '');
         }
     }
 
