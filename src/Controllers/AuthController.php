@@ -12,7 +12,6 @@ final class AuthController extends \App\Core\Controller
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
     private const ERROR_LOCKED   = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
-    private const ERROR_SYSTEM   = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function signup(): void
     {

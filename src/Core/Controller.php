@@ -8,7 +8,8 @@ abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
 
-    private const ERROR_CSRF = '不正なリクエストです。再度お試しください';
+    protected const ERROR_CSRF   = '不正なリクエストです。再度お試しください';
+    protected const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
 
     protected function render(
         string $view,

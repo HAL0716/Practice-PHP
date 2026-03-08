@@ -6,8 +6,6 @@ namespace App\Controllers;
 
 final class HomeController extends \App\Core\Controller
 {
-    private const ERROR_SYSTEM = '処理に失敗しました。時間をおいて再度お試しください';
-
     public function index(): void
     {
         $this->requireLogin();
