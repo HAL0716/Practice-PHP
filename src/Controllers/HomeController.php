@@ -32,7 +32,9 @@ class HomeController extends \App\Core\Controller
 
         $form = new \App\Forms\PostForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());

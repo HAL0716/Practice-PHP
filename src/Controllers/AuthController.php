@@ -27,7 +27,9 @@ class AuthController extends \App\Core\Controller
 
         $form = new \App\Forms\SignupForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
@@ -69,7 +71,9 @@ class AuthController extends \App\Core\Controller
 
         $form = new \App\Forms\SigninForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
@@ -139,7 +143,9 @@ class AuthController extends \App\Core\Controller
 
         $form = new \App\Forms\MypageForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());

@@ -63,13 +63,9 @@ abstract class Controller
         }
     }
 
-    final protected function checkCsrf(string $token): void
+    final protected function checkCsrf(string $token): ?string
     {
-        if (Csrf::verify($token)) {
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_CSRF);
+        return \App\Core\Csrf::verify($token) ? null : self::ERROR_CSRF;
     }
 
     private function viewFile(string $view): string
