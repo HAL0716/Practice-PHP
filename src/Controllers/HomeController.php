@@ -44,7 +44,7 @@ final class HomeController extends \App\Core\Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId  = \App\Core\Session::userId();
+        $userId = \App\Core\Session::userId();
 
         if (!\App\Models\PostRepository::create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
