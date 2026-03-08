@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-class HomeController extends \App\Core\Controller
+final class HomeController extends \App\Core\Controller
 {
-    private const ERROR_SYSTEM = '処理に失敗しました。時間をおいて再度お試しください';
-
     public function index(): void
     {
         $this->requireLogin();
@@ -26,24 +24,32 @@ class HomeController extends \App\Core\Controller
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isPost()) {
+            $this->indexPost();
+            return;
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function indexPost(): void
+    {
         $form = new \App\Forms\PostForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId  = \App\Core\Session::userId();
+        $userId = \App\Core\Session::userId();
 
         if (!\App\Models\PostRepository::create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        $this->redirect(\App\Constants\Routes::HOME);
+        $this->redirectSelf();
     }
 }

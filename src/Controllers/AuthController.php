@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-class AuthController extends \App\Core\Controller
+final class AuthController extends \App\Core\Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 
@@ -12,22 +12,33 @@ class AuthController extends \App\Core\Controller
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
     private const ERROR_LOCKED   = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
-    private const ERROR_SYSTEM   = '処理に失敗しました。時間をおいて再度お試しください';
 
     public function signup(): void
     {
-        if (\App\Core\Request::isGet()) {
-            $this->renderForm('auth/signup', 'サインアップ', \App\Constants\Routes::SIGNUP);
+        if (\App\Core\Request::isPost()) {
+            $this->signupPost();
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm(
+                'auth/signup',
+                'サインアップ',
+                \App\Constants\Routes::SIGNUP
+            );
+            return;
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function signupPost(): void
+    {
         $form = new \App\Forms\SignupForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
@@ -54,22 +65,30 @@ class AuthController extends \App\Core\Controller
 
     public function signin(): void
     {
-        if (\App\Core\Request::isGet()) {
-            $this->renderForm('auth/signin', 'サインイン', \App\Constants\Routes::SIGNIN);
+        if (\App\Core\Request::isPost()) {
+            $this->signinPost();
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm(
+                'auth/signin',
+                'サインイン',
+                \App\Constants\Routes::SIGNIN
+            );
+            return;
         }
 
-        if (\App\Core\LoginThrottle::isLocked()) {
-            $this->redirectSelf(self::ERROR_LOCKED);
-        }
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
 
+    private function signinPost(): void
+    {
         $form = new \App\Forms\SigninForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());
@@ -99,12 +118,18 @@ class AuthController extends \App\Core\Controller
 
     public function signout(): void
     {
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
-        }
-
         $this->requireLogin();
 
+        if (\App\Core\Request::isPost()) {
+            $this->signoutPost();
+            return;
+        }
+
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function signoutPost(): void
+    {
         \App\Core\Session::logout();
 
         $this->redirect(\App\Constants\Routes::SIGNIN);
@@ -133,13 +158,20 @@ class AuthController extends \App\Core\Controller
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isPost()) {
+            $this->mypagePost();
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function mypagePost(): void
+    {
         $form = new \App\Forms\MypageForm();
 
-        $this->checkCsrf($form->token());
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirectSelf($error, $form->old());
+        }
 
         if ($error = $form->validate()) {
             $this->redirectSelf($error, $form->old());

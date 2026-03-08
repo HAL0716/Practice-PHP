@@ -8,7 +8,8 @@ abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
 
-    private const ERROR_CSRF = '不正なリクエストです。再度お試しください';
+    protected const ERROR_CSRF   = '不正なリクエストです。再度お試しください。';
+    protected const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
 
     protected function render(
         string $view,
@@ -19,7 +20,7 @@ abstract class Controller
 
         ob_start();
         require $this->viewFile($view);
-        $content = ob_get_clean();
+        $content = (string) ob_get_clean();
 
         if (!$useLayout) {
             echo $content;
@@ -35,11 +36,11 @@ abstract class Controller
         array $old = []
     ): void {
         if ($error !== '') {
-            \App\Core\Session::flashError($error);
+            Session::flashError($error);
         }
 
         if ($old !== []) {
-            \App\Core\Session::flashOld($old);
+            Session::flashOld($old);
         }
 
         if (!headers_sent()) {
@@ -53,23 +54,19 @@ abstract class Controller
         string $error = '',
         array $old = []
     ): void {
-        $this->redirect(\App\Core\Request::path(), $error, $old);
+        $this->redirect(Request::path(), $error, $old);
     }
 
     protected function requireLogin(): void
     {
-        if (!\App\Core\Session::isLoggedIn()) {
+        if (!Session::isLoggedIn()) {
             $this->redirect(\App\Constants\Routes::SIGNIN);
         }
     }
 
-    final protected function checkCsrf(string $token): void
+    final protected function checkCsrf(string $token): ?string
     {
-        if (Csrf::verify($token)) {
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_CSRF);
+        return Csrf::verify($token) ? null : static::ERROR_CSRF;
     }
 
     private function viewFile(string $view): string
