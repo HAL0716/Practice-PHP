@@ -21,11 +21,12 @@ final class HomeController extends Controller
             $this->render(
                 'home',
                 [
-                    'title' => 'ホーム',
-                    'token' => Csrf::token(),
-                    'error' => Session::error(),
-                    'old'   => Session::old(),
-                    'posts' => PostRepository::findAll(),
+                    'title'   => 'ホーム',
+                    'token'   => Csrf::token(),
+                    'error'   => Session::error(),
+                    'old'     => Session::old(),
+                    'user_id' => Session::userId(),
+                    'posts'   => PostRepository::findAll(),
                 ]
             );
             return;

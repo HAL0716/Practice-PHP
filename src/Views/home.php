@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Core\Http\Session;
 use App\Forms\PostForm;
 ?>
 
@@ -18,7 +17,7 @@ use App\Forms\PostForm;
         <table>
             <?php foreach ($posts as $post) : ?>
                 <tr>
-                    <?php if ($post->userId() === Session::userId()) : ?>
+                    <?php if ($post->userId() === $user_id) : ?>
                         <td></td>
                         <td><?= Html::escape($post->comment()) ?></td>
                         <td><?= Html::escape($post->username()) ?></td>
