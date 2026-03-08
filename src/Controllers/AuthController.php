@@ -131,19 +131,13 @@ final class AuthController extends Controller
     {
         $this->requireLogin();
 
-        if (Request::isPost()) {
-            $this->signoutPost();
+        if (Request::isGet()) {
+            Session::logout();
+            $this->redirect(Routes::SIGNIN);
             return;
         }
 
         $this->redirectSelf(self::ERROR_SYSTEM);
-    }
-
-    private function signoutPost(): void
-    {
-        Session::logout();
-
-        $this->redirect(Routes::SIGNIN);
     }
 
     public function mypage(): void
