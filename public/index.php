@@ -2,49 +2,37 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../src/constants/Routes.php';
+require_once __DIR__ . '/../src/Core/Autoloader.php';
+\App\Core\Autoloader::register();
 
-require_once __DIR__ . '/../src/core/Html.php';
-require_once __DIR__ . '/../src/core/Request.php';
-require_once __DIR__ . '/../src/core/Session.php';
-require_once __DIR__ . '/../src/core/Csrf.php';
+\App\Core\Session::init();
 
-require_once __DIR__ . '/../src/controllers/HomeController.php';
-require_once __DIR__ . '/../src/controllers/AuthController.php';
-
-require_once __DIR__ . '/../src/forms/SigninForm.php';
-require_once __DIR__ . '/../src/forms/SignupForm.php';
-require_once __DIR__ . '/../src/forms/MypageForm.php';
-require_once __DIR__ . '/../src/forms/PostForm.php';
-
-Session::init();
-
-$url = Request::path();
+$url = \App\Core\Request::path();
 
 switch ($url) {
 
-    case Routes::HOME:
-        $controller = new HomeController();
+    case \App\Constants\Routes::HOME:
+        $controller = new \App\Controllers\HomeController();
         $controller->index();
         exit;
 
-    case Routes::SIGNUP:
-        $controller = new AuthController();
+    case \App\Constants\Routes::SIGNUP:
+        $controller = new \App\Controllers\AuthController();
         $controller->signup();
         exit;
 
-    case Routes::SIGNIN:
-        $controller = new AuthController();
+    case \App\Constants\Routes::SIGNIN:
+        $controller = new \App\Controllers\AuthController();
         $controller->signin();
         exit;
 
-    case Routes::SIGNOUT:
-        $controller = new AuthController();
+    case \App\Constants\Routes::SIGNOUT:
+        $controller = new \App\Controllers\AuthController();
         $controller->signout();
         exit;
 
-    case Routes::MYPAGE:
-        $controller = new AuthController();
+    case \App\Constants\Routes::MYPAGE:
+        $controller = new \App\Controllers\AuthController();
         $controller->mypage();
         exit;
 
