@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Core;
+
 abstract class Controller
 {
     protected const LAYOUT = 'layouts/default';
@@ -33,11 +35,11 @@ abstract class Controller
         array $old = []
     ): void {
         if ($error !== '') {
-            Session::flashError($error);
+            \App\Core\Session::flashError($error);
         }
 
         if ($old !== []) {
-            Session::flashOld($old);
+            \App\Core\Session::flashOld($old);
         }
 
         if (!headers_sent()) {
@@ -51,13 +53,13 @@ abstract class Controller
         string $error = '',
         array $old = []
     ): void {
-        $this->redirect(Request::path(), $error, $old);
+        $this->redirect(\App\Core\Request::path(), $error, $old);
     }
 
     protected function requireLogin(): void
     {
-        if (!Session::isLoggedIn()) {
-            $this->redirect(Routes::SIGNIN);
+        if (!\App\Core\Session::isLoggedIn()) {
+            $this->redirect(\App\Constants\Routes::SIGNIN);
         }
     }
 
@@ -72,10 +74,10 @@ abstract class Controller
 
     private function viewFile(string $view): string
     {
-        $path = __DIR__ . '/../views/' . $view . '.php';
+        $path = __DIR__ . '/../Views/' . $view . '.php';
 
         if (!is_file($path)) {
-            throw new RuntimeException("View not found: {$view}");
+            throw new \RuntimeException("View not found: {$view}");
         }
 
         return $path;

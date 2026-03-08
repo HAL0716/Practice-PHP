@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../core/LoginThrottle.php';
-require_once __DIR__ . '/../models/UserRepository.php';
+namespace App\Controllers;
 
-class AuthController extends Controller
+class AuthController extends \App\Core\Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 
@@ -18,16 +16,16 @@ class AuthController extends Controller
 
     public function signup(): void
     {
-        if (Request::isGet()) {
-            $this->renderForm('auth/signup', 'サインアップ', Routes::SIGNUP);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm('auth/signup', 'サインアップ', \App\Constants\Routes::SIGNUP);
             return;
         }
 
-        if (!Request::isPost()) {
+        if (!\App\Core\Request::isPost()) {
             $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
-        $form = new SignupForm();
+        $form = new \App\Forms\SignupForm();
 
         $this->checkCsrf($form->token());
 
@@ -35,11 +33,11 @@ class AuthController extends Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        if (UserRepository::findByEmail($form->mail())) {
+        if (\App\Models\UserRepository::findByEmail($form->mail())) {
             $this->redirectSelf(self::ERROR_EXISTS, $form->old());
         }
 
-        $user = UserRepository::create(
+        $user = \App\Models\UserRepository::create(
             $form->name(),
             $form->mail(),
             $form->pass()
@@ -49,27 +47,27 @@ class AuthController extends Controller
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        Session::login($user);
+        \App\Core\Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(\App\Constants\Routes::HOME);
     }
 
     public function signin(): void
     {
-        if (Request::isGet()) {
-            $this->renderForm('auth/signin', 'サインイン', Routes::SIGNIN);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm('auth/signin', 'サインイン', \App\Constants\Routes::SIGNIN);
             return;
         }
 
-        if (!Request::isPost()) {
+        if (!\App\Core\Request::isPost()) {
             $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
-        if (LoginThrottle::isLocked()) {
+        if (\App\Core\LoginThrottle::isLocked()) {
             $this->redirectSelf(self::ERROR_LOCKED);
         }
 
-        $form = new SigninForm();
+        $form = new \App\Forms\SigninForm();
 
         $this->checkCsrf($form->token());
 
@@ -77,7 +75,7 @@ class AuthController extends Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $user = UserRepository::findByEmail($form->mail());
+        $user = \App\Models\UserRepository::findByEmail($form->mail());
 
         $valid = $user
             ? $user->verifyPassword($form->pass())
@@ -85,61 +83,61 @@ class AuthController extends Controller
 
         if (!$valid) {
 
-            if (LoginThrottle::hit()) {
+            if (\App\Core\LoginThrottle::hit()) {
                 $this->redirectSelf(self::ERROR_LOCKED, $form->old());
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
         }
 
-        LoginThrottle::clear();
+        \App\Core\LoginThrottle::clear();
 
-        Session::login($user);
+        \App\Core\Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(\App\Constants\Routes::HOME);
     }
 
     public function signout(): void
     {
-        if (!Request::isPost()) {
+        if (!\App\Core\Request::isPost()) {
             $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
         $this->requireLogin();
 
-        Session::logout();
+        \App\Core\Session::logout();
 
-        $this->redirect(Routes::SIGNIN);
+        $this->redirect(\App\Constants\Routes::SIGNIN);
     }
 
     public function mypage(): void
     {
         $this->requireLogin();
 
-        if (Request::isGet()) {
-            $user = UserRepository::findById(Session::userId());
+        if (\App\Core\Request::isGet()) {
+            $user = \App\Models\UserRepository::findById(\App\Core\Session::userId());
 
             if (!$user) {
-                Session::logout();
-                $this->redirect(Routes::SIGNIN);
+                \App\Core\Session::logout();
+                $this->redirect(\App\Constants\Routes::SIGNIN);
             }
 
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
-                'token'     => Csrf::token(),
-                'error'     => Session::error(),
-                'old'       => Session::old(),
+                'token'     => \App\Core\Csrf::token(),
+                'error'     => \App\Core\Session::error(),
+                'old'       => \App\Core\Session::old(),
                 'user'      => $user,
-                'actionUrl' => Routes::MYPAGE,
+                'actionUrl' => \App\Constants\Routes::MYPAGE,
             ]);
             return;
         }
 
-        if (!Request::isPost()) {
+        if (!\App\Core\Request::isPost()) {
             $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
-        $form = new MypageForm();
+        $form = new \App\Forms\MypageForm();
 
         $this->checkCsrf($form->token());
 
@@ -147,14 +145,14 @@ class AuthController extends Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId = Session::userId();
-        $user   = UserRepository::findById($userId);
+        $userId = \App\Core\Session::userId();
+        $user   = \App\Models\UserRepository::findById($userId);
 
         if (!$user || !$user->verifyPassword($form->passCurrent())) {
             $this->redirectSelf(self::ERROR_PASSWORD, $form->old());
         }
 
-        if (!UserRepository::update(
+        if (!\App\Models\UserRepository::update(
             $userId,
             $form->name() === '' ? null : $form->name(),
             $form->mail() === '' ? null : $form->mail(),
@@ -170,9 +168,9 @@ class AuthController extends Controller
     {
         $this->render($view, [
             'title'     => $title,
-            'token'     => Csrf::token(),
-            'error'     => Session::error(),
-            'old'       => Session::old(),
+            'token'     => \App\Core\Csrf::token(),
+            'error'     => \App\Core\Session::error(),
+            'old'       => \App\Core\Session::old(),
             'actionUrl' => $action,
         ]);
     }

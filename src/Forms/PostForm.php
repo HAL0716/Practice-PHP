@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../core/Form.php';
+namespace App\Forms;
 
-final class PostForm extends Form
+final class PostForm extends \App\Core\Form
 {
     public const COMMENT = 'comment';
 

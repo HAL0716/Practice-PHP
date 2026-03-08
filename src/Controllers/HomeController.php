@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../models/PostRepository.php';
+namespace App\Controllers;
 
-class HomeController extends Controller
+class HomeController extends \App\Core\Controller
 {
     private const ERROR_SYSTEM = '処理に失敗しました。時間をおいて再度お試しください';
 
@@ -13,25 +12,25 @@ class HomeController extends Controller
     {
         $this->requireLogin();
 
-        if (Request::isGet()) {
+        if (\App\Core\Request::isGet()) {
             $this->render(
                 'home',
                 [
                     'title' => 'ホーム',
-                    'token' => Csrf::token(),
-                    'error' => Session::error(),
-                    'old'   => Session::old(),
-                    'posts' => PostRepository::findAll(),
+                    'token' => \App\Core\Csrf::token(),
+                    'error' => \App\Core\Session::error(),
+                    'old'   => \App\Core\Session::old(),
+                    'posts' => \App\Models\PostRepository::findAll(),
                 ]
             );
             return;
         }
 
-        if (!Request::isPost()) {
+        if (!\App\Core\Request::isPost()) {
             $this->redirectSelf(self::ERROR_SYSTEM);
         }
 
-        $form = new PostForm();
+        $form = new \App\Forms\PostForm();
 
         $this->checkCsrf($form->token());
 
@@ -39,12 +38,12 @@ class HomeController extends Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId  = Session::userId();
+        $userId  = \App\Core\Session::userId();
 
-        if (!PostRepository::create($userId, $form->comment())) {
+        if (!\App\Models\PostRepository::create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(\App\Constants\Routes::HOME);
     }
 }

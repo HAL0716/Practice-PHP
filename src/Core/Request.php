@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+namespace App\Core;
+
 final class Request
 {
     private function __construct()
     {
-        throw new LogicException(
+        throw new \LogicException(
             'Cannot instantiate ' . static::class
         );
     }

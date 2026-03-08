@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Entities;
+
 final class PostEntity
 {
     public function __construct(

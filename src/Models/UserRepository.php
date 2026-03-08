@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../core/Repository.php';
-require_once __DIR__ . '/../database/schema/UsersTable.php';
-require_once __DIR__ . '/../entities/UserEntity.php';
+namespace App\Models;
 
-final class UserRepository extends Repository
+final class UserRepository extends \App\Core\Repository
 {
-    protected static function hydrate(array $row): UserEntity
+    protected static function hydrate(array $row): \App\Entities\UserEntity
     {
-        return new UserEntity(
-            (int)$row[UsersTable::ID],
-            $row[UsersTable::USERNAME],
-            $row[UsersTable::EMAIL],
-            $row[UsersTable::PASSWORD]
+        return new \App\Entities\UserEntity(
+            (int)$row[\App\Database\Schema\UsersTable::ID],
+            $row[\App\Database\Schema\UsersTable::USERNAME],
+            $row[\App\Database\Schema\UsersTable::EMAIL],
+            $row[\App\Database\Schema\UsersTable::PASSWORD]
         );
     }
 
@@ -22,7 +20,7 @@ final class UserRepository extends Repository
     {
         return sprintf(
             "SELECT * FROM %s",
-            UsersTable::TABLE
+            \App\Database\Schema\UsersTable::TABLE
         );
     }
 
@@ -30,17 +28,17 @@ final class UserRepository extends Repository
         string $name,
         string $email,
         string $password
-    ): ?UserEntity {
+    ): ?\App\Entities\UserEntity {
 
         $db = self::db();
 
         $sql = sprintf(
             "INSERT INTO %s (%s, %s, %s)
              VALUES (?, ?, ?)",
-            UsersTable::TABLE,
-            UsersTable::USERNAME,
-            UsersTable::EMAIL,
-            UsersTable::PASSWORD
+            \App\Database\Schema\UsersTable::TABLE,
+            \App\Database\Schema\UsersTable::USERNAME,
+            \App\Database\Schema\UsersTable::EMAIL,
+            \App\Database\Schema\UsersTable::PASSWORD
         );
 
         $params = [
@@ -51,7 +49,7 @@ final class UserRepository extends Repository
 
         try {
             self::execute($sql, $params);
-        } catch (PDOException) {
+        } catch (\PDOException) {
             return null;
         }
 
@@ -69,17 +67,17 @@ final class UserRepository extends Repository
         $params = [];
 
         if ($name !== null) {
-            $fields[] = UsersTable::USERNAME . ' = ?';
+            $fields[] = \App\Database\Schema\UsersTable::USERNAME . ' = ?';
             $params[] = $name;
         }
 
         if ($email !== null) {
-            $fields[] = UsersTable::EMAIL . ' = ?';
+            $fields[] = \App\Database\Schema\UsersTable::EMAIL . ' = ?';
             $params[] = $email;
         }
 
         if ($password !== null) {
-            $fields[] = UsersTable::PASSWORD . ' = ?';
+            $fields[] = \App\Database\Schema\UsersTable::PASSWORD . ' = ?';
             $params[] = password_hash($password, PASSWORD_DEFAULT);
         }
 
@@ -91,26 +89,26 @@ final class UserRepository extends Repository
 
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s = ?",
-            UsersTable::TABLE,
+            \App\Database\Schema\UsersTable::TABLE,
             implode(', ', $fields),
-            UsersTable::ID
+            \App\Database\Schema\UsersTable::ID
         );
 
         try {
             self::execute($sql, $params);
             return true;
-        } catch (PDOException) {
+        } catch (\PDOException) {
             return false;
         }
     }
 
-    public static function findById(int $id): ?UserEntity
+    public static function findById(int $id): ?\App\Entities\UserEntity
     {
-        return self::findOneBy(UsersTable::ID, [$id]);
+        return self::findOneBy(\App\Database\Schema\UsersTable::ID, [$id]);
     }
 
-    public static function findByEmail(string $email): ?UserEntity
+    public static function findByEmail(string $email): ?\App\Entities\UserEntity
     {
-        return self::findOneBy(UsersTable::EMAIL, [$email]);
+        return self::findOneBy(\App\Database\Schema\UsersTable::EMAIL, [$email]);
     }
 }

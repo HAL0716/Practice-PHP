@@ -1,28 +1,28 @@
-<h2><?= Html::escape($title) ?></h2>
+<h2><?= \App\Core\Html::escape($title) ?></h2>
 
 <?php if ($error !== null): ?>
-    <p style="color:red;"><?= Html::escape($error) ?></p>
+    <p style="color:red;"><?= \App\Core\Html::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(SignupForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+<form action="<?= \App\Core\Html::escape($actionUrl) ?>" method="post">
+    <input type="hidden" name="<?= \App\Core\Html::escape(\App\Forms\SignupForm::TOKEN) ?>" value="<?= \App\Core\Html::escape($token) ?>">
 
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= Html::escape(SignupForm::NAME) ?>" value="<?= Html::escape($old[SignupForm::NAME] ?? '') ?>" required></td>
+            <td><input type="text" name="<?= \App\Core\Html::escape(\App\Forms\SignupForm::NAME) ?>" value="<?= \App\Core\Html::escape($old[\App\Forms\SignupForm::NAME] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(SignupForm::MAIL) ?>" value="<?= Html::escape($old[SignupForm::MAIL] ?? '') ?>" required></td>
+            <td><input type="email" name="<?= \App\Core\Html::escape(\App\Forms\SignupForm::MAIL) ?>" value="<?= \App\Core\Html::escape($old[\App\Forms\SignupForm::MAIL] ?? '') ?>" required></td>
         </tr>
         <tr>
             <td>パスワード</td>
-            <td><input type="password" name="<?= Html::escape(SignupForm::PASS) ?>" required></td>
+            <td><input type="password" name="<?= \App\Core\Html::escape(\App\Forms\SignupForm::PASS) ?>" required></td>
         </tr>
         <tr>
             <td>パスワード（確認）</td>
-            <td><input type="password" name="<?= Html::escape(SignupForm::PASS_CONFIRM) ?>" required></td>
+            <td><input type="password" name="<?= \App\Core\Html::escape(\App\Forms\SignupForm::PASS_CONFIRM) ?>" required></td>
         </tr>
         <tr>
             <td colspan="2" style="text-align: center;">
@@ -33,5 +33,5 @@
 </form>
 
 <p>
-    <a href="<?= Html::escape(Routes::SIGNIN) ?>">サインインはこちら</a>
+    <a href="<?= \App\Core\Html::escape(\App\Constants\Routes::SIGNIN) ?>">サインインはこちら</a>
 </p>

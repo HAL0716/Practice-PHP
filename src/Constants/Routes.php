@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Constants;
+
 final class Routes
 {
     public const HOME    = '/home';

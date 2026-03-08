@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../core/Form.php';
+namespace App\Forms;
 
-final class MypageForm extends Form
+final class MypageForm extends \App\Core\Form
 {
     public const NAME         = 'name';
     public const MAIL         = 'mail';

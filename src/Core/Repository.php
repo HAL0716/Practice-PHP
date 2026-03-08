@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../database/Database.php';
+namespace App\Core;
 
 abstract class Repository
 {
     final private function __construct()
     {
-        throw new LogicException(
+        throw new \LogicException(
             'Cannot instantiate ' . static::class
         );
     }
 
-    final protected static function db(): PDO
+    final protected static function db(): \PDO
     {
-        return Database::connect();
+        return \App\Database\Database::connect();
     }
 
     abstract protected static function hydrate(array $row): object;
@@ -25,7 +25,7 @@ abstract class Repository
     final protected static function execute(
         string $sql,
         array $params = []
-    ): PDOStatement {
+    ): \PDOStatement {
 
         $stmt = static::db()->prepare($sql);
         $stmt->execute($params);
@@ -39,7 +39,7 @@ abstract class Repository
     ): ?object {
 
         $row = static::execute($sql, $params)
-            ->fetch(PDO::FETCH_ASSOC);
+            ->fetch(\PDO::FETCH_ASSOC);
 
         return $row ? static::hydrate($row) : null;
     }
@@ -50,7 +50,7 @@ abstract class Repository
     ): array {
 
         $rows = static::execute($sql, $params)
-            ->fetchAll(PDO::FETCH_ASSOC);
+            ->fetchAll(\PDO::FETCH_ASSOC);
 
         return array_map(
             fn (array $row) => static::hydrate($row),
@@ -77,7 +77,7 @@ abstract class Repository
         $direction = strtoupper($direction);
 
         if (!in_array($direction, ['ASC', 'DESC'], true)) {
-            throw new InvalidArgumentException('Invalid order direction');
+            throw new \InvalidArgumentException('Invalid order direction');
         }
 
         $sql = static::baseSelect()

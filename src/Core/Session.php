@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../entities/UserEntity.php';
+namespace App\Core;
 
 final class Session
 {
@@ -14,7 +14,9 @@ final class Session
 
     private function __construct()
     {
-        throw new LogicException('Cannot instantiate ' . static::class);
+        throw new \LogicException(
+            'Cannot instantiate ' . static::class
+        );
     }
 
     public static function init(): void
@@ -49,7 +51,7 @@ final class Session
         $_SESSION = [];
     }
 
-    public static function login(UserEntity $user): void
+    public static function login(\App\Entities\UserEntity $user): void
     {
         self::regenerate();
         $_SESSION[self::USER_ID] = $user->id();

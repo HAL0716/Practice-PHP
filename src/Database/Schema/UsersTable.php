@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Database\Schema;
+
 final class UsersTable
 {
     public const TABLE      = 'users';
@@ -16,7 +18,7 @@ final class UsersTable
 
     private function __construct()
     {
-        throw new LogicException(
+        throw new \LogicException(
             "Cannot instantiate " . static::class
         );
     }

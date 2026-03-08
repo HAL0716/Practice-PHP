@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Entities;
+
 final class UserEntity
 {
     public function __construct(

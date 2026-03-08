@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Database\Schema;
+
 final class PostsTable
 {
     public const TABLE      = 'posts';
@@ -14,7 +16,7 @@ final class PostsTable
 
     private function __construct()
     {
-        throw new LogicException(
+        throw new \LogicException(
             "Cannot instantiate " . static::class
         );
     }

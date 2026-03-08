@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Core;
+
 final class LoginThrottle
 {
     private const MAX_ATTEMPTS = 5;
@@ -13,8 +15,8 @@ final class LoginThrottle
 
     public static function isLocked(): bool
     {
-        $attempts = (int) Session::get(self::SESSION_ATTEMPTS, 0);
-        $last     = (int) Session::get(self::SESSION_TIME, 0);
+        $attempts = (int) \App\Core\Session::get(self::SESSION_ATTEMPTS, 0);
+        $last     = (int) \App\Core\Session::get(self::SESSION_TIME, 0);
 
         if ($last && time() - $last > self::LOCK_TIMEOUT) {
             self::clear();
@@ -26,17 +28,17 @@ final class LoginThrottle
 
     public static function hit(): bool
     {
-        $attempts = (int) Session::get(self::SESSION_ATTEMPTS, 0) + 1;
+        $attempts = (int) \App\Core\Session::get(self::SESSION_ATTEMPTS, 0) + 1;
 
-        Session::set(self::SESSION_ATTEMPTS, $attempts);
-        Session::set(self::SESSION_TIME, time());
+        \App\Core\Session::set(self::SESSION_ATTEMPTS, $attempts);
+        \App\Core\Session::set(self::SESSION_TIME, time());
 
         return $attempts >= self::MAX_ATTEMPTS;
     }
 
     public static function clear(): void
     {
-        Session::remove(self::SESSION_ATTEMPTS);
-        Session::remove(self::SESSION_TIME);
+        \App\Core\Session::remove(self::SESSION_ATTEMPTS);
+        \App\Core\Session::remove(self::SESSION_TIME);
     }
 }

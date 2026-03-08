@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Core;
+
 final class Csrf
 {
     private const TOKEN_LENGTH = 32;
@@ -13,7 +15,7 @@ final class Csrf
 
     private function __construct()
     {
-        throw new LogicException(
+        throw new \LogicException(
             'Cannot instantiate ' . static::class
         );
     }
@@ -24,13 +26,13 @@ final class Csrf
             self::clear();
         }
 
-        $token = Session::get(self::SESSION_TOKEN);
+        $token = \App\Core\Session::get(self::SESSION_TOKEN);
 
         if (!$token) {
             $token = self::generateToken();
 
-            Session::set(self::SESSION_TOKEN, $token);
-            Session::set(self::SESSION_TIME, time());
+            \App\Core\Session::set(self::SESSION_TOKEN, $token);
+            \App\Core\Session::set(self::SESSION_TIME, time());
         }
 
         return $token;
@@ -43,7 +45,7 @@ final class Csrf
             return false;
         }
 
-        $sessionToken = Session::get(self::SESSION_TOKEN);
+        $sessionToken = \App\Core\Session::get(self::SESSION_TOKEN);
 
         if (!$sessionToken) {
             return false;
@@ -65,7 +67,7 @@ final class Csrf
 
     private static function isExpired(): bool
     {
-        $tokenTime = Session::get(self::SESSION_TIME);
+        $tokenTime = \App\Core\Session::get(self::SESSION_TIME);
 
         if (!$tokenTime) {
             return true;
@@ -76,7 +78,7 @@ final class Csrf
 
     private static function clear(): void
     {
-        Session::remove(self::SESSION_TOKEN);
-        Session::remove(self::SESSION_TIME);
+        \App\Core\Session::remove(self::SESSION_TOKEN);
+        \App\Core\Session::remove(self::SESSION_TIME);
     }
 }
