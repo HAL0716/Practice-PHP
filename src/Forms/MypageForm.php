@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
-final class MypageForm extends \App\Core\Form
+use App\Core\Form;
+
+final class MypageForm extends Form
 {
     public const NAME         = 'name';
     public const MAIL         = 'mail';

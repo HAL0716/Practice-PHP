@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
-final class SignupForm extends \App\Core\Form
+use App\Core\Form;
+
+final class SignupForm extends Form
 {
     public const NAME         = 'name';
     public const MAIL         = 'mail';
