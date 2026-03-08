@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
-final class PostForm extends \App\Core\Form
+use App\Core\Form;
+
+final class PostForm extends Form
 {
     public const COMMENT = 'comment';
 

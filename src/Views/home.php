@@ -1,6 +1,15 @@
-<h2><?= \App\Core\Html::escape($title) ?></h2>
+<?php
+declare(strict_types=1);
 
-<p><a href="<?= \App\Core\Html::escape(\App\Constants\Routes::MYPAGE) ?>">マイページはこちら</a></p>
+use App\Constants\Routes;
+use App\Core\Html;
+use App\Core\Http\Session;
+use App\Forms\PostForm;
+?>
+
+<h2><?= Html::escape($title) ?></h2>
+
+<p><a href="<?= Html::escape(Routes::MYPAGE) ?>">マイページはこちら</a></p>
 
 <?php if (empty($posts)) : ?>
     <p>投稿がありません。</p>
@@ -9,13 +18,13 @@
         <table>
             <?php foreach ($posts as $post) : ?>
                 <tr>
-                    <?php if ($post->userId() === \App\Core\Http\Session::userId()) : ?>
+                    <?php if ($post->userId() === Session::userId()) : ?>
                         <td></td>
-                        <td><?= \App\Core\Html::escape($post->comment()) ?></td>
-                        <td><?= \App\Core\Html::escape($post->username()) ?></td>
+                        <td><?= Html::escape($post->comment()) ?></td>
+                        <td><?= Html::escape($post->username()) ?></td>
                     <?php else : ?>
-                        <td><?= \App\Core\Html::escape($post->username() ?? '匿名') ?></td>
-                        <td><?= \App\Core\Html::escape($post->comment()) ?></td>
+                        <td><?= Html::escape($post->username() ?? '匿名') ?></td>
+                        <td><?= Html::escape($post->comment()) ?></td>
                         <td></td>
                     <?php endif; ?>
                 </tr>
@@ -24,9 +33,9 @@
     </div>
 <?php endif; ?>
 
-<form action="<?= \App\Core\Html::escape(\App\Constants\Routes::HOME) ?>" method="post">
-    <input type="hidden" name="<?= \App\Core\Html::escape(\App\Forms\PostForm::TOKEN) ?>" value="<?= \App\Core\Html::escape($token) ?>">
-    <textarea name="<?= \App\Core\Html::escape(\App\Forms\PostForm::COMMENT) ?>" required><?= \App\Core\Html::escape($old[\App\Forms\PostForm::COMMENT] ?? '') ?></textarea>
+<form action="<?= Html::escape(Routes::HOME) ?>" method="post">
+    <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
     <button type="submit">投稿する</button>
 </form>
 

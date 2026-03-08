@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Database\Database;
+
 abstract class Repository
 {
     final private function __construct()
@@ -15,7 +17,7 @@ abstract class Repository
 
     final protected static function db(): \PDO
     {
-        return \App\Database\Database::connect();
+        return Database::connect();
     }
 
     abstract protected static function hydrate(array $row): object;
