@@ -36,11 +36,11 @@ abstract class Controller
         array $old = []
     ): void {
         if ($error !== '') {
-            \App\Core\Session::flashError($error);
+            Session::flashError($error);
         }
 
         if ($old !== []) {
-            \App\Core\Session::flashOld($old);
+            Session::flashOld($old);
         }
 
         if (!headers_sent()) {
@@ -54,19 +54,19 @@ abstract class Controller
         string $error = '',
         array $old = []
     ): void {
-        $this->redirect(\App\Core\Request::path(), $error, $old);
+        $this->redirect(Request::path(), $error, $old);
     }
 
     protected function requireLogin(): void
     {
-        if (!\App\Core\Session::isLoggedIn()) {
+        if (!Session::isLoggedIn()) {
             $this->redirect(\App\Constants\Routes::SIGNIN);
         }
     }
 
     final protected function checkCsrf(string $token): ?string
     {
-        return \App\Core\Csrf::verify($token) ? null : self::ERROR_CSRF;
+        return Csrf::verify($token) ? null : self::ERROR_CSRF;
     }
 
     private function viewFile(string $view): string
