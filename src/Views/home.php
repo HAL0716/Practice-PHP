@@ -9,7 +9,7 @@
         <table>
             <?php foreach ($posts as $post) : ?>
                 <tr>
-                    <?php if ($post->userId() === \App\Core\Session::userId()) : ?>
+                    <?php if ($post->userId() === \App\Core\Http\Session::userId()) : ?>
                         <td></td>
                         <td><?= \App\Core\Html::escape($post->comment()) ?></td>
                         <td><?= \App\Core\Html::escape($post->username()) ?></td>
