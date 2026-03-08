@@ -5,9 +5,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/Core/Autoloader.php';
 \App\Core\Autoloader::register();
 
-\App\Core\Session::init();
+\App\Core\Http\Session::init();
 
-$url = \App\Core\Request::path();
+$url = \App\Core\Http\Request::path();
 
 switch ($url) {
 

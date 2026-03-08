@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-final class AuthController extends \App\Core\Controller
+final class AuthController extends \App\Core\Http\Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 
@@ -15,12 +15,12 @@ final class AuthController extends \App\Core\Controller
 
     public function signup(): void
     {
-        if (\App\Core\Request::isPost()) {
+        if (\App\Core\Http\Request::isPost()) {
             $this->signupPost();
             return;
         }
 
-        if (\App\Core\Request::isGet()) {
+        if (\App\Core\Http\Request::isGet()) {
             $this->renderForm(
                 'auth/signup',
                 'サインアップ',
@@ -58,19 +58,19 @@ final class AuthController extends \App\Core\Controller
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        \App\Core\Session::login($user);
+        \App\Core\Http\Session::login($user);
 
         $this->redirect(\App\Constants\Routes::HOME);
     }
 
     public function signin(): void
     {
-        if (\App\Core\Request::isPost()) {
+        if (\App\Core\Http\Request::isPost()) {
             $this->signinPost();
             return;
         }
 
-        if (\App\Core\Request::isGet()) {
+        if (\App\Core\Http\Request::isGet()) {
             $this->renderForm(
                 'auth/signin',
                 'サインイン',
@@ -102,16 +102,16 @@ final class AuthController extends \App\Core\Controller
 
         if (!$valid) {
 
-            if (\App\Core\LoginThrottle::hit()) {
+            if (\App\Core\Security\LoginThrottle::hit()) {
                 $this->redirectSelf(self::ERROR_LOCKED, $form->old());
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
         }
 
-        \App\Core\LoginThrottle::clear();
+        \App\Core\Security\LoginThrottle::clear();
 
-        \App\Core\Session::login($user);
+        \App\Core\Http\Session::login($user);
 
         $this->redirect(\App\Constants\Routes::HOME);
     }
@@ -120,7 +120,7 @@ final class AuthController extends \App\Core\Controller
     {
         $this->requireLogin();
 
-        if (\App\Core\Request::isPost()) {
+        if (\App\Core\Http\Request::isPost()) {
             $this->signoutPost();
             return;
         }
@@ -130,7 +130,7 @@ final class AuthController extends \App\Core\Controller
 
     private function signoutPost(): void
     {
-        \App\Core\Session::logout();
+        \App\Core\Http\Session::logout();
 
         $this->redirect(\App\Constants\Routes::SIGNIN);
     }
@@ -139,26 +139,26 @@ final class AuthController extends \App\Core\Controller
     {
         $this->requireLogin();
 
-        if (\App\Core\Request::isGet()) {
-            $user = \App\Models\UserRepository::findById(\App\Core\Session::userId());
+        if (\App\Core\Http\Request::isGet()) {
+            $user = \App\Models\UserRepository::findById(\App\Core\Http\Session::userId());
 
             if (!$user) {
-                \App\Core\Session::logout();
+                \App\Core\Http\Session::logout();
                 $this->redirect(\App\Constants\Routes::SIGNIN);
             }
 
             $this->render('auth/mypage', [
                 'title'     => 'マイページ',
-                'token'     => \App\Core\Csrf::token(),
-                'error'     => \App\Core\Session::error(),
-                'old'       => \App\Core\Session::old(),
+                'token'     => \App\Core\Security\Csrf::token(),
+                'error'     => \App\Core\Http\Session::error(),
+                'old'       => \App\Core\Http\Session::old(),
                 'user'      => $user,
                 'actionUrl' => \App\Constants\Routes::MYPAGE,
             ]);
             return;
         }
 
-        if (\App\Core\Request::isPost()) {
+        if (\App\Core\Http\Request::isPost()) {
             $this->mypagePost();
         }
 
@@ -177,7 +177,7 @@ final class AuthController extends \App\Core\Controller
             $this->redirectSelf($error, $form->old());
         }
 
-        $userId = \App\Core\Session::userId();
+        $userId = \App\Core\Http\Session::userId();
         $user   = \App\Models\UserRepository::findById($userId);
 
         if (!$user || !$user->verifyPassword($form->passCurrent())) {
@@ -200,9 +200,9 @@ final class AuthController extends \App\Core\Controller
     {
         $this->render($view, [
             'title'     => $title,
-            'token'     => \App\Core\Csrf::token(),
-            'error'     => \App\Core\Session::error(),
-            'old'       => \App\Core\Session::old(),
+            'token'     => \App\Core\Security\Csrf::token(),
+            'error'     => \App\Core\Http\Session::error(),
+            'old'       => \App\Core\Http\Session::old(),
             'actionUrl' => $action,
         ]);
     }

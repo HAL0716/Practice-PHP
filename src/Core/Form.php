@@ -12,9 +12,9 @@ abstract class Form
 
     public function __construct(array $fields = [])
     {
-        $this->data[self::TOKEN] = \App\Core\Request::post(self::TOKEN, '');
+        $this->data[self::TOKEN] = \App\Core\Http\Request::post(self::TOKEN, '');
         foreach ($fields as $field) {
-            $this->data[$field] = \App\Core\Request::post($field, '');
+            $this->data[$field] = \App\Core\Http\Request::post($field, '');
         }
     }
 

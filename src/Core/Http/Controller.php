@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Http;
 
 abstract class Controller
 {
@@ -66,12 +66,12 @@ abstract class Controller
 
     final protected function checkCsrf(string $token): ?string
     {
-        return Csrf::verify($token) ? null : static::ERROR_CSRF;
+        return \App\Core\Security\Csrf::verify($token) ? null : static::ERROR_CSRF;
     }
 
     private function viewFile(string $view): string
     {
-        $path = __DIR__ . '/../Views/' . $view . '.php';
+        $path = __DIR__ . '/../../Views/' . $view . '.php';
 
         if (!is_file($path)) {
             throw new \RuntimeException("View not found: {$view}");
