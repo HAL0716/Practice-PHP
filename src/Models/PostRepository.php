@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-final class PostRepository extends \App\Core\Repository
+use App\Core\Repository;
+use App\Entities\PostEntity;
+use App\Database\Schema\PostsTable;
+use App\Database\Schema\UsersTable;
+
+final class PostRepository extends Repository
 {
-    protected static function hydrate(array $row): \App\Entities\PostEntity
+    protected static function hydrate(array $row): PostEntity
     {
-        $userId = $row[\App\Database\Schema\PostsTable::USER_ID];
-        $username = $row[\App\Database\Schema\UsersTable::ALIAS . '_' . \App\Database\Schema\UsersTable::USERNAME];
+        $userId = $row[PostsTable::USER_ID];
+        $username = $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME];
 
         return new \App\Entities\PostEntity(
-            (int) $row[\App\Database\Schema\PostsTable::ID],
+            (int) $row[PostsTable::ID],
             $userId !== null ? (int) $userId : null,
-            (string) $row[\App\Database\Schema\PostsTable::COMMENT],
+            (string) $row[PostsTable::COMMENT],
             $username !== null ? (string) $username : null
         );
     }
@@ -30,24 +35,24 @@ final class PostRepository extends \App\Core\Repository
              FROM %s %s
              LEFT JOIN %s %s
                ON %s.%s = %s.%s",
-            \App\Database\Schema\PostsTable::ALIAS,
-            \App\Database\Schema\PostsTable::ID,
-            \App\Database\Schema\PostsTable::ALIAS,
-            \App\Database\Schema\PostsTable::USER_ID,
-            \App\Database\Schema\PostsTable::ALIAS,
-            \App\Database\Schema\PostsTable::COMMENT,
-            \App\Database\Schema\UsersTable::ALIAS,
-            \App\Database\Schema\UsersTable::USERNAME,
-            \App\Database\Schema\UsersTable::ALIAS,
-            \App\Database\Schema\UsersTable::USERNAME,
-            \App\Database\Schema\PostsTable::TABLE,
-            \App\Database\Schema\PostsTable::ALIAS,
-            \App\Database\Schema\UsersTable::TABLE,
-            \App\Database\Schema\UsersTable::ALIAS,
-            \App\Database\Schema\PostsTable::ALIAS,
-            \App\Database\Schema\PostsTable::USER_ID,
-            \App\Database\Schema\UsersTable::ALIAS,
-            \App\Database\Schema\UsersTable::ID
+            PostsTable::ALIAS,
+            PostsTable::ID,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            PostsTable::ALIAS,
+            PostsTable::COMMENT,
+            UsersTable::ALIAS,
+            UsersTable::USERNAME,
+            UsersTable::ALIAS,
+            UsersTable::USERNAME,
+            PostsTable::TABLE,
+            PostsTable::ALIAS,
+            UsersTable::TABLE,
+            UsersTable::ALIAS,
+            PostsTable::ALIAS,
+            PostsTable::USER_ID,
+            UsersTable::ALIAS,
+            UsersTable::ID
         );
     }
 
@@ -61,9 +66,9 @@ final class PostRepository extends \App\Core\Repository
         $sql = sprintf(
             "INSERT INTO %s (%s, %s)
              VALUES (?, ?)",
-            \App\Database\Schema\PostsTable::TABLE,
-            \App\Database\Schema\PostsTable::USER_ID,
-            \App\Database\Schema\PostsTable::COMMENT
+            PostsTable::TABLE,
+            PostsTable::USER_ID,
+            PostsTable::COMMENT
         );
 
         $params = [
@@ -82,11 +87,11 @@ final class PostRepository extends \App\Core\Repository
 
     public static function findById(int $id): ?\App\Entities\PostEntity
     {
-        return self::findOneBy(\App\Database\Schema\PostsTable::ALIAS . '.' . \App\Database\Schema\PostsTable::ID, [$id]);
+        return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }
 
     public static function findAll(): array
     {
-        return self::findAllOrdered(\App\Database\Schema\PostsTable::ALIAS . '.' . \App\Database\Schema\PostsTable::CREATED_AT, 'ASC');
+        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
     }
 }
