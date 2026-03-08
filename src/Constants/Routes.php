@@ -11,4 +11,11 @@ final class Routes
     public const SIGNIN  = '/signin';
     public const SIGNOUT = '/signout';
     public const MYPAGE  = '/mypage';
+
+    private function __construct()
+    {
+        throw new \LogicException(
+            'Cannot instantiate ' . static::class
+        );
+    }
 }
