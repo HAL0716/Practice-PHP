@@ -26,10 +26,16 @@ final class HomeController extends \App\Core\Controller
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isPost()) {
+            $this->indexPost();
+            return;
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function indexPost(): void
+    {
         $form = new \App\Forms\PostForm();
 
         if ($error = $this->checkCsrf($form->token())) {
@@ -46,6 +52,6 @@ final class HomeController extends \App\Core\Controller
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        $this->redirect(\App\Constants\Routes::HOME);
+        $this->redirectSelf();
     }
 }

@@ -16,15 +16,25 @@ final class AuthController extends \App\Core\Controller
 
     public function signup(): void
     {
-        if (\App\Core\Request::isGet()) {
-            $this->renderForm('auth/signup', 'サインアップ', \App\Constants\Routes::SIGNUP);
+        if (\App\Core\Request::isPost()) {
+            $this->signupPost();
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm(
+                'auth/signup',
+                'サインアップ',
+                \App\Constants\Routes::SIGNUP
+            );
+            return;
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function signupPost(): void
+    {
         $form = new \App\Forms\SignupForm();
 
         if ($error = $this->checkCsrf($form->token())) {
@@ -56,19 +66,25 @@ final class AuthController extends \App\Core\Controller
 
     public function signin(): void
     {
-        if (\App\Core\Request::isGet()) {
-            $this->renderForm('auth/signin', 'サインイン', \App\Constants\Routes::SIGNIN);
+        if (\App\Core\Request::isPost()) {
+            $this->signinPost();
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isGet()) {
+            $this->renderForm(
+                'auth/signin',
+                'サインイン',
+                \App\Constants\Routes::SIGNIN
+            );
+            return;
         }
 
-        if (\App\Core\LoginThrottle::isLocked()) {
-            $this->redirectSelf(self::ERROR_LOCKED);
-        }
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
 
+    private function signinPost(): void
+    {
         $form = new \App\Forms\SigninForm();
 
         if ($error = $this->checkCsrf($form->token())) {
@@ -103,12 +119,18 @@ final class AuthController extends \App\Core\Controller
 
     public function signout(): void
     {
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
-        }
-
         $this->requireLogin();
 
+        if (\App\Core\Request::isPost()) {
+            $this->signoutPost();
+            return;
+        }
+
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function signoutPost(): void
+    {
         \App\Core\Session::logout();
 
         $this->redirect(\App\Constants\Routes::SIGNIN);
@@ -137,10 +159,15 @@ final class AuthController extends \App\Core\Controller
             return;
         }
 
-        if (!\App\Core\Request::isPost()) {
-            $this->redirectSelf(self::ERROR_SYSTEM);
+        if (\App\Core\Request::isPost()) {
+            $this->mypagePost();
         }
 
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    private function mypagePost(): void
+    {
         $form = new \App\Forms\MypageForm();
 
         if ($error = $this->checkCsrf($form->token())) {
