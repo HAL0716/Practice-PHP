@@ -14,7 +14,7 @@ abstract class Form
 
     protected const ERROR_REQUIRED_FIELDS   = '未入力の項目があります';
     protected const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
-    protected const ERROR_INVALID_PASSWORD  = 'パスワードは英数字8文字以上である必要があります';
+    protected const ERROR_INVALID_PASSWORD  = 'パスワードは英字と数字を含む8文字以上である必要があります';
     protected const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
 
     protected array $data = [];
