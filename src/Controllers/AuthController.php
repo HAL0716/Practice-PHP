@@ -151,9 +151,7 @@ final class AuthController extends Controller
 
     private function mypageGet(): void
     {
-        $user = UserRepository::findById(Session::userId());
-
-        if (!$user) {
+        if (!$user = $this->currentUser()) {
             Session::logout();
             $this->redirect(Routes::SIGNIN);
         }
@@ -199,11 +197,16 @@ final class AuthController extends Controller
         ]);
     }
 
+    private function currentUser()
+    {
+        return UserRepository::findById(Session::userId());
+    }
+
     private function ensureValidPassword(string $password, ?string $redirect = null): bool
     {
         $redirect ??= Request::path();
 
-        $user = UserRepository::findById(Session::userId());
+        $user = $this->currentUser();
 
         if (!$user || !$user->verifyPassword($password)) {
             $this->redirect($redirect, self::ERROR_PASSWORD);
