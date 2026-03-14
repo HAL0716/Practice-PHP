@@ -61,6 +61,10 @@ final class SignupForm extends Form
             return self::ERROR_INVALID_EMAIL;
         }
 
+        if (!$this->isValidPassword($this->pass())) {
+            return self::ERROR_INVALID_PASSWORD;
+        }
+
         if (!$this->isMatch($this->pass(), $this->passConfirm())) {
             return self::ERROR_PASSWORD_MISMATCH;
         }

@@ -71,6 +71,10 @@ final class MypageForm extends Form
 
         // パスワードは任意だが、入力された場合は確認と現在のパスワードも必須
         if ($this->pass() !== '') {
+            if (!$this->isValidPassword($this->pass())) {
+                return self::ERROR_INVALID_PASSWORD;
+            }
+
             if ($this->hasEmpty([
                 $this->passConfirm(),
             ])) {

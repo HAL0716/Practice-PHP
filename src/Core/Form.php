@@ -8,10 +8,13 @@ use App\Core\Http\Request;
 
 abstract class Form
 {
+    private const PASSWORD_LENGTH = 8;
+
     public const TOKEN = 'token';
 
     protected const ERROR_REQUIRED_FIELDS   = '未入力の項目があります';
     protected const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
+    protected const ERROR_INVALID_PASSWORD  = 'パスワードは英数字8文字以上である必要があります';
     protected const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
 
     protected array $data = [];
@@ -59,6 +62,13 @@ abstract class Form
     protected function isValidEmail(string $email): bool
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    protected function isValidPassword(string $password): bool
+    {
+        return strlen($password) >= self::PASSWORD_LENGTH
+            && preg_match('/[A-Za-z]/', $password)
+            && preg_match('/[0-9]/', $password);
     }
 
     public function old(array $except = []): array
