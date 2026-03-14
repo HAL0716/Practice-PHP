@@ -10,6 +10,8 @@ abstract class Form
 {
     public const TOKEN = 'token';
 
+    protected const ERROR_REQUIRED_FIELDS = '未入力の項目があります';
+
     protected array $data = [];
 
     public function __construct(array $fields = [])
@@ -23,6 +25,16 @@ abstract class Form
     public function token(): string
     {
         return $this->data[self::TOKEN];
+    }
+
+    protected function hasEmpty(array $values): bool
+    {
+        foreach ($values as $value) {
+            if (trim((string)$value) === '') {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function old(array $except = []): array

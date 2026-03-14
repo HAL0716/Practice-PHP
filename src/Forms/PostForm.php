@@ -13,8 +13,6 @@ final class PostForm extends Form
 
     public const COMMENT = 'comment';
 
-    private const ERROR_COMMENT_REQUIRED = 'コメントは必須です';
-
     public function __construct()
     {
         parent::__construct([
@@ -29,8 +27,10 @@ final class PostForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->comment() === '') {
-            return self::ERROR_COMMENT_REQUIRED;
+        if ($this->hasEmpty([
+            $this->comment(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
         return null;
