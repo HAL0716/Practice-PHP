@@ -15,42 +15,24 @@ Autoloader::register();
 
 Session::init();
 
+$routes = [
+    Routes::HOME    => [HomeController::class, 'index'],
+    Routes::SIGNUP  => [AuthController::class, 'signup'],
+    Routes::SIGNIN  => [AuthController::class, 'signin'],
+    Routes::SIGNOUT => [AuthController::class, 'signout'],
+    Routes::DELETE  => [AuthController::class, 'delete'],
+    Routes::MYPAGE  => [AuthController::class, 'mypage'],
+];
+
 $url = Request::path();
 
-switch ($url) {
-
-    case Routes::HOME:
-        $controller = new HomeController();
-        $controller->index();
-        exit;
-
-    case Routes::SIGNUP:
-        $controller = new AuthController();
-        $controller->signup();
-        exit;
-
-    case Routes::SIGNIN:
-        $controller = new AuthController();
-        $controller->signin();
-        exit;
-
-    case Routes::SIGNOUT:
-        $controller = new AuthController();
-        $controller->signout();
-        exit;
-
-    case Routes::DELETE:
-        $controller = new AuthController();
-        $controller->delete();
-        exit;
-
-    case Routes::MYPAGE:
-        $controller = new AuthController();
-        $controller->mypage();
-        exit;
-
-    default:
-        http_response_code(404);
-        echo '404 Not Found';
-        exit;
+if (!isset($routes[$url])) {
+    http_response_code(404);
+    echo '404 Not Found';
+    exit;
 }
+
+[$controllerClass, $method] = $routes[$url];
+
+$controller = new $controllerClass();
+$controller->$method();
