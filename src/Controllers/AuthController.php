@@ -135,7 +135,7 @@ final class AuthController extends Controller
     {
         $form = new DeleteForm();
 
-        if (!$this->ensureValidForm($form)) {
+        if (!$this->ensureValidForm($form, Routes::MYPAGE)) {
             return;
         }
 
