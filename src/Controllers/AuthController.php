@@ -33,6 +33,42 @@ final class AuthController extends Controller
         );
     }
 
+    public function signin(): void
+    {
+        $this->dispatch(
+            post: fn () => $this->signinPost(),
+            get:  fn () => $this->render('auth/signin', $this->formViewData())
+        );
+    }
+
+    public function signout(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            get: fn () => $this->signoutGet()
+        );
+    }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
+    }
+
+    public function mypage(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->mypagePost(),
+            get:  fn () => $this->mypageGet()
+        );
+    }
+
     private function signupPost(): void
     {
         $form = new SignupForm();
@@ -58,14 +94,6 @@ final class AuthController extends Controller
         Session::login($user);
 
         $this->redirect(Routes::HOME);
-    }
-
-    public function signin(): void
-    {
-        $this->dispatch(
-            post: fn () => $this->signinPost(),
-            get:  fn () => $this->render('auth/signin', $this->formViewData())
-        );
     }
 
     private function signinPost(): void
@@ -98,31 +126,13 @@ final class AuthController extends Controller
         $this->redirect(Routes::HOME);
     }
 
-    public function signout(): void
-    {
-        $this->requireLogin();
-
-        $this->dispatch(
-            get: fn () => $this->signoutGet()
-        );
-    }
-
     private function signoutGet(): void
     {
         Session::logout();
         $this->redirect(Routes::SIGNIN);
     }
 
-    public function delete(): void
-    {
-        $this->requireLogin();
-
-        $this->dispatch(
-            post: fn () => $this->deletePost()
-        );
-    }
-
-    public function deletePost(): void
+    private function deletePost(): void
     {
         $form = new DeleteForm();
 
@@ -140,16 +150,6 @@ final class AuthController extends Controller
 
         Session::logout();
         $this->redirect(Routes::SIGNIN);
-    }
-
-    public function mypage(): void
-    {
-        $this->requireLogin();
-
-        $this->dispatch(
-            post: fn () => $this->mypagePost(),
-            get:  fn () => $this->mypageGet()
-        );
     }
 
     private function mypageGet(): void
@@ -186,30 +186,6 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function nullable(string $value): ?string
-    {
-        return $value === '' ? null : $value;
-    }
-
-    private function formViewData(): array
-    {
-        return [
-            'token' => Csrf::token(),
-            'error' => Session::error(),
-            'old'   => Session::old(),
-        ];
-    }
-
-    private function userId(): int
-    {
-        return Session::userId();
-    }
-
-    private function currentUser()
-    {
-        return UserRepository::findById($this->userId());
-    }
-
     private function ensureValidPassword(string $password, ?string $redirect = null): bool
     {
         $redirect ??= Request::path();
@@ -222,5 +198,29 @@ final class AuthController extends Controller
         }
 
         return true;
+    }
+
+    private function currentUser()
+    {
+        return UserRepository::findById($this->userId());
+    }
+
+    private function userId(): int
+    {
+        return Session::userId();
+    }
+
+    private function formViewData(): array
+    {
+        return [
+            'token' => Csrf::token(),
+            'error' => Session::error(),
+            'old'   => Session::old(),
+        ];
+    }
+
+    private function nullable(string $value): ?string
+    {
+        return $value === '' ? null : $value;
     }
 }
