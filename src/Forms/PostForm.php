@@ -36,8 +36,10 @@ final class PostForm extends Form
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old($except);
+        return [
+            self::COMMENT,
+        ];
     }
 }

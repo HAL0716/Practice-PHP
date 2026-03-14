@@ -72,11 +72,11 @@ final class SignupForm extends Form
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old(array_merge($except, [
-            self::PASS,
-            self::PASS_CONFIRM,
-        ]));
+        return [
+            self::NAME,
+            self::MAIL,
+        ];
     }
 }

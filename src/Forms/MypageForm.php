@@ -93,12 +93,11 @@ final class MypageForm extends Form
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old(array_merge($except, [
-            self::PASS,
-            self::PASS_CONFIRM,
-            self::PASS_CURRENT,
-        ]));
+        return [
+            self::NAME,
+            self::MAIL,
+        ];
     }
 }

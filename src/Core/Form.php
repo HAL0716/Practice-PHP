@@ -81,10 +81,15 @@ abstract class Form
             && preg_match('/[0-9]/', $password);
     }
 
-    public function old(array $except = []): array
+    abstract public function validate(): ?string;
+
+    public function old(): array
     {
-        return array_diff_key($this->data, array_flip($except));
+        return array_intersect_key($this->data, array_flip($this->oldFields()));
     }
 
-    abstract public function validate(): ?string;
+    protected function oldFields(): array
+    {
+        return [];
+    }
 }
