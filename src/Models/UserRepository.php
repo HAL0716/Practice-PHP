@@ -115,4 +115,20 @@ final class UserRepository extends Repository
     {
         return self::findOneBy(UsersTable::EMAIL, [$email]);
     }
+
+    public static function delete(int $id): bool
+    {
+        $sql = sprintf(
+            "DELETE FROM %s WHERE %s = ?",
+            UsersTable::TABLE,
+            UsersTable::ID
+        );
+
+        try {
+            self::execute($sql, [$id]);
+            return true;
+        } catch (\PDOException) {
+            return false;
+        }
+    }
 }
