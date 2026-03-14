@@ -11,24 +11,24 @@ final class DeleteForm extends Form
 {
     public const ACTION_URL = Routes::DELETE;
 
-    public const PASS = 'pass';
+    public const PASS_CURRENT = 'pass_current';
 
     public function __construct()
     {
         parent::__construct([
-            self::PASS,
+            self::PASS_CURRENT,
         ]);
     }
 
-    public function pass(): string
+    public function passCurrent(): string
     {
-        return $this->data[self::PASS];
+        return $this->data[self::PASS_CURRENT];
     }
 
     public function validate(): ?string
     {
         if ($this->hasEmpty([
-            $this->pass(),
+            $this->passCurrent(),
         ])) {
             return self::ERROR_REQUIRED_FIELDS;
         }

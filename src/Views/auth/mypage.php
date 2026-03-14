@@ -8,7 +8,7 @@ use App\Forms\DeleteForm;
 
 ?>
 
-<h2><?= Html::escape($title) ?></h2>
+<h2><?= Html::escape('マイページ') ?></h2>
 
 <?php if ($error !== null): ?>
     <p style="color:red;"><?= Html::escape($error) ?></p>
@@ -47,7 +47,7 @@ use App\Forms\DeleteForm;
 
 <form action="<?= Html::escape(DeleteForm::ACTION_URL) ?>" method="post" class="delete-form">
     <input type="hidden" name="<?= Html::escape(DeleteForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <input type="hidden" name="<?= Html::escape(DeleteForm::PASS) ?>">
+    <input type="hidden" name="<?= Html::escape(DeleteForm::PASS_CURRENT) ?>">
     <button type="button" class="open-modal-delete" style="color: red;">アカウント削除</button>
 </form>
 
@@ -96,7 +96,7 @@ use App\Forms\DeleteForm;
     });
 
     openDeleteBtn.addEventListener("click", () => {
-        open(deleteForm, "<?= Html::escape(DeleteForm::PASS) ?>");
+        open(deleteForm, "<?= Html::escape(DeleteForm::PASS_CURRENT) ?>");
     });
 
     submitBtn.addEventListener("click", () => {

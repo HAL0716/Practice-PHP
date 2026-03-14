@@ -8,8 +8,8 @@ use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
-use App\Core\Security\Csrf;
 use App\Core\Security\LoginThrottle;
+use App\Entities\UserEntity;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
@@ -23,36 +23,57 @@ final class AuthController extends Controller
     private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
-    private const ERROR_LOCKED   = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
 
     public function signup(): void
     {
-        if (Request::isPost()) {
-            $this->signupPost();
-            return;
-        }
+        $this->dispatch(
+            post: fn () => $this->signupPost(),
+            get:  fn () => $this->render('auth/signup')
+        );
+    }
 
-        if (Request::isGet()) {
-            $this->renderForm(
-                'auth/signup',
-                'サインアップ'
-            );
-            return;
-        }
+    public function signin(): void
+    {
+        $this->dispatch(
+            post: fn () => $this->signinPost(),
+            get:  fn () => $this->render('auth/signin')
+        );
+    }
 
-        $this->redirectSelf(self::ERROR_SYSTEM);
+    public function signout(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            get: fn () => $this->signoutGet()
+        );
+    }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
+    }
+
+    public function mypage(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->mypagePost(),
+            get:  fn () => $this->mypageGet()
+        );
     }
 
     private function signupPost(): void
     {
         $form = new SignupForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         if (UserRepository::findByEmail($form->mail())) {
@@ -74,34 +95,12 @@ final class AuthController extends Controller
         $this->redirect(Routes::HOME);
     }
 
-    public function signin(): void
-    {
-        if (Request::isPost()) {
-            $this->signinPost();
-            return;
-        }
-
-        if (Request::isGet()) {
-            $this->renderForm(
-                'auth/signin',
-                'サインイン'
-            );
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
-    }
-
     private function signinPost(): void
     {
         $form = new SigninForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         $user = UserRepository::findByEmail($form->mail());
@@ -112,8 +111,8 @@ final class AuthController extends Controller
 
         if (!$valid) {
 
-            if (LoginThrottle::hit()) {
-                $this->redirectSelf(self::ERROR_LOCKED, $form->old());
+            if ($error = LoginThrottle::hit()) {
+                $this->redirectSelf($error, $form->old());
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
@@ -126,51 +125,25 @@ final class AuthController extends Controller
         $this->redirect(Routes::HOME);
     }
 
-    public function signout(): void
+    private function signoutGet(): void
     {
-        $this->requireLogin();
-
-        if (Request::isGet()) {
-            Session::logout();
-            $this->redirect(Routes::SIGNIN);
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        Session::logout();
+        $this->redirect(Routes::SIGNIN);
     }
 
-    public function delete(): void
-    {
-        $this->requireLogin();
-
-        if (Request::isPost()) {
-            $this->deletePost();
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
-    }
-
-    public function deletePost(): void
+    private function deletePost(): void
     {
         $form = new DeleteForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirect(Routes::MYPAGE, $error);
+        if (!$this->ensureValidForm($form, Routes::MYPAGE)) {
+            return;
         }
 
-        if ($error = $form->validate()) {
-            $this->redirect(Routes::MYPAGE, $error);
+        if (!$this->ensureValidPassword($form->passCurrent(), Routes::MYPAGE)) {
+            return;
         }
 
-        $userId = Session::userId();
-        $user   = UserRepository::findById($userId);
-
-        if (!$user || !$user->verifyPassword($form->pass())) {
-            $this->redirect(Routes::MYPAGE, self::ERROR_PASSWORD);
-        }
-
-        if (!UserRepository::delete($userId)) {
+        if (!UserRepository::delete($this->userId())) {
             $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
         }
 
@@ -178,59 +151,33 @@ final class AuthController extends Controller
         $this->redirect(Routes::SIGNIN);
     }
 
-    public function mypage(): void
+    private function mypageGet(): void
     {
-        $this->requireLogin();
-
-        if (Request::isGet()) {
-            $user = UserRepository::findById(Session::userId());
-
-            if (!$user) {
-                Session::logout();
-                $this->redirect(Routes::SIGNIN);
-            }
-
-            $this->render('auth/mypage', [
-                'title'     => 'マイページ',
-                'token'     => Csrf::token(),
-                'error'     => Session::error(),
-                'old'       => Session::old(),
-                'user'      => $user,
-            ]);
-            return;
+        if (!$user = $this->currentUser()) {
+            Session::logout();
+            $this->redirect(Routes::SIGNIN);
         }
 
-        if (Request::isPost()) {
-            $this->mypagePost();
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->render('auth/mypage', ['user' => $user]);
     }
 
     private function mypagePost(): void
     {
         $form = new MypageForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        $userId = Session::userId();
-        $user   = UserRepository::findById($userId);
-
-        if (!$user || !$user->verifyPassword($form->passCurrent())) {
-            $this->redirectSelf(self::ERROR_PASSWORD, $form->old());
+        if (!$this->ensureValidPassword($form->passCurrent())) {
+            return;
         }
 
         if (!UserRepository::update(
-            $userId,
-            $form->name() === '' ? null : $form->name(),
-            $form->mail() === '' ? null : $form->mail(),
-            $form->pass() === '' ? null : $form->pass()
+            $this->userId(),
+            $this->nullable($form->name()),
+            $this->nullable($form->mail()),
+            $this->nullable($form->pass())
         )) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
@@ -238,13 +185,27 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function renderForm(string $view, string $title): void
+    private function currentUser(): ?UserEntity
     {
-        $this->render($view, [
-            'title'     => $title,
-            'token'     => Csrf::token(),
-            'error'     => Session::error(),
-            'old'       => Session::old(),
-        ]);
+        return UserRepository::findById($this->userId());
+    }
+
+    private function ensureValidPassword(string $password, ?string $redirect = null): bool
+    {
+        $redirect ??= Request::path();
+
+        $user = $this->currentUser();
+
+        if (!$user || !$user->verifyPassword($password)) {
+            $this->redirect($redirect, self::ERROR_PASSWORD);
+            return false;
+        }
+
+        return true;
+    }
+
+    private function nullable(string $value): ?string
+    {
+        return $value === '' ? null : $value;
     }
 }

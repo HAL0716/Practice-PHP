@@ -6,6 +6,7 @@ namespace App\Core\Http;
 
 use App\Constants\Routes;
 use App\Core\Security\Csrf;
+use App\Core\Form;
 
 abstract class Controller
 {
@@ -14,26 +15,31 @@ abstract class Controller
     protected const ERROR_CSRF   = '不正なリクエストです。再度お試しください。';
     protected const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
 
-    protected function render(
-        string $view,
-        array $data = [],
-        bool $useLayout = true
+    final protected function dispatch(
+        ?callable $post = null,
+        ?callable $get = null
     ): void {
-        extract($data, EXTR_SKIP);
-
-        ob_start();
-        require $this->viewFile($view);
-        $content = (string) ob_get_clean();
-
-        if (!$useLayout) {
-            echo $content;
+        if (Request::isPost() && $post) {
+            $post();
             return;
         }
 
-        require $this->viewFile(static::LAYOUT);
+        if (Request::isGet() && $get) {
+            $get();
+            return;
+        }
+
+        $this->redirectSelf(self::ERROR_SYSTEM);
     }
 
-    protected function redirect(
+    protected function requireLogin(): void
+    {
+        if (!Session::isLoggedIn()) {
+            $this->redirect(Routes::SIGNIN);
+        }
+    }
+
+    final protected function redirect(
         string $url,
         string $error = '',
         array $old = []
@@ -53,23 +59,63 @@ abstract class Controller
         exit;
     }
 
-    protected function redirectSelf(
+    final protected function redirectSelf(
         string $error = '',
         array $old = []
     ): void {
         $this->redirect(Request::path(), $error, $old);
     }
 
-    protected function requireLogin(): void
+    final protected function ensureValidForm(Form $form, ?string $redirect = null): bool
     {
-        if (!Session::isLoggedIn()) {
-            $this->redirect(Routes::SIGNIN);
+        $redirect ??= Request::path();
+
+        $error = $this->checkCsrf($form->token()) ?? $form->validate();
+
+        if ($error !== null) {
+            $this->redirect($redirect, $error, $form->old());
+            return false;
         }
+
+        return true;
     }
 
     final protected function checkCsrf(string $token): ?string
     {
         return Csrf::verify($token) ? null : static::ERROR_CSRF;
+    }
+
+    final protected function render(
+        string $view,
+        array $data = [],
+        bool $useLayout = true
+    ): void {
+        extract($this->viewData($data), EXTR_SKIP);
+
+        ob_start();
+        require $this->viewFile($view);
+        $content = (string) ob_get_clean();
+
+        if (!$useLayout) {
+            echo $content;
+            return;
+        }
+
+        require $this->viewFile(static::LAYOUT);
+    }
+
+    final protected function userId(): int
+    {
+        return Session::userId();
+    }
+
+    private function viewData(array $data): array
+    {
+        return $data + [
+            'token' => Csrf::token(),
+            'error' => Session::error(),
+            'old'   => Session::old(),
+        ];
     }
 
     private function viewFile(string $view): string

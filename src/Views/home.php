@@ -7,7 +7,7 @@ use App\Forms\PostForm;
 
 ?>
 
-<h2><?= Html::escape($title) ?></h2>
+<h2><?= Html::escape('ホーム') ?></h2>
 
 <p><a href="<?= Html::escape(Routes::MYPAGE) ?>">マイページはこちら</a></p>
 
