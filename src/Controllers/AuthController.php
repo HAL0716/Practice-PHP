@@ -187,6 +187,16 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
+    private function userId(): int
+    {
+        return Session::userId();
+    }
+
+    private function currentUser(): ?UserEntity
+    {
+        return UserRepository::findById($this->userId());
+    }
+
     private function ensureValidPassword(string $password, ?string $redirect = null): bool
     {
         $redirect ??= Request::path();
@@ -199,16 +209,6 @@ final class AuthController extends Controller
         }
 
         return true;
-    }
-
-    private function currentUser(): ?UserEntity
-    {
-        return UserRepository::findById($this->userId());
-    }
-
-    private function userId(): int
-    {
-        return Session::userId();
     }
 
     private function formViewData(): array
