@@ -8,7 +8,6 @@ use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
-use App\Core\Security\Csrf;
 use App\Core\Security\LoginThrottle;
 use App\Entities\UserEntity;
 use App\Forms\MypageForm;
