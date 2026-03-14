@@ -10,6 +10,7 @@ use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Core\Security\Csrf;
 use App\Core\Security\LoginThrottle;
+use App\Entities\UserEntity;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
@@ -200,7 +201,7 @@ final class AuthController extends Controller
         return true;
     }
 
-    private function currentUser()
+    private function currentUser(): ?UserEntity
     {
         return UserRepository::findById($this->userId());
     }
