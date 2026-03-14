@@ -10,17 +10,18 @@ abstract class Form
 {
     public const TOKEN = 'token';
 
-    protected const ERROR_REQUIRED_FIELDS = '未入力の項目があります';
-    protected const ERROR_INVALID_EMAIL = '不正なメールアドレスです';
-    protected const ERROR_MISMATCH_PASSWORD = 'パスワードが一致しません';
+    protected const ERROR_REQUIRED_FIELDS   = '未入力の項目があります';
+    protected const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
+    protected const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
 
     protected array $data = [];
 
     public function __construct(array $fields = [])
     {
-        $this->data[self::TOKEN] = Request::post(self::TOKEN, '');
+        $this->data[self::TOKEN] = $this->post(self::TOKEN);
+
         foreach ($fields as $field) {
-            $this->data[$field] = Request::post($field, '');
+            $this->data[$field] = $this->post($field);
         }
     }
 
@@ -29,13 +30,24 @@ abstract class Form
         return $this->data[self::TOKEN];
     }
 
+    protected function post(string $key): string
+    {
+        return Request::post($key, '');
+    }
+
+    protected function isEmpty(string $value): bool
+    {
+        return trim($value) === '';
+    }
+
     protected function hasEmpty(array $values): bool
     {
         foreach ($values as $value) {
-            if (trim((string)$value) === '') {
+            if ($this->isEmpty((string) $value)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -46,11 +58,13 @@ abstract class Form
 
     protected function isValidEmail(string $email): bool
     {
-        return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     public function old(array $except = []): array
     {
         return array_diff_key($this->data, array_flip($except));
     }
+
+    abstract public function validate(): ?string;
 }

@@ -62,7 +62,7 @@ final class SignupForm extends Form
         }
 
         if (!$this->isMatch($this->pass(), $this->passConfirm())) {
-            return self::ERROR_MISMATCH_PASSWORD;
+            return self::ERROR_PASSWORD_MISMATCH;
         }
 
         return null;
