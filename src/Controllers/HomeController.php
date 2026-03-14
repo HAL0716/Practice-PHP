@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Http\Controller;
-use App\Core\Http\Session;
-use App\Core\Security\Csrf;
 use App\Forms\PostForm;
 use App\Models\PostRepository;
 
@@ -17,7 +15,7 @@ final class HomeController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->render('home', ['user_id' => Session::userId(), 'posts' => PostRepository::findAll()]),
+            get: fn () => $this->render('home', ['user_id' => $this->userId(), 'posts' => PostRepository::findAll()]),
             post: fn () => $this->indexPost()
         );
     }
@@ -30,9 +28,7 @@ final class HomeController extends Controller
             return;
         }
 
-        $userId = Session::userId();
-
-        if (!PostRepository::create($userId, $form->comment())) {
+        if (!PostRepository::create($this->userId(), $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 

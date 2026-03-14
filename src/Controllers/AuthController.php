@@ -186,11 +186,6 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function userId(): int
-    {
-        return Session::userId();
-    }
-
     private function currentUser(): ?UserEntity
     {
         return UserRepository::findById($this->userId());

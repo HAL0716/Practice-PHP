@@ -121,4 +121,9 @@ abstract class Controller
 
         return $path;
     }
+
+    protected function userId(): int
+    {
+        return Session::userId();
+    }
 }
