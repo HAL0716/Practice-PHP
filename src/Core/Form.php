@@ -77,8 +77,8 @@ abstract class Form
     protected function isValidPassword(string $password): bool
     {
         return strlen($password) >= self::PASSWORD_LENGTH
-            && preg_match('/[A-Za-z]/', $password)
-            && preg_match('/[0-9]/', $password);
+            && preg_match('/[A-Za-z]/', $password) === 1
+            && preg_match('/[0-9]/', $password) === 1;
     }
 
     abstract public function validate(): ?string;
