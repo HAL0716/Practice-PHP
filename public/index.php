@@ -2,47 +2,37 @@
 
 declare(strict_types=1);
 
+use App\Core\Autoloader;
+use App\Core\Http\Request;
+use App\Core\Http\Session;
+use App\Constants\Routes;
+use App\Controllers\AuthController;
+use App\Controllers\HomeController;
+
 require_once __DIR__ . '/../src/Core/Autoloader.php';
-\App\Core\Autoloader::register();
 
-\App\Core\Http\Session::init();
+Autoloader::register();
 
-$url = \App\Core\Http\Request::path();
+Session::init();
 
-switch ($url) {
+$routes = [
+    Routes::HOME    => [HomeController::class, 'index'],
+    Routes::SIGNUP  => [AuthController::class, 'signup'],
+    Routes::SIGNIN  => [AuthController::class, 'signin'],
+    Routes::SIGNOUT => [AuthController::class, 'signout'],
+    Routes::DELETE  => [AuthController::class, 'delete'],
+    Routes::MYPAGE  => [AuthController::class, 'mypage'],
+];
 
-    case \App\Constants\Routes::HOME:
-        $controller = new \App\Controllers\HomeController();
-        $controller->index();
-        exit;
+$url = Request::path();
 
-    case \App\Constants\Routes::SIGNUP:
-        $controller = new \App\Controllers\AuthController();
-        $controller->signup();
-        exit;
-
-    case \App\Constants\Routes::SIGNIN:
-        $controller = new \App\Controllers\AuthController();
-        $controller->signin();
-        exit;
-
-    case \App\Constants\Routes::SIGNOUT:
-        $controller = new \App\Controllers\AuthController();
-        $controller->signout();
-        exit;
-
-    case \App\Constants\Routes::DELETE:
-        $controller = new \App\Controllers\AuthController();
-        $controller->delete();
-        exit;
-
-    case \App\Constants\Routes::MYPAGE:
-        $controller = new \App\Controllers\AuthController();
-        $controller->mypage();
-        exit;
-
-    default:
-        http_response_code(404);
-        echo '404 Not Found';
-        exit;
+if (!isset($routes[$url])) {
+    http_response_code(404);
+    echo '404 Not Found';
+    exit;
 }
+
+[$controllerClass, $method] = $routes[$url];
+
+$controller = new $controllerClass();
+$controller->$method();
