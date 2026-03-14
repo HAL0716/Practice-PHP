@@ -43,6 +43,11 @@ use App\Forms\MypageForm;
     </table>
 </form>
 
+<form action="<?= Html::escape(Routes::DELETE) ?>" method="post">
+    <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <button type="submit" style="color: red;">アカウント削除</button>
+</form>
+
 <p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">

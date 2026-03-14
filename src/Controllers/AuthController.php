@@ -140,6 +140,23 @@ final class AuthController extends Controller
         $this->redirectSelf(self::ERROR_SYSTEM);
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        if (Request::isPost()) {
+            $userId = Session::userId();
+
+            if (UserRepository::delete($userId)) {
+                Session::logout();
+                $this->redirect(Routes::SIGNIN);
+                return;
+            }
+        }
+
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
     public function mypage(): void
     {
         $this->requireLogin();

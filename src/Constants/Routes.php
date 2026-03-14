@@ -10,6 +10,7 @@ final class Routes
     public const SIGNUP  = '/signup';
     public const SIGNIN  = '/signin';
     public const SIGNOUT = '/signout';
+    public const DELETE  = '/delete';
     public const MYPAGE  = '/mypage';
 
     private function __construct()

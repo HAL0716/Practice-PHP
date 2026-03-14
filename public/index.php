@@ -31,6 +31,11 @@ switch ($url) {
         $controller->signout();
         exit;
 
+    case \App\Constants\Routes::DELETE:
+        $controller = new \App\Controllers\AuthController();
+        $controller->delete();
+        exit;
+
     case \App\Constants\Routes::MYPAGE:
         $controller = new \App\Controllers\AuthController();
         $controller->mypage();
