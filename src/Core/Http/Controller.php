@@ -104,6 +104,11 @@ abstract class Controller
         require $this->viewFile(static::LAYOUT);
     }
 
+    final protected function userId(): int
+    {
+        return Session::userId();
+    }
+
     private function viewData(array $data): array
     {
         return $data + [
@@ -122,10 +127,5 @@ abstract class Controller
         }
 
         return $path;
-    }
-
-    final protected function userId(): int
-    {
-        return Session::userId();
     }
 }
