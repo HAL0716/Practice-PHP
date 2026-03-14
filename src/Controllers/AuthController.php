@@ -24,7 +24,6 @@ final class AuthController extends Controller
     private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
     private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
     private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
-    private const ERROR_LOCKED   = 'ログイン試行回数が上限に達しました。しばらくしてから再度お試しください';
 
     public function signup(): void
     {
@@ -113,8 +112,8 @@ final class AuthController extends Controller
 
         if (!$valid) {
 
-            if (LoginThrottle::hit()) {
-                $this->redirectSelf(self::ERROR_LOCKED, $form->old());
+            if ($error = LoginThrottle::hit()) {
+                $this->redirectSelf($error, $form->old());
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
