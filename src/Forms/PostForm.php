@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class PostForm extends Form
 {
+    public const actionURL = Routes::HOME;
+
     public const COMMENT = 'comment';
 
     private const ERROR_COMMENT_REQUIRED = 'コメントは必須です';

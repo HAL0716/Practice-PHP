@@ -15,7 +15,7 @@ use App\Forms\DeleteForm;
 
 <p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post" class="update-form">
+<form action="<?= Html::escape(MypageForm::actionURL) ?>" method="post" class="update-form">
     <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
     <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
 
@@ -44,7 +44,7 @@ use App\Forms\DeleteForm;
     </table>
 </form>
 
-<form action="<?= Html::escape(Routes::DELETE) ?>" method="post" class="delete-form">
+<form action="<?= Html::escape(DeleteForm::actionURL) ?>" method="post" class="delete-form">
     <input type="hidden" name="<?= Html::escape(DeleteForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
     <input type="hidden" name="<?= Html::escape(DeleteForm::PASS) ?>">
     <button type="button" class="open-modal-delete" style="color: red;">アカウント削除</button>

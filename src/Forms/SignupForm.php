@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class SignupForm extends Form
 {
+    public const actionURL = Routes::SIGNUP;
+
     public const NAME         = 'name';
     public const MAIL         = 'mail';
     public const PASS         = 'pass';

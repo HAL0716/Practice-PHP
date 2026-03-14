@@ -12,7 +12,7 @@ use App\Forms\SignupForm;
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post">
+<form action="<?= Html::escape(SignupForm::actionURL) ?>" method="post">
     <input type="hidden" name="<?= Html::escape(SignupForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
     <table>

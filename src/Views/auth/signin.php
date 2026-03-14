@@ -12,7 +12,7 @@ use App\Forms\SigninForm;
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post">
+<form action="<?= Html::escape(SigninForm::actionURL) ?>" method="post">
     <input type="hidden" name="<?= Html::escape(SigninForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
     <table>
