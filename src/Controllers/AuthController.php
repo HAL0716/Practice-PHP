@@ -13,6 +13,7 @@ use App\Core\Security\LoginThrottle;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
+use App\Forms\DeleteForm;
 use App\Models\UserRepository;
 
 final class AuthController extends Controller
@@ -145,16 +146,38 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         if (Request::isPost()) {
-            $userId = Session::userId();
-
-            if (UserRepository::delete($userId)) {
-                Session::logout();
-                $this->redirect(Routes::SIGNIN);
-                return;
-            }
+            $this->deletePost();
+            return;
         }
 
         $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
+    public function deletePost(): void
+    {
+        $form = new DeleteForm();
+
+        if ($error = $this->checkCsrf($form->token())) {
+            $this->redirect(Routes::MYPAGE, $error);
+        }
+
+        if ($error = $form->validate()) {
+            $this->redirect(Routes::MYPAGE, $error);
+        }
+
+        $userId = Session::userId();
+        $user   = UserRepository::findById($userId);
+
+        if (!$user || !$user->verifyPassword($form->pass())) {
+            $this->redirect(Routes::MYPAGE, self::ERROR_PASSWORD);
+        }
+
+        if (!UserRepository::delete($userId)) {
+            $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
+        }
+
+        Session::logout();
+        $this->redirect(Routes::SIGNIN);
     }
 
     public function mypage(): void
