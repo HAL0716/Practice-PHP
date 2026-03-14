@@ -160,7 +160,7 @@ final class AuthController extends Controller
             $this->redirect(Routes::SIGNIN);
         }
 
-        $this->render('auth/mypage', $this->formViewData() + ['user' => $user]);
+        $this->render('auth/mypage', array_merge($this->formViewData(), ['user' => $user]));
     }
 
     private function mypagePost(): void
