@@ -176,14 +176,19 @@ final class AuthController extends Controller
 
         if (!UserRepository::update(
             Session::userId(),
-            $form->name() === '' ? null : $form->name(),
-            $form->mail() === '' ? null : $form->mail(),
-            $form->pass() === '' ? null : $form->pass()
+            $this->nullable($form->name()),
+            $this->nullable($form->mail()),
+            $this->nullable($form->pass())
         )) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
         $this->redirectSelf();
+    }
+
+    private function nullable(string $value): ?string
+    {
+        return $value === '' ? null : $value;
     }
 
     private function formViewData(): array
