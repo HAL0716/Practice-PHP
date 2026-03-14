@@ -34,6 +34,21 @@ abstract class Controller
         require $this->viewFile(static::LAYOUT);
     }
 
+    final protected function dispatch(?callable $post = null, ?callable $get = null): void
+    {
+        if (Request::isPost() && $post) {
+            $post();
+            return;
+        }
+
+        if (Request::isGet() && $get) {
+            $get();
+            return;
+        }
+
+        $this->redirectSelf(self::ERROR_SYSTEM);
+    }
+
     protected function redirect(
         string $url,
         string $error = '',

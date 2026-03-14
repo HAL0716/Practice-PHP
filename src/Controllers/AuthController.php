@@ -27,20 +27,10 @@ final class AuthController extends Controller
 
     public function signup(): void
     {
-        if (Request::isPost()) {
-            $this->signupPost();
-            return;
-        }
-
-        if (Request::isGet()) {
-            $this->renderForm(
-                'auth/signup',
-                'サインアップ'
-            );
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->dispatch(
+            post: fn () => $this->signupPost(),
+            get:  fn () => $this->renderForm('auth/signup', 'サインアップ')
+        );
     }
 
     private function signupPost(): void
@@ -72,20 +62,10 @@ final class AuthController extends Controller
 
     public function signin(): void
     {
-        if (Request::isPost()) {
-            $this->signinPost();
-            return;
-        }
-
-        if (Request::isGet()) {
-            $this->renderForm(
-                'auth/signin',
-                'サインイン'
-            );
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->dispatch(
+            post: fn () => $this->signinPost(),
+            get:  fn () => $this->renderForm('auth/signin', 'サインイン')
+        );
     }
 
     private function signinPost(): void
@@ -122,25 +102,21 @@ final class AuthController extends Controller
     {
         $this->requireLogin();
 
-        if (Request::isGet()) {
-            Session::logout();
-            $this->redirect(Routes::SIGNIN);
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->dispatch(
+            get: function () {
+                Session::logout();
+                $this->redirect(Routes::SIGNIN);
+            }
+        );
     }
 
     public function delete(): void
     {
         $this->requireLogin();
 
-        if (Request::isPost()) {
-            $this->deletePost();
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
     }
 
     public function deletePost(): void
@@ -167,29 +143,28 @@ final class AuthController extends Controller
     {
         $this->requireLogin();
 
-        if (Request::isGet()) {
-            $user = UserRepository::findById(Session::userId());
+        $this->dispatch(
+            post: fn () => $this->mypagePost(),
+            get:  fn () => $this->mypageGet()
+        );
+    }
 
-            if (!$user) {
-                Session::logout();
-                $this->redirect(Routes::SIGNIN);
-            }
+    private function mypageGet(): void
+    {
+        $user = UserRepository::findById(Session::userId());
 
-            $this->render('auth/mypage', [
-                'title'     => 'マイページ',
-                'token'     => Csrf::token(),
-                'error'     => Session::error(),
-                'old'       => Session::old(),
-                'user'      => $user,
-            ]);
-            return;
+        if (!$user) {
+            Session::logout();
+            $this->redirect(Routes::SIGNIN);
         }
 
-        if (Request::isPost()) {
-            $this->mypagePost();
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        $this->render('auth/mypage', [
+            'title'     => 'マイページ',
+            'token'     => Csrf::token(),
+            'error'     => Session::error(),
+            'old'       => Session::old(),
+            'user'      => $user,
+        ]);
     }
 
     private function mypagePost(): void

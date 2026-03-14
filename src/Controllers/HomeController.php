@@ -18,27 +18,25 @@ final class HomeController extends Controller
     {
         $this->requireLogin();
 
-        if (Request::isGet()) {
-            $this->render(
-                'home',
-                [
-                    'title'   => 'ホーム',
-                    'token'   => Csrf::token(),
-                    'error'   => Session::error(),
-                    'old'     => Session::old(),
-                    'user_id' => Session::userId(),
-                    'posts'   => PostRepository::findAll(),
-                ]
-            );
-            return;
-        }
+        $this->dispatch(
+            get: fn () => $this->indexGet(),
+            post: fn () => $this->indexPost()
+        );
+    }
 
-        if (Request::isPost()) {
-            $this->indexPost();
-            return;
-        }
-
-        $this->redirectSelf(self::ERROR_SYSTEM);
+    private function indexGet(): void
+    {
+        $this->render(
+            'home',
+            [
+                'title'   => 'ホーム',
+                'token'   => Csrf::token(),
+                'error'   => Session::error(),
+                'old'     => Session::old(),
+                'user_id' => Session::userId(),
+                'posts'   => PostRepository::findAll(),
+            ]
+        );
     }
 
     private function indexPost(): void
