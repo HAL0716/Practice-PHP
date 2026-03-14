@@ -9,7 +9,7 @@ use App\Core\Form;
 
 final class SignupForm extends Form
 {
-    public const actionURL = Routes::SIGNUP;
+    public const ACTION_URL = Routes::SIGNUP;
 
     public const NAME = 'name';
     public const MAIL = 'mail';

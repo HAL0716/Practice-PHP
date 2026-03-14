@@ -9,7 +9,7 @@ use App\Core\Form;
 
 final class MypageForm extends Form
 {
-    public const actionURL = Routes::MYPAGE;
+    public const ACTION_URL = Routes::MYPAGE;
 
     public const NAME = 'name';
     public const MAIL = 'mail';
