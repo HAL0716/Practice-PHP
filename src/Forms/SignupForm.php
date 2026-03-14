@@ -16,8 +16,6 @@ final class SignupForm extends Form
     public const PASS         = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
 
-    private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
-
     public function __construct()
     {
         parent::__construct([
@@ -63,8 +61,8 @@ final class SignupForm extends Form
             return self::ERROR_INVALID_EMAIL;
         }
 
-        if ($this->pass() !== $this->passConfirm()) {
-            return self::ERROR_PASSWORD_MISMATCH;
+        if (!$this->isMatch($this->pass(), $this->passConfirm())) {
+            return self::ERROR_MISMATCH_PASSWORD;
         }
 
         return null;

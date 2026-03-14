@@ -17,7 +17,6 @@ final class MypageForm extends Form
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'pass_current';
 
-    private const ERROR_PASSWORD_MISMATCH = '新しいパスワード確認が一致しません';
     private const ERROR_SAME_PASSWORD     = '現在のパスワードと新しいパスワードが同じです';
 
     public function __construct()
@@ -72,12 +71,18 @@ final class MypageForm extends Form
 
         // パスワードは任意だが、入力された場合は確認と現在のパスワードも必須
         if ($this->pass() !== '') {
-            if ($this->pass() === $this->passCurrent()) {
+            if ($this->hasEmpty([
+                $this->passConfirm(),
+            ])) {
+                return self::ERROR_REQUIRED_FIELDS;
+            }
+
+            if ($this->isMatch($this->pass(), $this->passCurrent())) {
                 return self::ERROR_SAME_PASSWORD;
             }
 
-            if ($this->pass() !== $this->passConfirm()) {
-                return self::ERROR_PASSWORD_MISMATCH;
+            if (!$this->isMatch($this->pass(), $this->passConfirm())) {
+                return self::ERROR_MISMATCH_PASSWORD;
             }
         }
 

@@ -12,6 +12,7 @@ abstract class Form
 
     protected const ERROR_REQUIRED_FIELDS = '未入力の項目があります';
     protected const ERROR_INVALID_EMAIL = '不正なメールアドレスです';
+    protected const ERROR_MISMATCH_PASSWORD = 'パスワードが一致しません';
 
     protected array $data = [];
 
@@ -36,6 +37,11 @@ abstract class Form
             }
         }
         return false;
+    }
+
+    protected function isMatch(string $value1, string $value2): bool
+    {
+        return $value1 === $value2;
     }
 
     protected function isValidEmail(string $email): bool
