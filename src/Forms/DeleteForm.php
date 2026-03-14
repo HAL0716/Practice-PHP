@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class DeleteForm extends Form
 {
-    public const PASS = 'pass';
+    public const ACTION_URL = Routes::DELETE;
 
-    private const ERROR_INVALID_INPUT     = 'パスワードを入力してください';
+    public const PASS = 'pass';
 
     public function __construct()
     {
@@ -26,8 +27,10 @@ final class DeleteForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->pass() === '') {
-            return self::ERROR_INVALID_INPUT;
+        if ($this->hasEmpty([
+            $this->pass(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
         return null;

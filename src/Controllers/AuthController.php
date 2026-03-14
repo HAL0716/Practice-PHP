@@ -35,8 +35,7 @@ final class AuthController extends Controller
         if (Request::isGet()) {
             $this->renderForm(
                 'auth/signup',
-                'サインアップ',
-                Routes::SIGNUP
+                'サインアップ'
             );
             return;
         }
@@ -85,8 +84,7 @@ final class AuthController extends Controller
         if (Request::isGet()) {
             $this->renderForm(
                 'auth/signin',
-                'サインイン',
-                Routes::SIGNIN
+                'サインイン'
             );
             return;
         }
@@ -198,7 +196,6 @@ final class AuthController extends Controller
                 'error'     => Session::error(),
                 'old'       => Session::old(),
                 'user'      => $user,
-                'actionUrl' => Routes::MYPAGE,
             ]);
             return;
         }
@@ -241,14 +238,13 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function renderForm(string $view, string $title, string $action): void
+    private function renderForm(string $view, string $title): void
     {
         $this->render($view, [
             'title'     => $title,
             'token'     => Csrf::token(),
             'error'     => Session::error(),
             'old'       => Session::old(),
-            'actionUrl' => $action,
         ]);
     }
 }

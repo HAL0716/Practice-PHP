@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class SignupForm extends Form
 {
-    public const NAME         = 'name';
-    public const MAIL         = 'mail';
-    public const PASS         = 'pass';
-    public const PASS_CONFIRM = 'pass_confirm';
+    public const ACTION_URL = Routes::SIGNUP;
 
-    private const ERROR_INVALID_INPUT     = 'すべての項目を入力してください';
-    private const ERROR_INVALID_EMAIL     = 'メールアドレスの形式が正しくありません';
-    private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
+    public const NAME = 'name';
+    public const MAIL = 'mail';
+    public const PASS = 'pass';
+    public const PASS_CONFIRM = 'pass_confirm';
 
     public function __construct()
     {
@@ -29,12 +28,12 @@ final class SignupForm extends Form
 
     public function name(): string
     {
-        return trim($this->data[self::NAME]);
+        return $this->normalized(self::NAME);
     }
 
     public function mail(): string
     {
-        return strtolower(trim($this->data[self::MAIL]));
+        return $this->normalizedLower(self::MAIL);
     }
 
     public function pass(): string
@@ -49,26 +48,35 @@ final class SignupForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->name() === '' || $this->mail() === '' || $this->pass() === '' || $this->passConfirm() === '') {
-            return self::ERROR_INVALID_INPUT;
+        if ($this->hasEmpty([
+            $this->name(),
+            $this->mail(),
+            $this->pass(),
+            $this->passConfirm(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 
-        if ($this->pass() !== $this->passConfirm()) {
+        if (!$this->isValidPassword($this->pass())) {
+            return self::ERROR_INVALID_PASSWORD;
+        }
+
+        if (!$this->isMatch($this->pass(), $this->passConfirm())) {
             return self::ERROR_PASSWORD_MISMATCH;
         }
 
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old(array_merge($except, [
-            self::PASS,
-            self::PASS_CONFIRM,
-        ]));
+        return [
+            self::NAME,
+            self::MAIL,
+        ];
     }
 }

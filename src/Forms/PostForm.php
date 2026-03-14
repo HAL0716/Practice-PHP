@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class PostForm extends Form
 {
-    public const COMMENT = 'comment';
+    public const ACTION_URL = Routes::HOME;
 
-    private const ERROR_COMMENT_REQUIRED = 'コメントは必須です';
+    public const COMMENT = 'comment';
 
     public function __construct()
     {
@@ -21,20 +22,24 @@ final class PostForm extends Form
 
     public function comment(): string
     {
-        return trim($this->data[self::COMMENT]);
+        return $this->normalized(self::COMMENT);
     }
 
     public function validate(): ?string
     {
-        if ($this->comment() === '') {
-            return self::ERROR_COMMENT_REQUIRED;
+        if ($this->hasEmpty([
+            $this->comment(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old($except);
+        return [
+            self::COMMENT,
+        ];
     }
 }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class SigninForm extends Form
 {
-    public const MAIL  = 'mail';
-    public const PASS  = 'pass';
+    public const ACTION_URL = Routes::SIGNIN;
 
-    private const ERROR_INVALID_INPUT = 'メールアドレスとパスワードを入力してください';
-    private const ERROR_INVALID_EMAIL = 'メールアドレスの形式が正しくありません';
+    public const MAIL = 'mail';
+    public const PASS = 'pass';
 
     public function __construct()
     {
@@ -24,7 +24,7 @@ final class SigninForm extends Form
 
     public function mail(): string
     {
-        return strtolower(trim($this->data[self::MAIL]));
+        return $this->normalizedLower(self::MAIL);
     }
 
     public function pass(): string
@@ -34,21 +34,24 @@ final class SigninForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->mail() === '' || $this->pass() === '') {
-            return self::ERROR_INVALID_INPUT;
+        if ($this->hasEmpty([
+            $this->mail(),
+            $this->pass(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old(array_merge($except, [
-            self::PASS,
-        ]));
+        return [
+            self::MAIL,
+        ];
     }
 }

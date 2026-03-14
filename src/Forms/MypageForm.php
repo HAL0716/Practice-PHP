@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Forms;
 
+use App\Constants\Routes;
 use App\Core\Form;
 
 final class MypageForm extends Form
 {
-    public const NAME         = 'name';
-    public const MAIL         = 'mail';
-    public const PASS         = 'pass';
+    public const ACTION_URL = Routes::MYPAGE;
+
+    public const NAME = 'name';
+    public const MAIL = 'mail';
+    public const PASS = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'pass_current';
-
-    private const ERROR_INVALID_INPUT     = 'すべての項目を入力してください';
-    private const ERROR_INVALID_EMAIL     = 'メールアドレスの形式が正しくありません';
-    private const ERROR_PASSWORD_MISMATCH = '新しいパスワード確認が一致しません';
-    private const ERROR_SAME_PASSWORD     = '現在のパスワードと新しいパスワードが同じです';
 
     public function __construct()
     {
@@ -32,12 +30,12 @@ final class MypageForm extends Form
 
     public function name(): string
     {
-        return trim($this->data[self::NAME]);
+        return $this->normalized(self::NAME);
     }
 
     public function mail(): string
     {
-        return strtolower(trim($this->data[self::MAIL]));
+        return $this->normalizedLower(self::MAIL);
     }
 
     public function pass(): string
@@ -57,21 +55,31 @@ final class MypageForm extends Form
 
     public function validate(): ?string
     {
-        if ($this->name() === '' || $this->mail() === '' || $this->passCurrent() === '') {
-            return self::ERROR_INVALID_INPUT;
+        if ($this->hasEmpty([
+            $this->name(),
+            $this->mail(),
+            $this->passCurrent(),
+        ])) {
+            return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 
         // パスワードは任意だが、入力された場合は確認と現在のパスワードも必須
         if ($this->pass() !== '') {
-            if ($this->pass() === $this->passCurrent()) {
-                return self::ERROR_SAME_PASSWORD;
+            if (!$this->isValidPassword($this->pass())) {
+                return self::ERROR_INVALID_PASSWORD;
             }
 
-            if ($this->pass() !== $this->passConfirm()) {
+            if ($this->hasEmpty([
+                $this->passConfirm(),
+            ])) {
+                return self::ERROR_REQUIRED_FIELDS;
+            }
+
+            if (!$this->isMatch($this->pass(), $this->passConfirm())) {
                 return self::ERROR_PASSWORD_MISMATCH;
             }
         }
@@ -79,12 +87,11 @@ final class MypageForm extends Form
         return null;
     }
 
-    public function old(array $except = []): array
+    protected function oldFields(): array
     {
-        return parent::old(array_merge($except, [
-            self::PASS,
-            self::PASS_CONFIRM,
-            self::PASS_CURRENT,
-        ]));
+        return [
+            self::NAME,
+            self::MAIL,
+        ];
     }
 }

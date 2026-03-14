@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Constants\Routes;
 use App\Core\Html;
 use App\Forms\SigninForm;
+
 ?>
 
 <h2><?= Html::escape($title) ?></h2>
@@ -12,7 +13,7 @@ use App\Forms\SigninForm;
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post">
+<form action="<?= Html::escape(SigninForm::ACTION_URL) ?>" method="post">
     <input type="hidden" name="<?= Html::escape(SigninForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
     <table>
