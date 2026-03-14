@@ -103,11 +103,14 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            get: function () {
-                Session::logout();
-                $this->redirect(Routes::SIGNIN);
-            }
+            get: fn () => $this->signoutGet()
         );
+    }
+
+    private function signoutGet(): void
+    {
+        Session::logout();
+        $this->redirect(Routes::SIGNIN);
     }
 
     public function delete(): void
