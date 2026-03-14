@@ -88,7 +88,7 @@ abstract class Controller
         array $data = [],
         bool $useLayout = true
     ): void {
-        extract($data, EXTR_SKIP);
+        extract($this->viewData($data), EXTR_SKIP);
 
         ob_start();
         require $this->viewFile($view);
@@ -100,6 +100,15 @@ abstract class Controller
         }
 
         require $this->viewFile(static::LAYOUT);
+    }
+
+    private function viewData(array $data): array
+    {
+        return $data + [
+            'token' => Csrf::token(),
+            'error' => Session::error(),
+            'old'   => Session::old(),
+        ];
     }
 
     private function viewFile(string $view): string

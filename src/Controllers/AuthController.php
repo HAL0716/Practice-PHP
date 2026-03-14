@@ -29,7 +29,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signupPost(),
-            get:  fn () => $this->render('auth/signup', $this->formViewData())
+            get:  fn () => $this->render('auth/signup')
         );
     }
 
@@ -37,7 +37,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signinPost(),
-            get:  fn () => $this->render('auth/signin', $this->formViewData())
+            get:  fn () => $this->render('auth/signin')
         );
     }
 
@@ -159,7 +159,7 @@ final class AuthController extends Controller
             $this->redirect(Routes::SIGNIN);
         }
 
-        $this->render('auth/mypage', array_merge($this->formViewData(), ['user' => $user]));
+        $this->render('auth/mypage', ['user' => $user]);
     }
 
     private function mypagePost(): void
@@ -208,15 +208,6 @@ final class AuthController extends Controller
         }
 
         return true;
-    }
-
-    private function formViewData(): array
-    {
-        return [
-            'token' => Csrf::token(),
-            'error' => Session::error(),
-            'old'   => Session::old(),
-        ];
     }
 
     private function nullable(string $value): ?string
