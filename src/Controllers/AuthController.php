@@ -151,14 +151,11 @@ final class AuthController extends Controller
             return;
         }
 
-        $userId = Session::userId();
-        $user   = UserRepository::findById($userId);
-
-        if (!$user || !$user->verifyPassword($form->pass())) {
-            $this->redirect(Routes::MYPAGE, self::ERROR_PASSWORD);
+        if (!$this->ensureValidPassword($form->passCurrent(), Routes::MYPAGE)) {
+            return;
         }
 
-        if (!UserRepository::delete($userId)) {
+        if (!UserRepository::delete(Session::userId())) {
             $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
         }
 
@@ -203,15 +200,12 @@ final class AuthController extends Controller
             return;
         }
 
-        $userId = Session::userId();
-        $user   = UserRepository::findById($userId);
-
-        if (!$user || !$user->verifyPassword($form->passCurrent())) {
-            $this->redirectSelf(self::ERROR_PASSWORD, $form->old());
+        if (!$this->ensureValidPassword($form->passCurrent())) {
+            return;
         }
 
         if (!UserRepository::update(
-            $userId,
+            Session::userId(),
             $form->name() === '' ? null : $form->name(),
             $form->mail() === '' ? null : $form->mail(),
             $form->pass() === '' ? null : $form->pass()
@@ -230,5 +224,19 @@ final class AuthController extends Controller
             'error'     => Session::error(),
             'old'       => Session::old(),
         ]);
+    }
+
+    private function ensureValidPassword(string $password, ?string $redirect = null): bool
+    {
+        $redirect ??= Request::path();
+
+        $user = UserRepository::findById(Session::userId());
+
+        if (!$user || !$user->verifyPassword($password)) {
+            $this->redirect($redirect, self::ERROR_PASSWORD);
+            return false;
+        }
+
+        return true;
     }
 }
