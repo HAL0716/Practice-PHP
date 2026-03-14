@@ -17,19 +17,8 @@ final class HomeController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->indexGet(),
+            get: fn () => $this->render('home', ['user_id' => Session::userId(), 'posts' => PostRepository::findAll()]),
             post: fn () => $this->indexPost()
-        );
-    }
-
-    private function indexGet(): void
-    {
-        $this->render(
-            'home',
-            [
-                'user_id' => Session::userId(),
-                'posts'   => PostRepository::findAll(),
-            ]
         );
     }
 
