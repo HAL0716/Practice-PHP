@@ -2,42 +2,50 @@
 
 declare(strict_types=1);
 
+use App\Core\Autoloader;
+use App\Core\Http\Request;
+use App\Core\Http\Session;
+use App\Constants\Routes;
+use App\Controllers\AuthController;
+use App\Controllers\HomeController;
+
 require_once __DIR__ . '/../src/Core/Autoloader.php';
-\App\Core\Autoloader::register();
 
-\App\Core\Http\Session::init();
+Autoloader::register();
 
-$url = \App\Core\Http\Request::path();
+Session::init();
+
+$url = Request::path();
 
 switch ($url) {
 
-    case \App\Constants\Routes::HOME:
-        $controller = new \App\Controllers\HomeController();
+    case Routes::HOME:
+        $controller = new HomeController();
         $controller->index();
         exit;
 
-    case \App\Constants\Routes::SIGNUP:
-        $controller = new \App\Controllers\AuthController();
+    case Routes::SIGNUP:
+        $controller = new AuthController();
         $controller->signup();
         exit;
 
-    case \App\Constants\Routes::SIGNIN:
-        $controller = new \App\Controllers\AuthController();
+    case Routes::SIGNIN:
+        $controller = new AuthController();
         $controller->signin();
         exit;
 
-    case \App\Constants\Routes::SIGNOUT:
-        $controller = new \App\Controllers\AuthController();
+    case Routes::SIGNOUT:
+        $controller = new AuthController();
         $controller->signout();
         exit;
 
-    case \App\Constants\Routes::DELETE:
-        $controller = new \App\Controllers\AuthController();
+    case Routes::DELETE:
+        $controller = new AuthController();
         $controller->delete();
         exit;
 
-    case \App\Constants\Routes::MYPAGE:
-        $controller = new \App\Controllers\AuthController();
+    case Routes::MYPAGE:
+        $controller = new AuthController();
         $controller->mypage();
         exit;
 
