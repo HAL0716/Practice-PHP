@@ -38,6 +38,16 @@ abstract class Form
         return Request::post($key, '');
     }
 
+    protected function normalized(string $key): string
+    {
+        return trim($this->data[$key]);
+    }
+
+    protected function normalizedLower(string $key): string
+    {
+        return strtolower($this->normalized($key));
+    }
+
     protected function isEmpty(string $value): bool
     {
         return trim($value) === '';

@@ -22,7 +22,7 @@ final class PostForm extends Form
 
     public function comment(): string
     {
-        return trim($this->data[self::COMMENT]);
+        return $this->normalized(self::COMMENT);
     }
 
     public function validate(): ?string

@@ -24,7 +24,7 @@ final class SigninForm extends Form
 
     public function mail(): string
     {
-        return strtolower(trim($this->data[self::MAIL]));
+        return $this->normalizedLower(self::MAIL);
     }
 
     public function pass(): string

@@ -32,12 +32,12 @@ final class MypageForm extends Form
 
     public function name(): string
     {
-        return trim($this->data[self::NAME]);
+        return $this->normalized(self::NAME);
     }
 
     public function mail(): string
     {
-        return strtolower(trim($this->data[self::MAIL]));
+        return $this->normalizedLower(self::MAIL);
     }
 
     public function pass(): string
