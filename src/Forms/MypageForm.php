@@ -17,8 +17,6 @@ final class MypageForm extends Form
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'pass_current';
 
-    private const ERROR_SAME_PASSWORD = '現在のパスワードと新しいパスワードが同じです';
-
     public function __construct()
     {
         parent::__construct([
@@ -79,10 +77,6 @@ final class MypageForm extends Form
                 $this->passConfirm(),
             ])) {
                 return self::ERROR_REQUIRED_FIELDS;
-            }
-
-            if ($this->isMatch($this->pass(), $this->passCurrent())) {
-                return self::ERROR_SAME_PASSWORD;
             }
 
             if (!$this->isMatch($this->pass(), $this->passConfirm())) {
