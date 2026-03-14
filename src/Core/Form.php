@@ -11,6 +11,7 @@ abstract class Form
     public const TOKEN = 'token';
 
     protected const ERROR_REQUIRED_FIELDS = '未入力の項目があります';
+    protected const ERROR_INVALID_EMAIL = '不正なメールアドレスです';
 
     protected array $data = [];
 
@@ -35,6 +36,11 @@ abstract class Form
             }
         }
         return false;
+    }
+
+    protected function isValidEmail(string $email): bool
+    {
+        return (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
     public function old(array $except = []): array

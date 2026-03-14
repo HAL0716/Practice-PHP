@@ -17,7 +17,6 @@ final class MypageForm extends Form
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'pass_current';
 
-    private const ERROR_INVALID_EMAIL     = 'メールアドレスの形式が正しくありません';
     private const ERROR_PASSWORD_MISMATCH = '新しいパスワード確認が一致しません';
     private const ERROR_SAME_PASSWORD     = '現在のパスワードと新しいパスワードが同じです';
 
@@ -67,7 +66,7 @@ final class MypageForm extends Form
             return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 

@@ -14,8 +14,6 @@ final class SigninForm extends Form
     public const MAIL  = 'mail';
     public const PASS  = 'pass';
 
-    private const ERROR_INVALID_EMAIL = 'メールアドレスの形式が正しくありません';
-
     public function __construct()
     {
         parent::__construct([
@@ -43,7 +41,7 @@ final class SigninForm extends Form
             return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 

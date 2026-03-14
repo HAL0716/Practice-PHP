@@ -16,7 +16,6 @@ final class SignupForm extends Form
     public const PASS         = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
 
-    private const ERROR_INVALID_EMAIL     = 'メールアドレスの形式が正しくありません';
     private const ERROR_PASSWORD_MISMATCH = 'パスワード確認が一致しません';
 
     public function __construct()
@@ -60,7 +59,7 @@ final class SignupForm extends Form
             return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!filter_var($this->mail(), FILTER_VALIDATE_EMAIL)) {
+        if (!$this->isValidEmail($this->mail())) {
             return self::ERROR_INVALID_EMAIL;
         }
 
