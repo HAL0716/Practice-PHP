@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Constants\Routes;
 use App\Core\Html;
 use App\Forms\MypageForm;
+use App\Forms\DeleteForm;
 ?>
 
 <h2><?= Html::escape($title) ?></h2>
@@ -14,7 +15,7 @@ use App\Forms\MypageForm;
 
 <p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
 
-<form action="<?= Html::escape($actionUrl) ?>" method="post">
+<form action="<?= Html::escape($actionUrl) ?>" method="post" class="update-form">
     <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
     <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
 
@@ -37,15 +38,16 @@ use App\Forms\MypageForm;
 
         <tr>
             <td colspan="2" style="text-align: center;">
-                <button type="button" class="open-modal">アップデート</button>
+                <button type="button" class="open-modal-update">アップデート</button>
             </td>
         </tr>
     </table>
 </form>
 
-<form action="<?= Html::escape(Routes::DELETE) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <button type="submit" style="color: red;">アカウント削除</button>
+<form action="<?= Html::escape(Routes::DELETE) ?>" method="post" class="delete-form">
+    <input type="hidden" name="<?= Html::escape(DeleteForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <input type="hidden" name="<?= Html::escape(DeleteForm::PASS) ?>">
+    <button type="button" class="open-modal-delete" style="color: red;">アカウント削除</button>
 </form>
 
 <p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
@@ -61,16 +63,24 @@ use App\Forms\MypageForm;
 <script>
 (() => {
 
-    const form  = document.querySelector("form");
+    const updateForm = document.querySelector(".update-form");
+    const deleteForm = document.querySelector(".delete-form");
+
     const modal = document.querySelector(".modal");
 
-    const openBtn   = document.querySelector(".open-modal");
+    const openUpdateBtn = document.querySelector(".open-modal-update");
+    const openDeleteBtn = document.querySelector(".open-modal-delete");
+
     const submitBtn = modal.querySelector(".submit");
+    const modalPassword = modal.querySelector(".current-password");
 
-    const modalPassword  = modal.querySelector(".current-password");
-    const hiddenPassword = form.elements["<?= Html::escape(MypageForm::PASS_CURRENT) ?>"];
+    let currentForm = null;
+    let passwordField = null;
 
-    const open = () => {
+    const open = (form, fieldName) => {
+        currentForm = form;
+        passwordField = form.elements[fieldName];
+
         modal.classList.add("is-open");
         modalPassword.focus();
     };
@@ -80,7 +90,13 @@ use App\Forms\MypageForm;
         modalPassword.value = "";
     };
 
-    openBtn.addEventListener("click", open);
+    openUpdateBtn.addEventListener("click", () => {
+        open(updateForm, "<?= Html::escape(MypageForm::PASS_CURRENT) ?>");
+    });
+
+    openDeleteBtn.addEventListener("click", () => {
+        open(deleteForm, "<?= Html::escape(DeleteForm::PASS) ?>");
+    });
 
     submitBtn.addEventListener("click", () => {
 
@@ -89,9 +105,9 @@ use App\Forms\MypageForm;
             return;
         }
 
-        hiddenPassword.value = modalPassword.value;
+        passwordField.value = modalPassword.value;
         close();
-        form.submit();
+        currentForm.submit();
     });
 
     modal.addEventListener("click", e => {
