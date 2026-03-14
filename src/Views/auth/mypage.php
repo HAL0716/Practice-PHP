@@ -8,7 +8,7 @@ use App\Forms\DeleteForm;
 
 ?>
 
-<h2><?= Html::escape($title) ?></h2>
+<h2><?= Html::escape('マイページ') ?></h2>
 
 <?php if ($error !== null): ?>
     <p style="color:red;"><?= Html::escape($error) ?></p>

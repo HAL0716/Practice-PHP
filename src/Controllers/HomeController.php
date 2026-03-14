@@ -27,7 +27,6 @@ final class HomeController extends Controller
         $this->render(
             'home',
             [
-                'title'   => 'ホーム',
                 'token'   => Csrf::token(),
                 'error'   => Session::error(),
                 'old'     => Session::old(),

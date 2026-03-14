@@ -29,7 +29,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signupPost(),
-            get:  fn () => $this->renderForm('auth/signup', 'サインアップ')
+            get:  fn () => $this->renderForm('auth/signup')
         );
     }
 
@@ -64,7 +64,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signinPost(),
-            get:  fn () => $this->renderForm('auth/signin', 'サインイン')
+            get:  fn () => $this->renderForm('auth/signin')
         );
     }
 
@@ -159,7 +159,6 @@ final class AuthController extends Controller
         }
 
         $this->render('auth/mypage', [
-            'title'     => 'マイページ',
             'token'     => Csrf::token(),
             'error'     => Session::error(),
             'old'       => Session::old(),
@@ -191,10 +190,9 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function renderForm(string $view, string $title): void
+    private function renderForm(string $view): void
     {
         $this->render($view, [
-            'title'     => $title,
             'token'     => Csrf::token(),
             'error'     => Session::error(),
             'old'       => Session::old(),
