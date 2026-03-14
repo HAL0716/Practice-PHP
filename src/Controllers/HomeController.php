@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Constants\Routes;
 use App\Core\Http\Controller;
-use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Core\Security\Csrf;
 use App\Forms\PostForm;
