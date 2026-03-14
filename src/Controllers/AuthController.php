@@ -29,7 +29,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signupPost(),
-            get:  fn () => $this->renderForm('auth/signup')
+            get:  fn () => $this->render('auth/signup', $this->formViewData())
         );
     }
 
@@ -64,7 +64,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->signinPost(),
-            get:  fn () => $this->renderForm('auth/signin')
+            get:  fn () => $this->render('auth/signin', $this->formViewData())
         );
     }
 
@@ -159,12 +159,7 @@ final class AuthController extends Controller
             $this->redirect(Routes::SIGNIN);
         }
 
-        $this->render('auth/mypage', [
-            'token'     => Csrf::token(),
-            'error'     => Session::error(),
-            'old'       => Session::old(),
-            'user'      => $user,
-        ]);
+        $this->render('auth/mypage', $this->formViewData() + ['user' => $user]);
     }
 
     private function mypagePost(): void
@@ -191,13 +186,13 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function renderForm(string $view): void
+    private function formViewData(): array
     {
-        $this->render($view, [
-            'token'     => Csrf::token(),
-            'error'     => Session::error(),
-            'old'       => Session::old(),
-        ]);
+        return [
+            'token' => Csrf::token(),
+            'error' => Session::error(),
+            'old'   => Session::old(),
+        ];
     }
 
     private function currentUser()
