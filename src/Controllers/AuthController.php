@@ -47,12 +47,8 @@ final class AuthController extends Controller
     {
         $form = new SignupForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         if (UserRepository::findByEmail($form->mail())) {
@@ -96,12 +92,8 @@ final class AuthController extends Controller
     {
         $form = new SigninForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         $user = UserRepository::findByEmail($form->mail());
@@ -155,12 +147,8 @@ final class AuthController extends Controller
     {
         $form = new DeleteForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirect(Routes::MYPAGE, $error);
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirect(Routes::MYPAGE, $error);
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         $userId = Session::userId();
@@ -211,12 +199,8 @@ final class AuthController extends Controller
     {
         $form = new MypageForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         $userId = Session::userId();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
@@ -44,12 +45,8 @@ final class HomeController extends Controller
     {
         $form = new PostForm();
 
-        if ($error = $this->checkCsrf($form->token())) {
-            $this->redirectSelf($error, $form->old());
-        }
-
-        if ($error = $form->validate()) {
-            $this->redirectSelf($error, $form->old());
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
         $userId = Session::userId();

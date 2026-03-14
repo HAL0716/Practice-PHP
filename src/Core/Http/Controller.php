@@ -6,6 +6,7 @@ namespace App\Core\Http;
 
 use App\Constants\Routes;
 use App\Core\Security\Csrf;
+use App\Core\Form;
 
 abstract class Controller
 {
@@ -81,5 +82,19 @@ abstract class Controller
         }
 
         return $path;
+    }
+
+    protected function ensureValidForm(Form $form, ?string $redirect = null): bool
+    {
+        $redirect ??= Request::path();
+
+        $error = $this->checkCsrf($form->token()) ?? $form->validate();
+
+        if ($error !== null) {
+            $this->redirect($redirect, $error, $form->old());
+            return false;
+        }
+
+        return true;
     }
 }
