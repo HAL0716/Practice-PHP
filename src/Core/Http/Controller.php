@@ -15,8 +15,10 @@ abstract class Controller
     protected const ERROR_CSRF   = '不正なリクエストです。再度お試しください。';
     protected const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
 
-    final protected function dispatch(?callable $post = null, ?callable $get = null): void
-    {
+    final protected function dispatch(
+        ?callable $post = null,
+        ?callable $get = null
+    ): void {
         if (Request::isPost() && $post) {
             $post();
             return;
@@ -37,7 +39,7 @@ abstract class Controller
         }
     }
 
-    protected function redirect(
+    final protected function redirect(
         string $url,
         string $error = '',
         array $old = []
@@ -57,14 +59,14 @@ abstract class Controller
         exit;
     }
 
-    protected function redirectSelf(
+    final protected function redirectSelf(
         string $error = '',
         array $old = []
     ): void {
         $this->redirect(Request::path(), $error, $old);
     }
 
-    protected function ensureValidForm(Form $form, ?string $redirect = null): bool
+    final protected function ensureValidForm(Form $form, ?string $redirect = null): bool
     {
         $redirect ??= Request::path();
 
@@ -83,7 +85,7 @@ abstract class Controller
         return Csrf::verify($token) ? null : static::ERROR_CSRF;
     }
 
-    protected function render(
+    final protected function render(
         string $view,
         array $data = [],
         bool $useLayout = true
@@ -122,7 +124,7 @@ abstract class Controller
         return $path;
     }
 
-    protected function userId(): int
+    final protected function userId(): int
     {
         return Session::userId();
     }
