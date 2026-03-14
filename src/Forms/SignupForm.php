@@ -11,9 +11,9 @@ final class SignupForm extends Form
 {
     public const actionURL = Routes::SIGNUP;
 
-    public const NAME         = 'name';
-    public const MAIL         = 'mail';
-    public const PASS         = 'pass';
+    public const NAME = 'name';
+    public const MAIL = 'mail';
+    public const PASS = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
 
     public function __construct()

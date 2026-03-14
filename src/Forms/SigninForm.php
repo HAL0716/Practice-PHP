@@ -11,8 +11,8 @@ final class SigninForm extends Form
 {
     public const actionURL = Routes::SIGNIN;
 
-    public const MAIL  = 'mail';
-    public const PASS  = 'pass';
+    public const MAIL = 'mail';
+    public const PASS = 'pass';
 
     public function __construct()
     {
