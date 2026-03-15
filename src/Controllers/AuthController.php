@@ -28,7 +28,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->createUser(),
-            get:  fn () => $this->render('auth/signup')
+            get:  fn () => $this->render('user/signup')
         );
     }
 
@@ -36,7 +36,7 @@ final class AuthController extends Controller
     {
         $this->dispatch(
             post: fn () => $this->authUser(),
-            get:  fn () => $this->render('auth/signin')
+            get:  fn () => $this->render('user/signin')
         );
     }
 
@@ -158,7 +158,7 @@ final class AuthController extends Controller
             $this->logoutUser();
         }
 
-        $this->render('auth/mypage', ['user' => $user]);
+        $this->render('user/mypage', ['user' => $user]);
     }
 
     private function updateUser(): void

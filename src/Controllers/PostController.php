@@ -33,7 +33,7 @@ final class PostController extends Controller
 
     private function showPosts(): void
     {
-        $this->render('home', [
+        $this->render('post/home', [
             'user_id' => $this->userId(),
             'posts'   => PostRepository::findAll(),
         ]);
