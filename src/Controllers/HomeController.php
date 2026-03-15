@@ -41,6 +41,13 @@ final class HomeController extends Controller
     {
         $this->requireLogin();
 
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
+    }
+
+    public function deletePost(): void
+    {
         $form = new DeletePostForm();
 
         if (!$this->ensureValidForm($form)) {
