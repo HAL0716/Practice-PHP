@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Forms\PostForm;
+use App\Forms\DeletePostForm;
 use App\Models\PostRepository;
 
 final class HomeController extends Controller
@@ -40,17 +41,13 @@ final class HomeController extends Controller
     {
         $this->requireLogin();
 
-        $postId = (int) $_POST['id'];
+        $form = new DeletePostForm();
 
-        $post = PostRepository::findById($postId);
-
-        if ($post === null || $post->userId() !== $this->userId()) {
-            http_response_code(403);
-            echo '403 Forbidden';
-            exit;
+        if (!$this->ensureValidForm($form)) {
+            return;
         }
 
-        PostRepository::delete($postId);
+        PostRepository::delete($form->id());
 
         $this->redirect(Routes::HOME);
     }
