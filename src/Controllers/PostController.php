@@ -10,15 +10,15 @@ use App\Domain\Post\PostRepository;
 use App\Forms\PostForm;
 use App\Forms\DeletePostForm;
 
-final class HomeController extends Controller
+final class PostController extends Controller
 {
-    public function index(): void
+    public function home(): void
     {
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->render('home', ['user_id' => $this->userId(), 'posts' => PostRepository::findAll()]),
-            post: fn () => $this->indexPost()
+            get: fn () => $this->showPosts(),
+            post: fn () => $this->createPost()
         );
     }
 
@@ -31,7 +31,15 @@ final class HomeController extends Controller
         );
     }
 
-    private function indexPost(): void
+    private function showPosts(): void
+    {
+        $this->render('home', [
+            'user_id' => $this->userId(),
+            'posts'   => PostRepository::findAll(),
+        ]);
+    }
+
+    private function createPost(): void
     {
         $form = new PostForm();
 
