@@ -11,10 +11,10 @@ use App\Core\Http\Session;
 use App\Core\Security\LoginThrottle;
 use App\Domain\User\User;
 use App\Domain\User\UserRepository;
+use App\Forms\DeleteForm;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
-use App\Forms\DeleteForm;
 
 final class AuthController extends Controller
 {
@@ -27,7 +27,7 @@ final class AuthController extends Controller
     public function signup(): void
     {
         $this->dispatch(
-            post: fn () => $this->signupPost(),
+            post: fn () => $this->createUser(),
             get:  fn () => $this->render('auth/signup')
         );
     }
@@ -35,7 +35,7 @@ final class AuthController extends Controller
     public function signin(): void
     {
         $this->dispatch(
-            post: fn () => $this->signinPost(),
+            post: fn () => $this->authUser(),
             get:  fn () => $this->render('auth/signin')
         );
     }
@@ -45,7 +45,7 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->signoutGet()
+            get: fn () => $this->logoutUser()
         );
     }
 
@@ -54,7 +54,7 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            post: fn () => $this->deletePost()
+            post: fn () => $this->deleteUser()
         );
     }
 
@@ -63,12 +63,12 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            post: fn () => $this->mypagePost(),
-            get:  fn () => $this->mypageGet()
+            post: fn () => $this->updateUser(),
+            get:  fn () => $this->showMypage()
         );
     }
 
-    private function signupPost(): void
+    private function createUser(): void
     {
         $form = new SignupForm();
 
@@ -95,7 +95,7 @@ final class AuthController extends Controller
         $this->redirect(Routes::HOME);
     }
 
-    private function signinPost(): void
+    private function authUser(): void
     {
         $form = new SigninForm();
 
@@ -125,13 +125,13 @@ final class AuthController extends Controller
         $this->redirect(Routes::HOME);
     }
 
-    private function signoutGet(): void
+    private function logoutUser(): void
     {
         Session::logout();
         $this->redirect(Routes::SIGNIN);
     }
 
-    private function deletePost(): void
+    private function deleteUser(): void
     {
         $form = new DeleteForm();
 
@@ -151,7 +151,7 @@ final class AuthController extends Controller
         $this->redirect(Routes::SIGNIN);
     }
 
-    private function mypageGet(): void
+    private function showMypage(): void
     {
         if (!$user = $this->currentUser()) {
             Session::logout();
@@ -161,7 +161,7 @@ final class AuthController extends Controller
         $this->render('auth/mypage', ['user' => $user]);
     }
 
-    private function mypagePost(): void
+    private function updateUser(): void
     {
         $form = new MypageForm();
 
