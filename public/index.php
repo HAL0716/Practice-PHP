@@ -17,6 +17,7 @@ Session::init();
 
 $routes = [
     Routes::HOME    => [HomeController::class, 'index'],
+    Routes::DELETE_POST => [HomeController::class, 'delete'],
     Routes::SIGNUP  => [AuthController::class, 'signup'],
     Routes::SIGNIN  => [AuthController::class, 'signin'],
     Routes::SIGNOUT => [AuthController::class, 'signout'],

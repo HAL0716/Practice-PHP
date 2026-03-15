@@ -7,6 +7,7 @@ namespace App\Constants;
 final class Routes
 {
     public const HOME    = '/home';
+    public const DELETE_POST = '/delete-post';
     public const SIGNUP  = '/signup';
     public const SIGNIN  = '/signin';
     public const SIGNOUT = '/signout';
