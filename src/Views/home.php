@@ -15,31 +15,23 @@ use App\Forms\DeletePostForm;
 <?php if (empty($posts)) : ?>
     <p>投稿がありません。</p>
 <?php else : ?>
-    <div id="posts" style="max-height: 300px; width: 300px; overflow-y: auto; border: 1px solid #000; padding: 10px;">
-        <table>
-            <?php foreach ($posts as $post) : ?>
-                <tr>
+    <table>
+        <?php foreach ($posts as $post) : ?>
+            <tr>
+                <td><?= Html::escape($post->username() ?? '匿名') ?></td>
+                <td><?= Html::escape($post->comment()) ?></td>
+                <td>
                     <?php if ($post->userId() === $user_id) : ?>
-                        <td></td>
-                        <td><?= Html::escape($post->comment()) ?></td>
-                        <td><?= Html::escape($post->username()) ?></td>
-                        <td>
                             <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
                                 <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
                                 <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
                                 <button>削除</button>
                             </form>
-                        </td>
-                    <?php else : ?>
-                        <td><?= Html::escape($post->username() ?? '匿名') ?></td>
-                        <td><?= Html::escape($post->comment()) ?></td>
-                        <td></td>
-                        <td></td>
                     <?php endif; ?>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 <?php endif; ?>
 
 <form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
