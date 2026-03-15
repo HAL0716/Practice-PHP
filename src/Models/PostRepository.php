@@ -85,7 +85,7 @@ final class PostRepository extends Repository
         return self::findById((int)$db->lastInsertId());
     }
 
-    public static function findById(int $id): ?\App\Entities\PostEntity
+    public static function findById(int $id): ?PostEntity
     {
         return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }
