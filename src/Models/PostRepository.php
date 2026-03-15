@@ -96,7 +96,7 @@ final class PostRepository extends Repository
 
     public static function findAll(): array
     {
-        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
+        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'DESC');
     }
 
     public static function delete(int $postId, int $userId): bool
