@@ -35,7 +35,7 @@ use App\Forms\DeletePostForm;
     </table>
 <?php endif; ?>
 
-<p>
+<div>
     <form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
         <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
@@ -52,7 +52,7 @@ use App\Forms\DeletePostForm;
             </tr>
         </table>
     </form>
-</p>
+</div>
 
 <script>
 window.addEventListener("load", function () {
