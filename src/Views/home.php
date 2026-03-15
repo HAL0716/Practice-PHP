@@ -35,11 +35,26 @@ use App\Forms\DeletePostForm;
     </table>
 <?php endif; ?>
 
-<form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
-    <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
-    <button type="submit">投稿する</button>
-</form>
+<p>
+    <form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
+        <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+
+        <table>
+            <tr>
+                <td>
+                    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" rows="1" required>
+                        <?= Html::escape($old[PostForm::COMMENT] ?? '') ?>
+                    </textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <button>投稿</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</p>
 
 <script>
 window.addEventListener("load", function () {
