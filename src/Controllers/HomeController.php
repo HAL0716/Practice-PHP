@@ -54,7 +54,9 @@ final class HomeController extends Controller
             return;
         }
 
-        PostRepository::delete($form->id());
+        if (!PostRepository::delete($form->id())) {
+            $this->redirect(Routes::HOME, self::ERROR_SYSTEM);
+        }
 
         $this->redirect(Routes::HOME);
     }
