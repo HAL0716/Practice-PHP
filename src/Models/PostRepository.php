@@ -68,18 +68,16 @@ final class PostRepository extends Repository
         $db = self::db();
 
         $sql = sprintf(
-            "INSERT INTO %s (%s, %s, %s)
-             VALUES (?, ?, ?)",
+            "INSERT INTO %s (%s, %s)
+             VALUES (?, ?)",
             PostsTable::TABLE,
             PostsTable::USER_ID,
-            PostsTable::COMMENT,
-            PostsTable::CREATED_AT
+            PostsTable::COMMENT
         );
 
         $params = [
             $userId,
-            $comment,
-            date('Y-m-d H:i:s')
+            $comment
         ];
 
         try {
