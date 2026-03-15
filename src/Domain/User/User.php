@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Entities;
+namespace App\Domain\User;
 
-final class UserEntity
+final class User
 {
     public function __construct(
         private int $id,

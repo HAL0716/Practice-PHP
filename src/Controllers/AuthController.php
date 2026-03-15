@@ -9,7 +9,7 @@ use App\Core\Http\Controller;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Core\Security\LoginThrottle;
-use App\Entities\UserEntity;
+use App\Domain\User\User;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
@@ -185,7 +185,7 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function currentUser(): ?UserEntity
+    private function currentUser(): ?User
     {
         return UserRepository::findById($this->userId());
     }

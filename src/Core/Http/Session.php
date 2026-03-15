@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Http;
 
-use App\Entities\UserEntity;
+use App\Domain\User\User;
 
 final class Session
 {
@@ -53,7 +53,7 @@ final class Session
         $_SESSION = [];
     }
 
-    public static function login(UserEntity $user): void
+    public static function login(User $user): void
     {
         self::regenerate();
         $_SESSION[self::USER_ID] = $user->id();

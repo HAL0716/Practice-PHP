@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Repository;
-use App\Entities\UserEntity;
+use App\Domain\User\User;
 use App\Database\Schema\UsersTable;
 
 final class UserRepository extends Repository
 {
-    protected static function hydrate(array $row): UserEntity
+    protected static function hydrate(array $row): User
     {
-        return new UserEntity(
+        return new User(
             (int)$row[UsersTable::ID],
             $row[UsersTable::USERNAME],
             $row[UsersTable::EMAIL],
@@ -32,7 +32,7 @@ final class UserRepository extends Repository
         string $name,
         string $email,
         string $password
-    ): ?\App\Entities\UserEntity {
+    ): ?User {
 
         $db = self::db();
 
@@ -106,12 +106,12 @@ final class UserRepository extends Repository
         }
     }
 
-    public static function findById(int $id): ?UserEntity
+    public static function findById(int $id): ?User
     {
         return self::findOneBy(UsersTable::ID, [$id]);
     }
 
-    public static function findByEmail(string $email): ?UserEntity
+    public static function findByEmail(string $email): ?User
     {
         return self::findOneBy(UsersTable::EMAIL, [$email]);
     }
