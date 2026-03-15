@@ -46,7 +46,7 @@ final class HomeController extends Controller
         );
     }
 
-    public function deletePost(): void
+    private function deletePost(): void
     {
         $form = new DeletePostForm();
 
