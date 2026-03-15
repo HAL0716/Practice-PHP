@@ -20,6 +20,7 @@ final class PostRepository extends Repository
             (int) $row[PostsTable::ID],
             $userId !== null ? (int) $userId : null,
             (string) $row[PostsTable::COMMENT],
+            (string) $row[PostsTable::CREATED_AT],
             $username !== null ? (string) $username : null
         );
     }
@@ -28,6 +29,7 @@ final class PostRepository extends Repository
     {
         return sprintf(
             "SELECT
+                %s.%s,
                 %s.%s,
                 %s.%s,
                 %s.%s,
@@ -41,6 +43,8 @@ final class PostRepository extends Repository
             PostsTable::USER_ID,
             PostsTable::ALIAS,
             PostsTable::COMMENT,
+            PostsTable::ALIAS,
+            PostsTable::CREATED_AT,
             UsersTable::ALIAS,
             UsersTable::USERNAME,
             UsersTable::ALIAS,
@@ -59,7 +63,7 @@ final class PostRepository extends Repository
     public static function create(
         int $userId,
         string $comment
-    ): ?\App\Entities\PostEntity {
+    ): ?PostEntity {
 
         $db = self::db();
 
@@ -92,7 +96,7 @@ final class PostRepository extends Repository
 
     public static function findAll(): array
     {
-        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
+        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'DESC');
     }
 
     public static function delete(int $postId, int $userId): bool

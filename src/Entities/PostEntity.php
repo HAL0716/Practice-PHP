@@ -10,6 +10,7 @@ final class PostEntity
         private int $id,
         private ?int $userId,
         private string $comment,
+        private string $createdAt,
         private ?string $username
     ) {
     }
@@ -27,6 +28,11 @@ final class PostEntity
     public function comment(): string
     {
         return $this->comment;
+    }
+
+    public function createdAt(): string
+    {
+        return $this->createdAt;
     }
 
     public function username(): ?string
