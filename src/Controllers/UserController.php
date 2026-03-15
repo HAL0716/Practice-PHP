@@ -92,7 +92,7 @@ final class UserController extends Controller
 
         Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 
     private function authUser(): void
@@ -122,29 +122,29 @@ final class UserController extends Controller
 
         Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 
     private function logoutUser(): void
     {
         Session::logout();
-        $this->redirect(Routes::SIGNIN);
+        $this->redirect(Routes::USER_SIGNIN);
     }
 
     private function deleteUser(): void
     {
         $form = new DeleteForm();
 
-        if (!$this->ensureValidForm($form, Routes::MYPAGE)) {
+        if (!$this->ensureValidForm($form, Routes::USER_MYPAGE)) {
             return;
         }
 
-        if (!$this->ensureValidPassword($form->passCurrent(), Routes::MYPAGE)) {
+        if (!$this->ensureValidPassword($form->passCurrent(), Routes::USER_MYPAGE)) {
             return;
         }
 
         if (!UserRepository::delete($this->userId())) {
-            $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
+            $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
         }
 
         $this->logoutUser();

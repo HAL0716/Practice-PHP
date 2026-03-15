@@ -63,9 +63,9 @@ final class PostController extends Controller
         }
 
         if (!PostRepository::delete($form->id(), $this->userId())) {
-            $this->redirect(Routes::HOME, self::ERROR_SYSTEM);
+            $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
         }
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 }

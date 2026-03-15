@@ -9,7 +9,7 @@ use App\Core\Form;
 
 final class CreateForm extends Form
 {
-    public const ACTION_URL = Routes::HOME;
+    public const ACTION_URL = Routes::POST_HOME;
 
     public const COMMENT = 'comment';
 

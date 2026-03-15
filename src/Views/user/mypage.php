@@ -14,7 +14,7 @@ use App\Forms\User\DeleteForm;
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
+<p><a href="<?= Html::escape(Routes::POST_HOME) ?>">ホームへ戻る</a></p>
 
 <form action="<?= Html::escape(UpdateForm::ACTION_URL) ?>" method="post" class="update-form">
     <input type="hidden" name="<?= Html::escape(UpdateForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
@@ -51,7 +51,7 @@ use App\Forms\User\DeleteForm;
     <button type="button" class="open-modal-delete" style="color: red;">アカウント削除</button>
 </form>
 
-<p><a href="<?= Html::escape(Routes::SIGNOUT) ?>">サインアウトはこちら</a></p>
+<p><a href="<?= Html::escape(Routes::USER_SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">
     <div class="modal-content">

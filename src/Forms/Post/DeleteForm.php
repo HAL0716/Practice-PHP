@@ -9,7 +9,7 @@ use App\Core\Form;
 
 final class DeleteForm extends Form
 {
-    public const ACTION_URL = Routes::DELETE_POST;
+    public const ACTION_URL = Routes::POST_DELETE;
 
     public const ID = 'id';
 

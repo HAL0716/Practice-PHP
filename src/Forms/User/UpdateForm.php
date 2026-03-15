@@ -9,7 +9,7 @@ use App\Core\Form;
 
 final class UpdateForm extends Form
 {
-    public const ACTION_URL = Routes::MYPAGE;
+    public const ACTION_URL = Routes::USER_MYPAGE;
 
     public const NAME = 'name';
     public const MAIL = 'mail';

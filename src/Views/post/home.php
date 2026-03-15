@@ -11,7 +11,7 @@ use App\Forms\Post\DeleteForm;
 
 <h2><?= Html::escape('ホーム') ?></h2>
 
-<p><a href="<?= Html::escape(Routes::MYPAGE) ?>">マイページはこちら</a></p>
+<p><a href="<?= Html::escape(Routes::USER_MYPAGE) ?>">マイページはこちら</a></p>
 
 <?php if (empty($posts)) : ?>
     <p>投稿がありません。</p>

@@ -34,5 +34,5 @@ use App\Forms\User\SigninForm;
 </form>
 
 <p>
-    <a href="<?= Html::escape(Routes::SIGNUP) ?>">サインアップはこちら</a>
+    <a href="<?= Html::escape(Routes::USER_SIGNUP) ?>">サインアップはこちら</a>
 </p>
