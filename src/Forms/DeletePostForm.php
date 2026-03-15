@@ -27,13 +27,15 @@ final class DeletePostForm extends Form
 
     public function validate(): ?string
     {
+        $id = $this->data[self::ID];
+
         if ($this->hasEmpty([
-            $this->id(),
+            $id
         ])) {
             return self::ERROR_REQUIRED_FIELDS;
         }
 
-        if (!$this->isDigits($this->data[self::ID])) {
+        if (!$this->isDigits($id)) {
             return self::ERROR_INVALID_NUMBER;
         }
 
