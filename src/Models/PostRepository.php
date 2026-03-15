@@ -95,16 +95,17 @@ final class PostRepository extends Repository
         return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
     }
 
-    public static function delete(int $id): bool
+    public static function delete(int $postId, int $userId): bool
     {
         $sql = sprintf(
-            "DELETE FROM %s WHERE %s = ?",
+            "DELETE FROM %s WHERE %s = ? AND %s = ?",
             PostsTable::TABLE,
-            PostsTable::ID
+            PostsTable::ID,
+            PostsTable::USER_ID
         );
 
         try {
-            self::execute($sql, [$id]);
+            self::execute($sql, [$postId, $userId]);
             return true;
         } catch (\PDOException) {
             return false;
