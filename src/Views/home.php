@@ -26,7 +26,7 @@ use App\Forms\DeletePostForm;
                         <td>
                             <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
                                 <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-                                <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= $post->id() ?>">
+                                <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
                                 <button>削除</button>
                             </form>
                         </td>
