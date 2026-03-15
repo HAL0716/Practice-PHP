@@ -16,6 +16,7 @@ abstract class Form
     protected const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
     protected const ERROR_INVALID_PASSWORD  = 'パスワードは英字と数字を含む8文字以上である必要があります';
     protected const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
+    protected const ERROR_INVALID_NUMBER    = '数字でなければなりません';
 
     protected array $data = [];
 
@@ -79,6 +80,11 @@ abstract class Form
         return strlen($password) >= self::PASSWORD_LENGTH
             && preg_match('/[A-Za-z]/', $password) === 1
             && preg_match('/[0-9]/', $password) === 1;
+    }
+
+    protected function isDigits(string $value): bool
+    {
+        return ctype_digit($value);
     }
 
     abstract public function validate(): ?string;

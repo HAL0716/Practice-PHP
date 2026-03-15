@@ -85,7 +85,7 @@ final class PostRepository extends Repository
         return self::findById((int)$db->lastInsertId());
     }
 
-    public static function findById(int $id): ?\App\Entities\PostEntity
+    public static function findById(int $id): ?PostEntity
     {
         return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }
@@ -93,5 +93,22 @@ final class PostRepository extends Repository
     public static function findAll(): array
     {
         return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'ASC');
+    }
+
+    public static function delete(int $postId, int $userId): bool
+    {
+        $sql = sprintf(
+            "DELETE FROM %s WHERE %s = ? AND %s = ?",
+            PostsTable::TABLE,
+            PostsTable::ID,
+            PostsTable::USER_ID
+        );
+
+        try {
+            self::execute($sql, [$postId, $userId]);
+            return true;
+        } catch (\PDOException) {
+            return false;
+        }
     }
 }

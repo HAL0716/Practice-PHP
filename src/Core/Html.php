@@ -14,11 +14,11 @@ final class Html
     }
 
     public static function escape(
-        ?string $string,
+        mixed $value,
         int $flags = ENT_QUOTES,
         string $encoding = 'UTF-8',
         bool $double_encode = true
     ): string {
-        return htmlspecialchars($string ?? '', $flags, $encoding, $double_encode);
+        return htmlspecialchars((string) $value ?? '', $flags, $encoding, $double_encode);
     }
 }

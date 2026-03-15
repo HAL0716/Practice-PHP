@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Constants\Routes;
 use App\Core\Html;
 use App\Forms\PostForm;
+use App\Forms\DeletePostForm;
 
 ?>
 
@@ -22,9 +23,17 @@ use App\Forms\PostForm;
                         <td></td>
                         <td><?= Html::escape($post->comment()) ?></td>
                         <td><?= Html::escape($post->username()) ?></td>
+                        <td>
+                            <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
+                                <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+                                <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
+                                <button>削除</button>
+                            </form>
+                        </td>
                     <?php else : ?>
                         <td><?= Html::escape($post->username() ?? '匿名') ?></td>
                         <td><?= Html::escape($post->comment()) ?></td>
+                        <td></td>
                         <td></td>
                     <?php endif; ?>
                 </tr>

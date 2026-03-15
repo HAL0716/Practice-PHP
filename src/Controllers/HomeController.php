@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Forms\PostForm;
+use App\Forms\DeletePostForm;
 use App\Models\PostRepository;
 
 final class HomeController extends Controller
@@ -17,6 +19,15 @@ final class HomeController extends Controller
         $this->dispatch(
             get: fn () => $this->render('home', ['user_id' => $this->userId(), 'posts' => PostRepository::findAll()]),
             post: fn () => $this->indexPost()
+        );
+    }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->deletePost()
         );
     }
 
@@ -33,5 +44,20 @@ final class HomeController extends Controller
         }
 
         $this->redirectSelf();
+    }
+
+    private function deletePost(): void
+    {
+        $form = new DeletePostForm();
+
+        if (!$this->ensureValidForm($form)) {
+            return;
+        }
+
+        if (!PostRepository::delete($form->id(), $this->userId())) {
+            $this->redirect(Routes::HOME, self::ERROR_SYSTEM);
+        }
+
+        $this->redirect(Routes::HOME);
     }
 }
