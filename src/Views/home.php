@@ -42,9 +42,7 @@ use App\Forms\DeletePostForm;
         <table>
             <tr>
                 <td>
-                    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" rows="1" required>
-                        <?= Html::escape($old[PostForm::COMMENT] ?? '') ?>
-                    </textarea>
+                    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" rows="1" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
                 </td>
             </tr>
             <tr>
