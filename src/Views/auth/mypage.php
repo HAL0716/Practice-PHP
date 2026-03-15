@@ -4,7 +4,7 @@ declare(strict_types=1);
 use App\Constants\Routes;
 use App\Core\Html;
 use App\Forms\User\UpdateForm;
-use App\Forms\DeleteForm;
+use App\Forms\User\DeleteForm;
 
 ?>
 
