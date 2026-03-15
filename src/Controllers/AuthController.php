@@ -14,7 +14,7 @@ use App\Domain\User\UserRepository;
 use App\Forms\DeleteForm;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
-use App\Forms\SignupForm;
+use App\Forms\User\SignupForm;
 
 final class AuthController extends Controller
 {

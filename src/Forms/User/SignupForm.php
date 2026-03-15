@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Forms;
+namespace App\Forms\User;
 
 use App\Constants\Routes;
 use App\Core\Form;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\SignupForm;
+use App\Forms\User\SignupForm;
 
 ?>
 
