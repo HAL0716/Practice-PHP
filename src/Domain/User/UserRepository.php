@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Domain\User;
 
 use App\Core\Repository;
-use App\Domain\User\User;
 use App\Database\Schema\UsersTable;
 
 final class UserRepository extends Repository

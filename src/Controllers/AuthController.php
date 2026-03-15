@@ -10,11 +10,11 @@ use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Core\Security\LoginThrottle;
 use App\Domain\User\User;
+use App\Domain\User\UserRepository;
 use App\Forms\MypageForm;
 use App\Forms\SigninForm;
 use App\Forms\SignupForm;
 use App\Forms\DeleteForm;
-use App\Models\UserRepository;
 
 final class AuthController extends Controller
 {
