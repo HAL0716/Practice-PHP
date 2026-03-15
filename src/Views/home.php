@@ -53,12 +53,3 @@ use App\Forms\DeletePostForm;
         </table>
     </form>
 </div>
-
-<script>
-window.addEventListener("load", function () {
-    const posts = document.getElementById("posts");
-    if (posts) {
-        posts.scrollTop = posts.scrollHeight;
-    }
-});
-</script>
