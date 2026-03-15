@@ -21,6 +21,7 @@ use App\Forms\DeletePostForm;
             <tr>
                 <td><?= Html::escape($post->username() ?? '匿名') ?></td>
                 <td><?= Html::escape($post->comment()) ?></td>
+                <td><?= Html::escape($post->createdAt()) ?></td>
                 <td>
                     <?php if ($post->userId() === $user_id) : ?>
                             <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
