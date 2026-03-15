@@ -8,7 +8,7 @@ use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Domain\Post\PostRepository;
 use App\Forms\Post\CreateForm;
-use App\Forms\DeletePostForm;
+use App\Forms\Post\DeleteForm;
 
 final class PostController extends Controller
 {
@@ -56,7 +56,7 @@ final class PostController extends Controller
 
     private function deletePost(): void
     {
-        $form = new DeletePostForm();
+        $form = new DeleteForm();
 
         if (!$this->ensureValidForm($form)) {
             return;

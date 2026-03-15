@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Constants\Routes;
 use App\Core\Html;
 use App\Forms\Post\CreateForm;
-use App\Forms\DeletePostForm;
+use App\Forms\Post\DeleteForm;
 
 ?>
 
@@ -24,9 +24,9 @@ use App\Forms\DeletePostForm;
                 <td><?= Html::escape($post->createdAt()) ?></td>
                 <td>
                     <?php if ($post->userId() === $user_id) : ?>
-                            <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
-                                <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-                                <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
+                            <form action="<?= Html::escape(DeleteForm::ACTION_URL) ?>" method="post">
+                                <input type="hidden" name="<?= Html::escape(DeleteForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+                                <input type="hidden" name="<?= Html::escape(DeleteForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
                                 <button type="submit">削除</button>
                             </form>
                     <?php endif; ?>
