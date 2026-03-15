@@ -147,15 +147,15 @@ final class AuthController extends Controller
             $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
         }
 
-        Session::logout();
-        $this->redirect(Routes::SIGNIN);
+        $this->logoutUser();
     }
 
     private function showMypage(): void
     {
-        if (!$user = $this->currentUser()) {
-            Session::logout();
-            $this->redirect(Routes::SIGNIN);
+        $user = $this->currentUser();
+
+        if ($user === null) {
+            $this->logoutUser();
         }
 
         $this->render('auth/mypage', ['user' => $user]);
