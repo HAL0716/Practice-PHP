@@ -16,7 +16,7 @@ use App\Forms\User\UpdateForm;
 use App\Forms\User\SigninForm;
 use App\Forms\User\SignupForm;
 
-final class AuthController extends Controller
+final class UserController extends Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 

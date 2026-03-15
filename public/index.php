@@ -6,7 +6,7 @@ use App\Core\Autoloader;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Constants\Routes;
-use App\Controllers\AuthController;
+use App\Controllers\UserController;
 use App\Controllers\PostController;
 
 require_once __DIR__ . '/../src/Core/Autoloader.php';
@@ -18,11 +18,11 @@ Session::init();
 $routes = [
     Routes::HOME    => [PostController::class, 'home'],
     Routes::DELETE_POST => [PostController::class, 'delete'],
-    Routes::SIGNUP  => [AuthController::class, 'signup'],
-    Routes::SIGNIN  => [AuthController::class, 'signin'],
-    Routes::SIGNOUT => [AuthController::class, 'signout'],
-    Routes::DELETE  => [AuthController::class, 'delete'],
-    Routes::MYPAGE  => [AuthController::class, 'mypage'],
+    Routes::SIGNUP  => [UserController::class, 'signup'],
+    Routes::SIGNIN  => [UserController::class, 'signin'],
+    Routes::SIGNOUT => [UserController::class, 'signout'],
+    Routes::DELETE  => [UserController::class, 'delete'],
+    Routes::MYPAGE  => [UserController::class, 'mypage'],
 ];
 
 $url = Request::path();
