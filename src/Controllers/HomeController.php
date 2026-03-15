@@ -22,6 +22,15 @@ final class HomeController extends Controller
         );
     }
 
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
+    }
+
     private function indexPost(): void
     {
         $form = new PostForm();
@@ -35,15 +44,6 @@ final class HomeController extends Controller
         }
 
         $this->redirectSelf();
-    }
-
-    public function delete(): void
-    {
-        $this->requireLogin();
-
-        $this->dispatch(
-            post: fn () => $this->deletePost()
-        );
     }
 
     private function deletePost(): void
