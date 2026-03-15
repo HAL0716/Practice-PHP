@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\SignupForm;
+use App\Forms\User\SignupForm;
 
 ?>
 
@@ -42,5 +42,5 @@ use App\Forms\SignupForm;
 </form>
 
 <p>
-    <a href="<?= Html::escape(Routes::SIGNIN) ?>">サインインはこちら</a>
+    <a href="<?= Html::escape(Routes::USER_SIGNIN) ?>">サインインはこちら</a>
 </p>

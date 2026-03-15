@@ -35,7 +35,7 @@ abstract class Controller
     protected function requireLogin(): void
     {
         if (!Session::isLoggedIn()) {
-            $this->redirect(Routes::SIGNIN);
+            $this->redirect(Routes::USER_SIGNIN);
         }
     }
 

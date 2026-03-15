@@ -2,21 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Domain\Post;
 
 use App\Core\Repository;
-use App\Entities\PostEntity;
 use App\Database\Schema\PostsTable;
 use App\Database\Schema\UsersTable;
 
 final class PostRepository extends Repository
 {
-    protected static function hydrate(array $row): PostEntity
+    protected static function hydrate(array $row): Post
     {
         $userId = $row[PostsTable::USER_ID];
         $username = $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME];
 
-        return new \App\Entities\PostEntity(
+        return new Post(
             (int) $row[PostsTable::ID],
             $userId !== null ? (int) $userId : null,
             (string) $row[PostsTable::COMMENT],
@@ -63,7 +62,7 @@ final class PostRepository extends Repository
     public static function create(
         int $userId,
         string $comment
-    ): ?PostEntity {
+    ): ?Post {
 
         $db = self::db();
 
@@ -89,7 +88,7 @@ final class PostRepository extends Repository
         return self::findById((int)$db->lastInsertId());
     }
 
-    public static function findById(int $id): ?PostEntity
+    public static function findById(int $id): ?Post
     {
         return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }

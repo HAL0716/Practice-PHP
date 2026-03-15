@@ -6,19 +6,19 @@ namespace App\Controllers;
 
 use App\Constants\Routes;
 use App\Core\Http\Controller;
-use App\Forms\PostForm;
-use App\Forms\DeletePostForm;
-use App\Models\PostRepository;
+use App\Domain\Post\PostRepository;
+use App\Forms\Post\CreateForm;
+use App\Forms\Post\DeleteForm;
 
-final class HomeController extends Controller
+final class PostController extends Controller
 {
-    public function index(): void
+    public function home(): void
     {
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->render('home', ['user_id' => $this->userId(), 'posts' => PostRepository::findAll()]),
-            post: fn () => $this->indexPost()
+            get: fn () => $this->showPosts(),
+            post: fn () => $this->createPost()
         );
     }
 
@@ -31,9 +31,17 @@ final class HomeController extends Controller
         );
     }
 
-    private function indexPost(): void
+    private function showPosts(): void
     {
-        $form = new PostForm();
+        $this->render('post/home', [
+            'user_id' => $this->userId(),
+            'posts'   => PostRepository::findAll(),
+        ]);
+    }
+
+    private function createPost(): void
+    {
+        $form = new CreateForm();
 
         if (!$this->ensureValidForm($form)) {
             return;
@@ -48,16 +56,16 @@ final class HomeController extends Controller
 
     private function deletePost(): void
     {
-        $form = new DeletePostForm();
+        $form = new DeleteForm();
 
         if (!$this->ensureValidForm($form)) {
             return;
         }
 
         if (!PostRepository::delete($form->id(), $this->userId())) {
-            $this->redirect(Routes::HOME, self::ERROR_SYSTEM);
+            $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
         }
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 }

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Forms;
+namespace App\Forms\Post;
 
 use App\Constants\Routes;
 use App\Core\Form;
 
-final class PostForm extends Form
+final class CreateForm extends Form
 {
-    public const ACTION_URL = Routes::HOME;
+    public const ACTION_URL = Routes::POST_HOME;
 
     public const COMMENT = 'comment';
 

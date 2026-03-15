@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\PostForm;
-use App\Forms\DeletePostForm;
+use App\Forms\Post\CreateForm;
+use App\Forms\Post\DeleteForm;
 
 ?>
 
 <h2><?= Html::escape('ホーム') ?></h2>
 
-<p><a href="<?= Html::escape(Routes::MYPAGE) ?>">マイページはこちら</a></p>
+<p><a href="<?= Html::escape(Routes::USER_MYPAGE) ?>">マイページはこちら</a></p>
 
 <?php if (empty($posts)) : ?>
     <p>投稿がありません。</p>
@@ -24,9 +24,9 @@ use App\Forms\DeletePostForm;
                 <td><?= Html::escape($post->createdAt()) ?></td>
                 <td>
                     <?php if ($post->userId() === $user_id) : ?>
-                            <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
-                                <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-                                <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
+                            <form action="<?= Html::escape(DeleteForm::ACTION_URL) ?>" method="post">
+                                <input type="hidden" name="<?= Html::escape(DeleteForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+                                <input type="hidden" name="<?= Html::escape(DeleteForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
                                 <button type="submit">削除</button>
                             </form>
                     <?php endif; ?>
@@ -37,13 +37,13 @@ use App\Forms\DeletePostForm;
 <?php endif; ?>
 
 <div>
-    <form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
-        <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <form action="<?= Html::escape(CreateForm::ACTION_URL) ?>" method="post">
+        <input type="hidden" name="<?= Html::escape(CreateForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
         <table>
             <tr>
                 <td>
-                    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" rows="1" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
+                    <textarea name="<?= Html::escape(CreateForm::COMMENT) ?>" rows="1" required><?= Html::escape($old[CreateForm::COMMENT] ?? '') ?></textarea>
                 </td>
             </tr>
             <tr>

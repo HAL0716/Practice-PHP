@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Forms;
+namespace App\Forms\User;
 
 use App\Constants\Routes;
 use App\Core\Form;
 
 final class DeleteForm extends Form
 {
-    public const ACTION_URL = Routes::DELETE;
+    public const ACTION_URL = Routes::USER_DELETE;
 
     public const PASS_CURRENT = 'pass_current';
 

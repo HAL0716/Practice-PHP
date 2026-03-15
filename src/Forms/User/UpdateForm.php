@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Forms;
+namespace App\Forms\User;
 
 use App\Constants\Routes;
 use App\Core\Form;
 
-final class MypageForm extends Form
+final class UpdateForm extends Form
 {
-    public const ACTION_URL = Routes::MYPAGE;
+    public const ACTION_URL = Routes::USER_MYPAGE;
 
     public const NAME = 'name';
     public const MAIL = 'mail';

@@ -9,14 +9,14 @@ use App\Core\Http\Controller;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Core\Security\LoginThrottle;
-use App\Entities\UserEntity;
-use App\Forms\MypageForm;
-use App\Forms\SigninForm;
-use App\Forms\SignupForm;
-use App\Forms\DeleteForm;
-use App\Models\UserRepository;
+use App\Domain\User\User;
+use App\Domain\User\UserRepository;
+use App\Forms\User\DeleteForm;
+use App\Forms\User\UpdateForm;
+use App\Forms\User\SigninForm;
+use App\Forms\User\SignupForm;
 
-final class AuthController extends Controller
+final class UserController extends Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 
@@ -27,16 +27,16 @@ final class AuthController extends Controller
     public function signup(): void
     {
         $this->dispatch(
-            post: fn () => $this->signupPost(),
-            get:  fn () => $this->render('auth/signup')
+            post: fn () => $this->createUser(),
+            get:  fn () => $this->render('user/signup')
         );
     }
 
     public function signin(): void
     {
         $this->dispatch(
-            post: fn () => $this->signinPost(),
-            get:  fn () => $this->render('auth/signin')
+            post: fn () => $this->authUser(),
+            get:  fn () => $this->render('user/signin')
         );
     }
 
@@ -45,7 +45,7 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            get: fn () => $this->signoutGet()
+            get: fn () => $this->logoutUser()
         );
     }
 
@@ -54,7 +54,7 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            post: fn () => $this->deletePost()
+            post: fn () => $this->deleteUser()
         );
     }
 
@@ -63,12 +63,12 @@ final class AuthController extends Controller
         $this->requireLogin();
 
         $this->dispatch(
-            post: fn () => $this->mypagePost(),
-            get:  fn () => $this->mypageGet()
+            post: fn () => $this->updateUser(),
+            get:  fn () => $this->showMypage()
         );
     }
 
-    private function signupPost(): void
+    private function createUser(): void
     {
         $form = new SignupForm();
 
@@ -92,10 +92,10 @@ final class AuthController extends Controller
 
         Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 
-    private function signinPost(): void
+    private function authUser(): void
     {
         $form = new SigninForm();
 
@@ -122,48 +122,48 @@ final class AuthController extends Controller
 
         Session::login($user);
 
-        $this->redirect(Routes::HOME);
+        $this->redirect(Routes::POST_HOME);
     }
 
-    private function signoutGet(): void
+    private function logoutUser(): void
     {
         Session::logout();
-        $this->redirect(Routes::SIGNIN);
+        $this->redirect(Routes::USER_SIGNIN);
     }
 
-    private function deletePost(): void
+    private function deleteUser(): void
     {
         $form = new DeleteForm();
 
-        if (!$this->ensureValidForm($form, Routes::MYPAGE)) {
+        if (!$this->ensureValidForm($form, Routes::USER_MYPAGE)) {
             return;
         }
 
-        if (!$this->ensureValidPassword($form->passCurrent(), Routes::MYPAGE)) {
+        if (!$this->ensureValidPassword($form->passCurrent(), Routes::USER_MYPAGE)) {
             return;
         }
 
         if (!UserRepository::delete($this->userId())) {
-            $this->redirect(Routes::MYPAGE, self::ERROR_SYSTEM);
+            $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
         }
 
-        Session::logout();
-        $this->redirect(Routes::SIGNIN);
+        $this->logoutUser();
     }
 
-    private function mypageGet(): void
+    private function showMypage(): void
     {
-        if (!$user = $this->currentUser()) {
-            Session::logout();
-            $this->redirect(Routes::SIGNIN);
+        $user = $this->currentUser();
+
+        if ($user === null) {
+            $this->logoutUser();
         }
 
-        $this->render('auth/mypage', ['user' => $user]);
+        $this->render('user/mypage', ['user' => $user]);
     }
 
-    private function mypagePost(): void
+    private function updateUser(): void
     {
-        $form = new MypageForm();
+        $form = new UpdateForm();
 
         if (!$this->ensureValidForm($form)) {
             return;
@@ -185,7 +185,7 @@ final class AuthController extends Controller
         $this->redirectSelf();
     }
 
-    private function currentUser(): ?UserEntity
+    private function currentUser(): ?User
     {
         return UserRepository::findById($this->userId());
     }
