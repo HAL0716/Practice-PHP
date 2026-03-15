@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\PostForm;
+use App\Forms\Post\CreateForm;
 use App\Forms\DeletePostForm;
 
 ?>
@@ -37,13 +37,13 @@ use App\Forms\DeletePostForm;
 <?php endif; ?>
 
 <div>
-    <form action="<?= Html::escape(PostForm::ACTION_URL) ?>" method="post">
-        <input type="hidden" name="<?= Html::escape(PostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <form action="<?= Html::escape(CreateForm::ACTION_URL) ?>" method="post">
+        <input type="hidden" name="<?= Html::escape(CreateForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
 
         <table>
             <tr>
                 <td>
-                    <textarea name="<?= Html::escape(PostForm::COMMENT) ?>" rows="1" required><?= Html::escape($old[PostForm::COMMENT] ?? '') ?></textarea>
+                    <textarea name="<?= Html::escape(CreateForm::COMMENT) ?>" rows="1" required><?= Html::escape($old[CreateForm::COMMENT] ?? '') ?></textarea>
                 </td>
             </tr>
             <tr>

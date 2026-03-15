@@ -7,7 +7,7 @@ namespace App\Controllers;
 use App\Constants\Routes;
 use App\Core\Http\Controller;
 use App\Domain\Post\PostRepository;
-use App\Forms\PostForm;
+use App\Forms\Post\CreateForm;
 use App\Forms\DeletePostForm;
 
 final class PostController extends Controller
@@ -41,7 +41,7 @@ final class PostController extends Controller
 
     private function createPost(): void
     {
-        $form = new PostForm();
+        $form = new CreateForm();
 
         if (!$this->ensureValidForm($form)) {
             return;
