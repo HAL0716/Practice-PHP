@@ -12,7 +12,7 @@ use App\Core\Security\LoginThrottle;
 use App\Domain\User\User;
 use App\Domain\User\UserRepository;
 use App\Forms\DeleteForm;
-use App\Forms\MypageForm;
+use App\Forms\User\UpdateForm;
 use App\Forms\User\SigninForm;
 use App\Forms\User\SignupForm;
 
@@ -163,7 +163,7 @@ final class AuthController extends Controller
 
     private function updateUser(): void
     {
-        $form = new MypageForm();
+        $form = new UpdateForm();
 
         if (!$this->ensureValidForm($form)) {
             return;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\MypageForm;
+use App\Forms\User\UpdateForm;
 use App\Forms\DeleteForm;
 
 ?>
@@ -16,24 +16,24 @@ use App\Forms\DeleteForm;
 
 <p><a href="<?= Html::escape(Routes::HOME) ?>">ホームへ戻る</a></p>
 
-<form action="<?= Html::escape(MypageForm::ACTION_URL) ?>" method="post" class="update-form">
-    <input type="hidden" name="<?= Html::escape(MypageForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
-    <input type="hidden" name="<?= Html::escape(MypageForm::PASS_CURRENT) ?>">
+<form action="<?= Html::escape(UpdateForm::ACTION_URL) ?>" method="post" class="update-form">
+    <input type="hidden" name="<?= Html::escape(UpdateForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
+    <input type="hidden" name="<?= Html::escape(UpdateForm::PASS_CURRENT) ?>">
 
     <table>
         <tr>
             <td>ユーザー名</td>
-            <td><input type="text" name="<?= Html::escape(MypageForm::NAME) ?>" value="<?= Html::escape($user->username()) ?>"></td>
+            <td><input type="text" name="<?= Html::escape(UpdateForm::NAME) ?>" value="<?= Html::escape($user->username()) ?>"></td>
         </tr>
         <tr>
             <td>メールアドレス</td>
-            <td><input type="email" name="<?= Html::escape(MypageForm::MAIL) ?>" value="<?= Html::escape($user->email()) ?>"></td>
+            <td><input type="email" name="<?= Html::escape(UpdateForm::MAIL) ?>" value="<?= Html::escape($user->email()) ?>"></td>
         </tr>
         <tr>
             <td>新しいパスワード</td>
             <td>
-                <input type="password" name="<?= Html::escape(MypageForm::PASS) ?>"><br>
-                <input type="password" name="<?= Html::escape(MypageForm::PASS_CONFIRM) ?>" placeholder="確認用">
+                <input type="password" name="<?= Html::escape(UpdateForm::PASS) ?>"><br>
+                <input type="password" name="<?= Html::escape(UpdateForm::PASS_CONFIRM) ?>" placeholder="確認用">
             </td>
         </tr>
 
@@ -92,7 +92,7 @@ use App\Forms\DeleteForm;
     };
 
     openUpdateBtn.addEventListener("click", () => {
-        open(updateForm, "<?= Html::escape(MypageForm::PASS_CURRENT) ?>");
+        open(updateForm, "<?= Html::escape(UpdateForm::PASS_CURRENT) ?>");
     });
 
     openDeleteBtn.addEventListener("click", () => {
