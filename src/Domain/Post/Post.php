@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Entities;
+namespace App\Domain\Post;
 
-final class PostEntity
+final class Post
 {
     public function __construct(
         private int $id,
