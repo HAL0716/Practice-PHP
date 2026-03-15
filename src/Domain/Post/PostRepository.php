@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Domain\Post;
 
 use App\Core\Repository;
-use App\Domain\Post\Post;
 use App\Database\Schema\PostsTable;
 use App\Database\Schema\UsersTable;
 

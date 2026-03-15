@@ -6,9 +6,9 @@ namespace App\Controllers;
 
 use App\Constants\Routes;
 use App\Core\Http\Controller;
+use App\Domain\Post\PostRepository;
 use App\Forms\PostForm;
 use App\Forms\DeletePostForm;
-use App\Models\PostRepository;
 
 final class HomeController extends Controller
 {
