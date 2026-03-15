@@ -27,7 +27,7 @@ use App\Forms\DeletePostForm;
                             <form action="<?= Html::escape(DeletePostForm::ACTION_URL) ?>" method="post">
                                 <input type="hidden" name="<?= Html::escape(DeletePostForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
                                 <input type="hidden" name="<?= Html::escape(DeletePostForm::ID) ?>" value="<?= Html::escape($post->id()) ?>">
-                                <button>削除</button>
+                                <button type="submit">削除</button>
                             </form>
                     <?php endif; ?>
                 </td>
@@ -48,7 +48,7 @@ use App\Forms\DeletePostForm;
             </tr>
             <tr>
                 <td style="text-align: center;">
-                    <button>投稿</button>
+                    <button type="submit">投稿</button>
                 </td>
             </tr>
         </table>
