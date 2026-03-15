@@ -35,6 +35,15 @@ final class Post
         return $this->createdAt;
     }
 
+    public function createdAtJst(): string
+    {
+        $date = new \DateTime($this->createdAt, new \DateTimeZone('UTC'));
+
+        return $date
+            ->setTimezone(new \DateTimeZone('Asia/Tokyo'))
+            ->format('Y-m-d H:i');
+    }
+
     public function username(): ?string
     {
         return $this->username;
