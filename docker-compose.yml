@@ -6,9 +6,7 @@ services:
     ports:
       - "${PHP_PORT}:80"
     volumes:
-      - ./public:/var/www/html
-      - ./src:/var/www/src
-      - ./config:/var/www/config
+      - ./:/var/www
     depends_on:
       - mysql
     env_file:

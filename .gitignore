@@ -18,7 +18,6 @@ mysql_data
 # PHP
 # ========================
 vendor/
-composer.lock
 
 # ========================
 # OS files

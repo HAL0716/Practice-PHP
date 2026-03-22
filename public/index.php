@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Core\Autoloader;
 use App\Core\Http\Request;
 use App\Core\Http\Session;
 use App\Constants\Routes;
 use App\Controllers\UserController;
 use App\Controllers\PostController;
 
-require_once __DIR__ . '/../src/Core/Autoloader.php';
-
-Autoloader::register();
+require_once __DIR__ . '/../vendor/autoload.php';
 
 Session::init();
 
