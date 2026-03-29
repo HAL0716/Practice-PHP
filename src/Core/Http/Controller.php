@@ -5,26 +5,31 @@ declare(strict_types=1);
 namespace App\Core\Http;
 
 use App\Constants\Routes;
-use App\Core\Security\Csrf;
+use App\Contracts\Http\RequestInterface;
+use App\Contracts\Http\SessionInterface;
+use App\Contracts\Http\ResponseInterface;
+use App\Contracts\Security\CsrfInterface;
 use App\Core\Form;
 
 abstract class Controller
 {
+    public const ERROR_CSRF = '不正なリクエストです。再度お試しください。';
+    public const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
+
     protected const LAYOUT = 'layouts/default';
 
-    protected const ERROR_CSRF   = '不正なリクエストです。再度お試しください。';
-    protected const ERROR_SYSTEM = 'システムエラーが発生しました。時間をおいて再度お試しください。';
+    public function __construct(protected RequestInterface $request, protected SessionInterface $session, protected ResponseInterface $response, protected CsrfInterface $csrf)
+    {
+    }
 
-    final protected function dispatch(
-        ?callable $post = null,
-        ?callable $get = null
-    ): void {
-        if (Request::isPost() && $post) {
+    final protected function dispatch(?callable $post = null, ?callable $get = null): void
+    {
+        if ($this->request->isPost() && $post) {
             $post();
             return;
         }
 
-        if (Request::isGet() && $get) {
+        if ($this->request->isGet() && $get) {
             $get();
             return;
         }
@@ -34,41 +39,32 @@ abstract class Controller
 
     protected function requireLogin(): void
     {
-        if (!Session::isLoggedIn()) {
+        if (!$this->session->isLoggedIn()) {
             $this->redirect(Routes::USER_SIGNIN);
         }
     }
 
-    final protected function redirect(
-        string $url,
-        string $error = '',
-        array $old = []
-    ): void {
+    final protected function redirect(string $url, string $error = '', array $old = []): void
+    {
         if ($error !== '') {
-            Session::flashError($error);
+            $this->session->flashError($error);
         }
 
         if ($old !== []) {
-            Session::flashOld($old);
+            $this->session->flashOld($old);
         }
 
-        if (!headers_sent()) {
-            header("Location: {$url}");
-        }
-
-        exit;
+        $this->response->redirect($url);
     }
 
-    final protected function redirectSelf(
-        string $error = '',
-        array $old = []
-    ): void {
-        $this->redirect(Request::path(), $error, $old);
+    final protected function redirectSelf(string $error = '', array $old = []): void
+    {
+        $this->redirect($this->request->path(), $error, $old);
     }
 
     final protected function ensureValidForm(Form $form, ?string $redirect = null): bool
     {
-        $redirect ??= Request::path();
+        $redirect ??= $this->request->path();
 
         $error = $this->checkCsrf($form->token()) ?? $form->validate();
 
@@ -82,14 +78,11 @@ abstract class Controller
 
     final protected function checkCsrf(string $token): ?string
     {
-        return Csrf::verify($token) ? null : static::ERROR_CSRF;
+        return $this->csrf->verify($token) ? null : static::ERROR_CSRF;
     }
 
-    final protected function render(
-        string $view,
-        array $data = [],
-        bool $useLayout = true
-    ): void {
+    final protected function render(string $view, array $data = [], bool $useLayout = true): void
+    {
         extract($this->viewData($data), EXTR_SKIP);
 
         ob_start();
@@ -106,15 +99,15 @@ abstract class Controller
 
     final protected function userId(): int
     {
-        return Session::userId();
+        return $this->session->userId();
     }
 
     private function viewData(array $data): array
     {
         return $data + [
-            'token' => Csrf::token(),
-            'error' => Session::error(),
-            'old'   => Session::old(),
+            'token' => $this->csrf->token(),
+            'error' => $this->session->error(),
+            'old' => $this->session->old(),
         ];
     }
 
