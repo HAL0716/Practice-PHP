@@ -4,89 +4,71 @@ declare(strict_types=1);
 
 namespace App\Core\Http;
 
-final class Request
+use App\Contracts\Http\RequestInterface;
+
+final class Request implements RequestInterface
 {
-    private function __construct()
+    public function __construct()
     {
-        throw new \LogicException(
-            'Cannot instantiate ' . static::class
-        );
     }
 
-    public static function post(
-        string $key,
-        string $default = '',
-        array $allowedValues = []
-    ): string {
-        return self::value($_POST, $key, $default, $allowedValues);
+    public function post(string $key, string $default = ''): string
+    {
+        return $this->value($_POST, $key, $default);
     }
 
-    public static function query(
-        string $key,
-        string $default = '',
-        array $allowedValues = []
-    ): string {
-        return self::value($_GET, $key, $default, $allowedValues);
+    public function query(string $key, string $default = ''): string
+    {
+        return $this->value($_GET, $key, $default);
     }
 
-    public static function value(
-        array $source,
-        string $key,
-        string $default = '',
-        array $allowedValues = []
-    ): string {
+    public function postArray(string $key, array $default = []): array
+    {
+        return $this->arrayValue($_POST, $key, $default);
+    }
+
+    public function queryArray(string $key, array $default = []): array
+    {
+        return $this->arrayValue($_GET, $key, $default);
+    }
+
+    public function isGet(): bool
+    {
+        return $this->method() === 'GET';
+    }
+
+    public function isPost(): bool
+    {
+        return $this->method() === 'POST';
+    }
+
+    public function path(): string
+    {
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+
+        return parse_url($uri, PHP_URL_PATH) ?: '/';
+    }
+
+    private function value(array $source, string $key, string $default): string
+    {
         if (!isset($source[$key]) || is_array($source[$key])) {
             return $default;
         }
 
-        $value = trim((string)$source[$key]);
-
-        if ($allowedValues !== [] && !in_array($value, $allowedValues, true)) {
-            return $default;
-        }
-
-        return $value;
+        return (string) $source[$key];
     }
 
-    public static function array(
-        array $source,
-        string $key,
-        array $default = []
-    ): array {
+    private function arrayValue(array $source, string $key, array $default): array
+    {
         if (!isset($source[$key]) || !is_array($source[$key])) {
             return $default;
         }
 
-        $value = $source[$key] ?? $default;
-
-        if (!is_array($value)) {
-            return $default;
-        }
-
-        return array_map(
-            fn ($v) => is_string($v) ? trim($v) : $v,
-            $value
-        );
+        return $source[$key];
     }
 
-    public static function method(): string
+    private function method(): string
     {
         return $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    }
-
-    public static function isGet(): bool
-    {
-        return self::method() === 'GET';
-    }
-
-    public static function isPost(): bool
-    {
-        return self::method() === 'POST';
-    }
-
-    public static function path(): string
-    {
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
-        return parse_url($uri, PHP_URL_PATH) ?: '/';
     }
 }
