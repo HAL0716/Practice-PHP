@@ -13,11 +13,9 @@ use Tests\Fake\Database\FakeDatabase;
 #[CoversClass(PostRepository::class)]
 final class PostRepositoryTest extends TestCase
 {
-    public function testCreate(): void
+    public function testCreateReturnsPost(): void
     {
-        $db = new FakeDatabase();
-        $db->lastId = 1;
-        $db->rows = [
+        $repo = $this->createRepository([
             [
                 'id' => 1,
                 'user_id' => 1,
@@ -25,19 +23,28 @@ final class PostRepositoryTest extends TestCase
                 'created_at' => '2024-01-01 00:00:00',
                 'u_username' => 'name'
             ]
-        ];
-
-        $repo = new PostRepository($db);
+        ], lastId: 1);
 
         $post = $repo->create(1, 'comment');
 
         $this->assertInstanceOf(Post::class, $post);
         $this->assertSame(1, $post->id());
+        $this->assertSame('comment', $post->comment());
+        $this->assertSame('name', $post->username());
     }
 
-    public function testFind(): void
+    public function testCreateFailsReturnsNull(): void
     {
-        $repo = $this->newRepository([
+        $repo = $this->createRepository([], shouldFail: true);
+
+        $post = $repo->create(1, 'comment');
+
+        $this->assertNull($post);
+    }
+
+    public function testFindByIdReturnsPost(): void
+    {
+        $repo = $this->createRepository([
             [
                 'id' => 1,
                 'user_id' => 1,
@@ -49,30 +56,66 @@ final class PostRepositoryTest extends TestCase
 
         $post = $repo->findById(1);
 
+        $this->assertInstanceOf(Post::class, $post);
         $this->assertSame(1, $post->id());
         $this->assertSame('comment', $post->comment());
         $this->assertSame('name', $post->username());
     }
 
-    public function testDelete(): void
+    public function testFindByIdReturnsNull(): void
     {
-        $repo = $this->newRepository([
+        $repo = $this->createRepository([]);
+
+        $post = $repo->findById(999);
+
+        $this->assertNull($post);
+    }
+
+    public function testFindAllReturnsOrderedPosts(): void
+    {
+        $repo = $this->createRepository([
             [
                 'id' => 1,
                 'user_id' => 1,
-                'comment' => 'comment',
+                'comment' => 'a',
                 'created_at' => '2024-01-01 00:00:00',
+                'u_username' => 'name'
+            ],
+            [
+                'id' => 2,
+                'user_id' => 1,
+                'comment' => 'b',
+                'created_at' => '2024-01-02 00:00:00',
                 'u_username' => 'name'
             ]
         ]);
 
-        $this->assertTrue($repo->delete(1, 1));
+        $posts = $repo->findAll();
+
+        $this->assertCount(2, $posts);
+        $this->assertSame(2, $posts[0]->id());
+        $this->assertSame(1, $posts[1]->id());
     }
 
-    private function newRepository(array $rows = []): PostRepository
+    public function testDeleteReturnsTrue(): void
+    {
+        $repo = $this->createRepository([]);
+
+        $result = $repo->delete(1, 1);
+
+        $this->assertTrue($result);
+    }
+
+    private function createRepository(array $rows = [], ?int $lastId = null, bool $shouldFail = false): PostRepository
     {
         $db = new FakeDatabase();
         $db->rows = $rows;
+
+        if ($lastId !== null) {
+            $db->lastId = $lastId;
+        }
+
+        $db->shouldFail = $shouldFail;
 
         return new PostRepository($db);
     }

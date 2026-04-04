@@ -13,71 +13,141 @@ use Tests\Fake\Database\FakeDatabase;
 #[CoversClass(UserRepository::class)]
 final class UserRepositoryTest extends TestCase
 {
-    public function testCreate(): void
+    public function testCreateReturnsUser(): void
     {
-        $db = new FakeDatabase();
-        $db->lastId = 1;
-        $db->rows = [
+        $repo = $this->createRepository([
             [
                 'id' => 1,
                 'username' => 'name',
                 'email' => 'test@example.com',
-                'password' => 'hash'
+                'password' => password_hash('pass1234', PASSWORD_DEFAULT)
             ]
-        ];
+        ], lastId: 1);
 
-        $repo = new UserRepository($db);
+        $user = $repo->create('name', 'test@example.com', 'pass1234');
 
-        $user = $repo->create('name', 'test@example.com', 'pass');
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertSame(1, $user->id());
+        $this->assertSame('name', $user->username());
+        $this->assertSame('test@example.com', $user->email());
+
+        $this->assertTrue($user->verifyPassword('pass1234'));
+    }
+
+    public function testCreateFailsReturnsNull(): void
+    {
+        $repo = $this->createRepository([], shouldFail: true);
+
+        $user = $repo->create('name', 'test@example.com', 'pass1234');
+
+        $this->assertNull($user);
+    }
+
+    public function testFindByIdReturnsUser(): void
+    {
+        $repo = $this->createRepository([
+            [
+                'id' => 1,
+                'username' => 'name',
+                'email' => 'test@example.com',
+                'password' => password_hash('pass1234', PASSWORD_DEFAULT)
+            ]
+        ]);
+
+        $user = $repo->findById(1);
 
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame(1, $user->id());
     }
 
-    public function testFind(): void
+    public function testFindByIdReturnsNull(): void
     {
-        $repo = $this->newRepository([
+        $repo = $this->createRepository([]);
+
+        $user = $repo->findById(999);
+
+        $this->assertNull($user);
+    }
+
+    public function testFindByEmailReturnsUser(): void
+    {
+        $repo = $this->createRepository([
             [
                 'id' => 1,
                 'username' => 'name',
                 'email' => 'test@example.com',
-                'password' => 'hash'
+                'password' => password_hash('pass1234', PASSWORD_DEFAULT)
             ]
         ]);
 
-        $userById = $repo->findById(1);
-        $this->assertSame(1, $userById->id());
-        $this->assertSame('name', $userById->username());
+        $user = $repo->findByEmail('test@example.com');
 
-        $userByEmail = $repo->findByEmail('test@example.com');
-        $this->assertSame('test@example.com', $userByEmail->email());
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertSame('test@example.com', $user->email());
     }
 
-    public function testUpdate(): void
+    public function testFindByEmailReturnsNull(): void
     {
-        $repo = $this->newRepository();
+        $repo = $this->createRepository([]);
 
-        $this->assertFalse($repo->update(1));
+        $user = $repo->findByEmail('none@example.com');
+
+        $this->assertNull($user);
     }
 
-    public function testDelete(): void
+    public function testUpdateReturnsFalse(): void
     {
-        $repo = $this->newRepository([
-            [
-                'id' => 1,
-                'username' => 'name',
-                'email' => 'test@example.com',
-                'password' => 'hash'
-            ]
-        ]);
+        $repo = $this->createRepository([], shouldFail: true);
+
+        $this->assertFalse($repo->update(1, name: 'new'));
+        $this->assertFalse($repo->update(1, email: 'new@example.com'));
+        $this->assertFalse($repo->update(1, password: 'newpass1234'));
+    }
+
+    public function testUpdateName(): void
+    {
+        $repo = $this->createRepository();
+
+        $result = $repo->update(1, name: 'new');
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateEmail(): void
+    {
+        $repo = $this->createRepository();
+
+        $result = $repo->update(1, email: 'new@example.com');
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdatePassword(): void
+    {
+        $repo = $this->createRepository();
+
+        $result = $repo->update(1, password: 'newpass1234');
+
+        $this->assertTrue($result);
+    }
+
+    public function testDeleteReturnsTrue(): void
+    {
+        $repo = $this->createRepository();
 
         $this->assertTrue($repo->delete(1));
     }
 
-    private function newRepository(array $data = []): UserRepository
+    private function createRepository(array $rows = [], ?int $lastId = null, bool $shouldFail = false): UserRepository
     {
         $db = new FakeDatabase();
-        $db->rows = $data;
+        $db->rows = $rows;
+
+        if ($lastId !== null) {
+            $db->lastId = $lastId;
+        }
+
+        $db->shouldFail = $shouldFail;
 
         return new UserRepository($db);
     }
