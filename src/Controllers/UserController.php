@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Constants\Routes;
+use App\Contracts\Domain\User\UserRepositoryInterface;
+use App\Contracts\Http\RequestInterface;
+use App\Contracts\Http\ResponseInterface;
+use App\Contracts\Http\SessionInterface;
+use App\Contracts\Security\CsrfInterface;
+use App\Contracts\Security\LoginThrottleInterface;
 use App\Core\Http\Controller;
-use App\Core\Http\Request;
-use App\Core\Http\Session;
-use App\Core\Security\LoginThrottle;
 use App\Domain\User\User;
-use App\Domain\User\UserRepository;
 use App\Forms\User\DeleteForm;
 use App\Forms\User\UpdateForm;
 use App\Forms\User\SigninForm;
@@ -20,9 +22,20 @@ final class UserController extends Controller
 {
     private const DUMMY_HASH = '$2y$10$wH3Gm1H4qJ5FQGqV3y4kUe1xW8Vh3kQn6YbK7QeY8bJ2sD0m9F8aK';
 
-    private const ERROR_PASSWORD = '現在のパスワードが正しくありません';
-    private const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
-    private const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
+    public const ERROR_PASSWORD = '現在のパスワードが正しくありません';
+    public const ERROR_EXISTS   = 'このメールアドレスは既に登録されています';
+    public const ERROR_LOGIN    = 'メールアドレスまたはパスワードが正しくありません';
+
+    public function __construct(
+        RequestInterface $request,
+        SessionInterface $session,
+        ResponseInterface $response,
+        CsrfInterface $csrf,
+        private UserRepositoryInterface $users,
+        private LoginThrottleInterface $throttle
+    ) {
+        parent::__construct($request, $session, $response, $csrf);
+    }
 
     public function signup(): void
     {
@@ -70,17 +83,17 @@ final class UserController extends Controller
 
     private function createUser(): void
     {
-        $form = new SignupForm();
+        $form = new SignupForm($this->request);
 
         if (!$this->ensureValidForm($form)) {
             return;
         }
 
-        if (UserRepository::findByEmail($form->mail())) {
+        if ($this->users->findByEmail($form->mail())) {
             $this->redirectSelf(self::ERROR_EXISTS, $form->old());
         }
 
-        $user = UserRepository::create(
+        $user = $this->users->create(
             $form->name(),
             $form->mail(),
             $form->pass()
@@ -90,20 +103,20 @@ final class UserController extends Controller
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        Session::login($user);
+        $this->session->login($user);
 
         $this->redirect(Routes::POST_HOME);
     }
 
     private function authUser(): void
     {
-        $form = new SigninForm();
+        $form = new SigninForm($this->request);
 
         if (!$this->ensureValidForm($form)) {
             return;
         }
 
-        $user = UserRepository::findByEmail($form->mail());
+        $user = $this->users->findByEmail($form->mail());
 
         $valid = $user
             ? $user->verifyPassword($form->pass())
@@ -111,29 +124,29 @@ final class UserController extends Controller
 
         if (!$valid) {
 
-            if ($error = LoginThrottle::hit()) {
+            if ($error = $this->throttle->hit()) {
                 $this->redirectSelf($error, $form->old());
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
         }
 
-        LoginThrottle::clear();
+        $this->throttle->clear();
 
-        Session::login($user);
+        $this->session->login($user);
 
         $this->redirect(Routes::POST_HOME);
     }
 
     private function logoutUser(): void
     {
-        Session::logout();
+        $this->session->logout();
         $this->redirect(Routes::USER_SIGNIN);
     }
 
     private function deleteUser(): void
     {
-        $form = new DeleteForm();
+        $form = new DeleteForm($this->request);
 
         if (!$this->ensureValidForm($form, Routes::USER_MYPAGE)) {
             return;
@@ -143,7 +156,7 @@ final class UserController extends Controller
             return;
         }
 
-        if (!UserRepository::delete($this->userId())) {
+        if (!$this->users->delete($this->userId())) {
             $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
         }
 
@@ -163,7 +176,7 @@ final class UserController extends Controller
 
     private function updateUser(): void
     {
-        $form = new UpdateForm();
+        $form = new UpdateForm($this->request);
 
         if (!$this->ensureValidForm($form)) {
             return;
@@ -173,7 +186,7 @@ final class UserController extends Controller
             return;
         }
 
-        if (!UserRepository::update(
+        if (!$this->users->update(
             $this->userId(),
             $this->nullable($form->name()),
             $this->nullable($form->mail()),
@@ -187,12 +200,12 @@ final class UserController extends Controller
 
     private function currentUser(): ?User
     {
-        return UserRepository::findById($this->userId());
+        return $this->users->findById($this->userId());
     }
 
     private function ensureValidPassword(string $password, ?string $redirect = null): bool
     {
-        $redirect ??= Request::path();
+        $redirect ??= $this->request->path();
 
         $user = $this->currentUser();
 

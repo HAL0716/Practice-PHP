@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
+use App\Contracts\Domain\User\UserRepositoryInterface;
 use App\Core\Repository;
 use App\Database\Schema\UsersTable;
 
-final class UserRepository extends Repository
+final class UserRepository extends Repository implements UserRepositoryInterface
 {
     protected function hydrate(array $row): User
     {
