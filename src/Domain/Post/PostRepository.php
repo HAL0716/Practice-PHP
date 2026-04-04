@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Post;
 
+use App\Contracts\Domain\Post\PostRepositoryInterface;
 use App\Core\Repository;
 use App\Database\Schema\PostsTable;
 use App\Database\Schema\UsersTable;
 
-final class PostRepository extends Repository
+final class PostRepository extends Repository implements PostRepositoryInterface
 {
     protected function hydrate(array $row): Post
     {

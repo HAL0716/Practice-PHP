@@ -5,13 +5,27 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Constants\Routes;
+use App\Contracts\Domain\Post\PostRepositoryInterface;
+use App\Contracts\Http\RequestInterface;
+use App\Contracts\Http\ResponseInterface;
+use App\Contracts\Http\SessionInterface;
+use App\Contracts\Security\CsrfInterface;
 use App\Core\Http\Controller;
-use App\Domain\Post\PostRepository;
 use App\Forms\Post\CreateForm;
 use App\Forms\Post\DeleteForm;
 
 final class PostController extends Controller
 {
+    public function __construct(
+        RequestInterface $request,
+        SessionInterface $session,
+        ResponseInterface $response,
+        CsrfInterface $csrf,
+        private PostRepositoryInterface $posts
+    ) {
+        parent::__construct($request, $session, $response, $csrf);
+    }
+
     public function home(): void
     {
         $this->requireLogin();
@@ -35,19 +49,19 @@ final class PostController extends Controller
     {
         $this->render('post/home', [
             'user_id' => $this->userId(),
-            'posts'   => PostRepository::findAll(),
+            'posts'   => $this->posts->findAll(),
         ]);
     }
 
     private function createPost(): void
     {
-        $form = new CreateForm();
+        $form = new CreateForm($this->request);
 
         if (!$this->ensureValidForm($form)) {
             return;
         }
 
-        if (!PostRepository::create($this->userId(), $form->comment())) {
+        if (!$this->posts->create($this->userId(), $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
@@ -56,13 +70,13 @@ final class PostController extends Controller
 
     private function deletePost(): void
     {
-        $form = new DeleteForm();
+        $form = new DeleteForm($this->request);
 
         if (!$this->ensureValidForm($form)) {
             return;
         }
 
-        if (!PostRepository::delete($form->id(), $this->userId())) {
+        if (!$this->posts->delete($form->id(), $this->userId())) {
             $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
         }
 
