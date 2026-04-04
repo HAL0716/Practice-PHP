@@ -61,8 +61,11 @@ final class PostController extends Controller
             return;
         }
 
-        if (!$this->posts->create($this->userId(), $form->comment())) {
+        $userId = $this->userId();
+
+        if (!$this->posts->create($userId, $form->comment())) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
+            return;
         }
 
         $this->redirectSelf();
@@ -76,8 +79,11 @@ final class PostController extends Controller
             return;
         }
 
-        if (!$this->posts->delete($form->id(), $this->userId())) {
+        $userId = $this->userId();
+
+        if (!$this->posts->delete($form->id(), $userId)) {
             $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
+            return;
         }
 
         $this->redirect(Routes::POST_HOME);

@@ -20,114 +20,177 @@ final class PostControllerTest extends TestCase
 {
     public function testCreatePostSuccess(): void
     {
-        $request = new FakeRequest(
-            post: ['token' => 'token', 'comment' => 'hello'],
-            method: 'POST',
-            path: '/post/home'
-        );
-
-        [$session, $response, $csrf, $posts] = $this->dependencies();
+        $session = new FakeSession();
+        $response = new FakeResponse();
+        $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
 
-        $posts->createResult = new Post(1, 1, 'test', '2024-01-01 00:00:00', 'name');
+        $posts->createResult = new Post(1, 1, 'hello', '2024-01-01 00:00:00', 'name');
 
-        $controller = $this->newController($request, $session, $response, $csrf, $posts);
+        $controller = $this->createController(
+            request: new FakeRequest(
+                post: ['token' => 'token', 'comment' => 'hello'],
+                method: 'POST',
+                path: '/post/home'
+            ),
+            session: $session,
+            response: $response,
+            posts: $posts
+        );
 
-        $this->runWithRedirect(fn () => $controller->home());
+        $this->expectException(RedirectException::class);
 
-        $this->assertSame('/post/home', $response->redirectTo);
+        try {
+            $controller->home();
+        } finally {
+            $this->assertSame('/post/home', $response->redirectTo);
+        }
     }
 
     public function testCreatePostFails(): void
     {
-        $request = new FakeRequest(
-            post: ['token' => 'token', 'comment' => 'hello'],
-            method: 'POST'
-        );
-
-        [$session, $response, $csrf, $posts] = $this->dependencies();
+        $session = new FakeSession();
+        $response = new FakeResponse();
+        $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
-
         $posts->createResult = null;
 
-        $controller = $this->newController($request, $session, $response, $csrf, $posts);
+        $controller = $this->createController(
+            request: new FakeRequest(
+                post: ['token' => 'token', 'comment' => 'hello'],
+                method: 'POST',
+                path: '/post/home'
+            ),
+            session: $session,
+            response: $response,
+            posts: $posts
+        );
 
-        $this->runWithRedirect(fn () => $controller->home());
+        $this->expectException(RedirectException::class);
 
-        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
+        try {
+            $controller->home();
+        } finally {
+            $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
+        }
     }
 
     public function testDeletePostSuccess(): void
     {
-        $request = new FakeRequest(
-            post: ['token' => 'token', 'id' => '1'],
-            method: 'POST'
-        );
-
-        [$session, $response, $csrf, $posts] = $this->dependencies();
+        $session = new FakeSession();
+        $response = new FakeResponse();
+        $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
 
-        $controller = $this->newController($request, $session, $response, $csrf, $posts);
+        $controller = $this->createController(
+            request: new FakeRequest(
+                post: ['token' => 'token', 'id' => '1'],
+                method: 'POST',
+                path: '/post/home'
+            ),
+            session: $session,
+            response: $response,
+            posts: $posts
+        );
 
-        $this->runWithRedirect(fn () => $controller->delete());
+        $this->expectException(RedirectException::class);
 
-        $this->assertSame('/post/home', $response->redirectTo);
+        try {
+            $controller->delete();
+        } finally {
+            $this->assertSame('/post/home', $response->redirectTo);
+        }
     }
 
     public function testDeletePostFails(): void
     {
-        $request = new FakeRequest(
-            post: ['token' => 'token', 'id' => '1'],
-            method: 'POST'
-        );
-
-        [$session, $response, $csrf, $posts] = $this->dependencies();
+        $session = new FakeSession();
+        $response = new FakeResponse();
+        $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
-
         $posts->deleteResult = false;
 
-        $controller = $this->newController($request, $session, $response, $csrf, $posts);
+        $controller = $this->createController(
+            request: new FakeRequest(
+                post: ['token' => 'token', 'id' => '1'],
+                method: 'POST',
+                path: '/post/home'
+            ),
+            session: $session,
+            response: $response,
+            posts: $posts
+        );
 
-        $this->runWithRedirect(fn () => $controller->delete());
+        $this->expectException(RedirectException::class);
 
-        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
-    }
-
-    private function runWithRedirect(callable $fn): void
-    {
         try {
-            $fn();
-        } catch (RedirectException) {
+            $controller->delete();
+        } finally {
+            $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
         }
     }
 
-    private function dependencies(): array
+    public function testRequiresLogin(): void
     {
-        return [
-            new FakeSession(),
-            new FakeResponse(),
-            new FakeCsrf(),
-            new FakePostRepository(),
-        ];
+        $response = new FakeResponse();
+
+        $controller = $this->createController(
+            request: new FakeRequest(method: 'GET'),
+            response: $response
+        );
+
+        $this->expectException(RedirectException::class);
+
+        try {
+            $controller->home();
+        } finally {
+            $this->assertSame('/user/signin', $response->redirectTo);
+        }
     }
 
-    private function newController(
-        FakeRequest $request,
-        FakeSession $session,
-        FakeResponse $response,
-        FakeCsrf $csrf,
-        FakePostRepository $posts
+    public function testCsrfFails(): void
+    {
+        $session = new FakeSession();
+        $response = new FakeResponse();
+
+        $session->set('user_id', 1);
+
+        $controller = $this->createController(
+            request: new FakeRequest(
+                post: ['token' => 'invalid', 'comment' => 'hello'],
+                method: 'POST'
+            ),
+            session: $session,
+            response: $response,
+            csrf: new FakeCsrf('token')
+        );
+
+        $this->expectException(RedirectException::class);
+
+        try {
+            $controller->home();
+        } finally {
+            $this->assertSame(PostController::ERROR_CSRF, $session->error());
+        }
+    }
+
+    private function createController(
+        ?FakeRequest $request = null,
+        ?FakeSession $session = null,
+        ?FakeResponse $response = null,
+        ?FakeCsrf $csrf = null,
+        ?FakePostRepository $posts = null
     ): PostController {
         return new PostController(
-            $request,
-            $session,
-            $response,
-            $csrf,
-            $posts
+            $request ?? new FakeRequest(),
+            $session ?? new FakeSession(),
+            $response ?? new FakeResponse(),
+            $csrf ?? new FakeCsrf(),
+            $posts ?? new FakePostRepository()
         );
     }
 }
