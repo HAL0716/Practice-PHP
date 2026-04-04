@@ -6,6 +6,10 @@ namespace Tests\Fake\Http;
 
 use App\Contracts\Http\ResponseInterface;
 
+final class RedirectException extends \RuntimeException
+{
+}
+
 final class FakeResponse implements ResponseInterface
 {
     public ?string $redirectTo;
@@ -18,5 +22,6 @@ final class FakeResponse implements ResponseInterface
     public function redirect(string $url): void
     {
         $this->redirectTo = $url;
+        throw new RedirectException("Redirected to {$url}");
     }
 }

@@ -11,6 +11,7 @@ use App\Constants\Routes;
 use Tests\Fake\Http\FakeRequest;
 use Tests\Fake\Http\FakeSession;
 use Tests\Fake\Http\FakeResponse;
+use Tests\Fake\Http\RedirectException;
 use Tests\Fake\Security\FakeCsrf;
 
 #[CoversClass(Controller::class)]
@@ -67,7 +68,10 @@ final class ControllerTest extends TestCase
         $this->request = new FakeRequest([], [], 'PUT', '/current');
         $this->controller = $this->newController();
 
-        $this->controller->dispatchTest();
+        try {
+            $this->controller->dispatchTest();
+        } catch (RedirectException) {
+        }
 
         $this->assertSame('/current', $this->response->redirectTo);
         $this->assertSame(Controller::ERROR_SYSTEM, $this->session->error());
@@ -75,7 +79,10 @@ final class ControllerTest extends TestCase
 
     public function testRequireLoginRedirects(): void
     {
-        $this->controller->requireLoginTest();
+        try {
+            $this->controller->requireLoginTest();
+        } catch (RedirectException) {
+        }
 
         $this->assertSame(Routes::USER_SIGNIN, $this->response->redirectTo);
     }
@@ -91,7 +98,10 @@ final class ControllerTest extends TestCase
 
     public function testRedirect(): void
     {
-        $this->controller->redirectTest('/test', 'error', ['a' => 1]);
+        try {
+            $this->controller->redirectTest('/test', 'error', ['a' => 1]);
+        } catch (RedirectException) {
+        }
 
         $this->assertSame('/test', $this->response->redirectTo);
         $this->assertSame('error', $this->session->error());
@@ -103,7 +113,10 @@ final class ControllerTest extends TestCase
         $this->request = new FakeRequest([], [], 'GET', '/self');
         $this->controller = $this->newController();
 
-        $this->controller->redirectSelfTest('error');
+        try {
+            $this->controller->redirectSelfTest('error');
+        } catch (RedirectException) {
+        }
 
         $this->assertSame('/self', $this->response->redirectTo);
     }
