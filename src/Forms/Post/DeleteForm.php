@@ -21,12 +21,12 @@ final class DeleteForm extends Form
 
     public function id(): int
     {
-        return (int) $this->data[self::ID];
+        return (int) $this->value(self::ID);
     }
 
     public function validate(): ?string
     {
-        $id = $this->data[self::ID];
+        $id = $this->value(self::ID);
 
         if ($this->hasEmpty([
             $id

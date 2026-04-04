@@ -21,7 +21,7 @@ final class DeleteForm extends Form
 
     public function passCurrent(): string
     {
-        return $this->data[self::PASS_CURRENT];
+        return $this->value(self::PASS_CURRENT);
     }
 
     public function validate(): ?string

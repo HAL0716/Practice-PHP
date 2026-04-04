@@ -34,12 +34,12 @@ final class SignupForm extends Form
 
     public function pass(): string
     {
-        return $this->data[self::PASS];
+        return $this->value(self::PASS);
     }
 
     public function passConfirm(): string
     {
-        return $this->data[self::PASS_CONFIRM];
+        return $this->value(self::PASS_CONFIRM);
     }
 
     public function validate(): ?string

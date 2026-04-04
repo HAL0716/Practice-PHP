@@ -18,30 +18,30 @@ abstract class Form
     public const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
     public const ERROR_INVALID_NUMBER    = '数字でなければなりません';
 
-    protected array $data = [];
+    private array $data = [];
 
-    public function __construct(protected RequestInterface $request, array $fields = [])
+    public function __construct(RequestInterface $request, array $fields = [])
     {
-        $this->data[self::TOKEN] = $this->post(self::TOKEN);
+        $this->data[self::TOKEN] = $request->post(self::TOKEN);
 
         foreach ($fields as $field) {
-            $this->data[$field] = $this->post($field);
+            $this->data[$field] = $request->post($field);
         }
+    }
+
+    protected function value(string $key): string
+    {
+        return $this->data[$key] ?? '';
     }
 
     public function token(): string
     {
-        return $this->data[self::TOKEN];
-    }
-
-    protected function post(string $key): string
-    {
-        return $this->request->post($key, '');
+        return $this->value(self::TOKEN);
     }
 
     protected function normalized(string $key): string
     {
-        return trim($this->data[$key]);
+        return trim($this->value($key));
     }
 
     protected function normalizedLower(string $key): string
@@ -91,7 +91,13 @@ abstract class Form
 
     public function old(): array
     {
-        return array_intersect_key($this->data, array_flip($this->oldFields()));
+        $old = [];
+
+        foreach ($this->oldFields() as $field) {
+            $old[$field] = $this->value($field);
+        }
+
+        return $old;
     }
 
     protected function oldFields(): array
