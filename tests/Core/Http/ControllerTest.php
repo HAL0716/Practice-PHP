@@ -27,7 +27,7 @@ final class ControllerTest extends TestCase
         $this->request = new FakeRequest();
         $this->session = new FakeSession();
         $this->response = new FakeResponse();
-        $this->csrf = new FakeCsrf(true);
+        $this->csrf = new FakeCsrf();
 
         $this->controller = $this->newController();
     }
@@ -112,10 +112,10 @@ final class ControllerTest extends TestCase
     {
         $this->assertNull($this->controller->checkCsrfTest('token'));
 
-        $this->csrf = new FakeCsrf(false);
+        $this->csrf = new FakeCsrf();
         $this->controller = $this->newController();
 
-        $this->assertSame(Controller::ERROR_CSRF, $this->controller->checkCsrfTest('token'));
+        $this->assertSame(Controller::ERROR_CSRF, $this->controller->checkCsrfTest('TOKEN'));
     }
 
     public function testUserId(): void

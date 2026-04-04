@@ -8,7 +8,7 @@ use App\Contracts\Security\CsrfInterface;
 
 final class FakeCsrf implements CsrfInterface
 {
-    public function __construct(private bool $verifyResult = true, private string $token = 'token')
+    public function __construct(private string $token = 'token')
     {
     }
 
@@ -19,6 +19,6 @@ final class FakeCsrf implements CsrfInterface
 
     public function verify(string $token): bool
     {
-        return $this->verifyResult;
+        return $token === $this->token;
     }
 }
