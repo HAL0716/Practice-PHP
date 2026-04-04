@@ -62,7 +62,7 @@ final class UpdateForm extends Form
             return self::ERROR_INVALID_EMAIL;
         }
 
-        // パスワードは任意だが、入力された場合は確認と現在のパスワードも必須
+        // 新しいパスワードが入力された場合，確認用のパスワードも必須
         if ($this->pass() !== '') {
             if (!$this->isValidPassword($this->pass())) {
                 return self::ERROR_INVALID_PASSWORD;
