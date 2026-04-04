@@ -4,46 +4,60 @@ declare(strict_types=1);
 
 namespace App\Database;
 
-class Database
+use App\Contracts\Database\DatabaseInterface;
+use PDO;
+
+final class Database implements DatabaseInterface
 {
-    private static ?\PDO $connection = null;
+    private PDO $pdo;
 
-    private function __construct()
+    public function __construct()
     {
-        throw new \LogicException(
-            'Cannot instantiate ' . static::class
+        $dsn = sprintf(
+            'mysql:host=%s;dbname=%s;charset=%s',
+            getenv('DB_HOST'),
+            getenv('DB_NAME'),
+            getenv('DB_CHARSET') ?: 'utf8mb4'
+        );
+
+        $this->pdo = new PDO(
+            $dsn,
+            getenv('DB_USER'),
+            getenv('DB_PASSWORD'),
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]
         );
     }
 
-    private function __clone()
+    public function fetchOne(string $sql, array $params = []): ?array
     {
-        throw new \LogicException(
-            'Cannot clone ' . static::class
-        );
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $row = $stmt->fetch();
+
+        return $row ?: null;
     }
 
-    public static function connect(): \PDO
+    public function fetchAll(string $sql, array $params = []): array
     {
-        if (self::$connection === null) {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
-            $dsn = sprintf(
-                'mysql:host=%s;dbname=%s;charset=%s',
-                getenv('DB_HOST'),
-                getenv('DB_NAME'),
-                getenv('DB_CHARSET') ?: 'utf8mb4'
-            );
+        return $stmt->fetchAll();
+    }
 
-            self::$connection = new \PDO(
-                $dsn,
-                getenv('DB_USER'),
-                getenv('DB_PASSWORD'),
-                [
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                ]
-            );
-        }
+    public function execute(string $sql, array $params = []): bool
+    {
+        $stmt = $this->pdo->prepare($sql);
 
-        return self::$connection;
+        return $stmt->execute($params);
+    }
+
+    public function lastInsertId(): int
+    {
+        return (int) $this->pdo->lastInsertId();
     }
 }
