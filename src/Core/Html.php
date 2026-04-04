@@ -13,12 +13,12 @@ final class Html
         );
     }
 
-    public static function escape(
-        mixed $value,
-        int $flags = ENT_QUOTES,
-        string $encoding = 'UTF-8',
-        bool $double_encode = true
-    ): string {
-        return htmlspecialchars((string) $value ?? '', $flags, $encoding, $double_encode);
+    public static function escape(mixed $value, int $flags = ENT_QUOTES, string $encoding = 'UTF-8', bool $double_encode = true): string
+    {
+        if (is_array($value)) {
+            throw new \InvalidArgumentException('Array is not allowed');
+        }
+
+        return htmlspecialchars((string) ($value ?? ''), $flags, $encoding, $double_encode);
     }
 }
