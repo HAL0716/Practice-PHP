@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security;
 
-use App\Contracts\Security\LoginThrottleInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Core\Security\LoginThrottle;
@@ -13,58 +12,68 @@ use Tests\Fake\Http\FakeSession;
 #[CoversClass(LoginThrottle::class)]
 final class LoginThrottleTest extends TestCase
 {
-    private FakeSession $session;
-    private LoginThrottle $throttle;
-
-    protected function setUp(): void
+    public function testNotLockedInitially(): void
     {
-        $this->session = new FakeSession();
+        $throttle = new LoginThrottle(new FakeSession());
 
-        $this->throttle = new LoginThrottle($this->session);
+        $this->assertFalse($throttle->isLocked());
     }
 
-    public function testImplementsInterface(): void
+    public function testLocksAfterMaxAttempts(): void
     {
-        $this->assertInstanceOf(LoginThrottleInterface::class, $this->throttle);
-    }
+        $session = new FakeSession();
 
-    public function testInitiallyNotLocked(): void
-    {
-        $this->assertFalse($this->throttle->isLocked());
+        $throttle = new LoginThrottle($session, now: fn() => 1000);
+
+        for ($i = 0; $i < 4; $i++) {
+            $this->assertNull($throttle->hit());
+        }
+
+        $this->assertSame(LoginThrottle::ERROR_LOCKED, $throttle->hit());
+        $this->assertTrue($throttle->isLocked());
     }
 
     public function testHitIncrementsAttempts(): void
     {
-        $this->throttle->hit();
+        $session = new FakeSession();
 
-        $this->assertSame(1, $this->session->get('login_attempts'));
+        $throttle = new LoginThrottle($session, now: fn() => 1000);
+
+        $throttle->hit();
+        $throttle->hit();
+
+        $this->assertSame(2, $session->get('login_attempts'));
     }
 
-    public function testLockAfterMaxAttempts(): void
+    public function testUnlocksAfterTimeout(): void
     {
+        $session = new FakeSession();
+
+        // ロック状態まで進める
+        $throttle = new LoginThrottle($session, now: fn() => 1000);
+
         for ($i = 0; $i < 5; $i++) {
-            $result = $this->throttle->hit();
+            $throttle->hit();
         }
 
-        $this->assertSame(LoginThrottle::ERROR_LOCKED, $result);
-        $this->assertTrue($this->throttle->isLocked());
+        $this->assertTrue($throttle->isLocked());
+
+        // 時間経過後
+        $throttle = new LoginThrottle($session, now: fn() => 100000);
+
+        $this->assertFalse($throttle->isLocked());
     }
 
     public function testClearResetsState(): void
     {
-        $this->throttle->hit();
+        $session = new FakeSession();
 
-        $this->throttle->clear();
+        $throttle = new LoginThrottle($session, now: fn() => 1000);
 
-        $this->assertNull($this->session->get('login_attempts'));
-        $this->assertFalse($this->throttle->isLocked());
-    }
+        $throttle->hit();
+        $throttle->clear();
 
-    public function testUnlockAfterTimeout(): void
-    {
-        $this->session->set('login_attempts', 5);
-        $this->session->set('login_attempt_time', time() - 999999);
-
-        $this->assertFalse($this->throttle->isLocked());
+        $this->assertFalse($throttle->isLocked());
+        $this->assertNull($session->get('login_attempts'));
     }
 }

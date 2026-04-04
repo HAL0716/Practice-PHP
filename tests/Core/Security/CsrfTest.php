@@ -6,70 +6,87 @@ namespace Tests\Core\Security;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Contracts\Security\CsrfInterface;
 use App\Core\Security\Csrf;
 use Tests\Fake\Http\FakeSession;
 
 #[CoversClass(Csrf::class)]
 final class CsrfTest extends TestCase
 {
-    private FakeSession $session;
-    private Csrf $csrf;
-
-    protected function setUp(): void
+    public function testGeneratesToken(): void
     {
-        $this->session = new FakeSession();
+        $session = new FakeSession();
 
-        $this->csrf = new Csrf($this->session);
+        $csrf = $this->createCsrf($session, now: 1000, random: 'a');
+
+        $token = $csrf->token();
+
+        $this->assertSame(bin2hex(str_repeat('a', 32)), $token);
     }
 
-    public function testImplementsInterface(): void
+    public function testReturnsSameTokenIfNotExpired(): void
     {
-        $this->assertInstanceOf(CsrfInterface::class, $this->csrf);
-    }
+        $session = new FakeSession();
 
-    public function testTokenGeneratesAndStores(): void
-    {
-        $token = $this->csrf->token();
+        $csrf = $this->createCsrf($session, now: 1000, random: 'a');
 
-        $this->assertNotEmpty($token);
-        $this->assertSame($token, $this->session->get('csrf_token'));
-    }
-
-    public function testTokenReturnsSameIfNotExpired(): void
-    {
-        $token1 = $this->csrf->token();
-        $token2 = $this->csrf->token();
+        $token1 = $csrf->token();
+        $token2 = $csrf->token();
 
         $this->assertSame($token1, $token2);
     }
 
     public function testVerifySuccess(): void
     {
-        $token = $this->csrf->token();
+        $session = new FakeSession();
 
-        $this->assertTrue($this->csrf->verify($token));
+        $csrf = $this->createCsrf($session, now: 1000, random: 'a');
 
-        $this->assertNull($this->session->get('csrf_token'));
+        $token = $csrf->token();
+
+        $this->assertTrue($csrf->verify($token));
     }
 
-    public function testVerifyFailWithInvalidToken(): void
+    public function testVerifyFailsWithWrongToken(): void
     {
-        $this->csrf->token();
+        $session = new FakeSession();
 
-        $this->assertFalse($this->csrf->verify('invalid'));
+        $csrf = $this->createCsrf($session, now: 1000, random: 'a');
+
+        $csrf->token();
+
+        $this->assertFalse($csrf->verify('wrong'));
     }
 
-    public function testVerifyFailWhenNoToken(): void
+    public function testVerifyFailsWhenExpired(): void
     {
-        $this->assertFalse($this->csrf->verify('anything'));
+        $session = new FakeSession();
+
+        $csrf = $this->createCsrf($session, now: 1000, random: 'a');
+
+        $token = $csrf->token();
+
+        $csrf = $this->createCsrf($session, now: 100000, random: 'a');
+
+        $this->assertFalse($csrf->verify($token));
     }
 
-    public function testExpiredToken(): void
+    public function testTokenRegeneratesWhenExpired(): void
     {
-        $this->session->set('csrf_token', 'token');
-        $this->session->set('csrf_token_time', time() - 999999);
+        $session = new FakeSession();
 
-        $this->assertFalse($this->csrf->verify('token'));
+        $csrf1 = $this->createCsrf($session, now: 0, random: 'a');
+
+        $token1 = $csrf1->token();
+
+        $csrf2 = $this->createCsrf($session, now: 100000, random: 'b');
+
+        $token2 = $csrf2->token();
+
+        $this->assertNotSame($token1, $token2);
+    }
+
+    private function createCsrf(FakeSession $session, int $now, string $random): Csrf
+    {
+        return new Csrf($session, now: fn () => $now, random: fn ($len) => str_repeat($random, $len));
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core\Security;
 
-use App\Contracts\Security\CsrfInterface;
 use App\Contracts\Http\SessionInterface;
+use App\Contracts\Security\CsrfInterface;
 
 final class Csrf implements CsrfInterface
 {
@@ -16,8 +16,13 @@ final class Csrf implements CsrfInterface
     private const SESSION_TOKEN = 'csrf_token';
     private const SESSION_TIME  = 'csrf_token_time';
 
-    public function __construct(private SessionInterface $session)
+    private $now;
+    private $random;
+
+    public function __construct(private SessionInterface $session, ?callable $now = null, ?callable $random = null)
     {
+        $this->now = $now ?? fn () => time();
+        $this->random = $random ?? fn (int $length) => random_bytes($length);
     }
 
     public function token(): string
@@ -29,10 +34,10 @@ final class Csrf implements CsrfInterface
         $token = $this->session->get(self::SESSION_TOKEN);
 
         if (!$token) {
-            $token = $this->generateToken();
+            $token = bin2hex(($this->random)(self::TOKEN_LENGTH));
 
             $this->session->set(self::SESSION_TOKEN, $token);
-            $this->session->set(self::SESSION_TIME, time());
+            $this->session->set(self::SESSION_TIME, ($this->now)());
         }
 
         return $token;
@@ -60,11 +65,6 @@ final class Csrf implements CsrfInterface
         return $valid;
     }
 
-    private function generateToken(): string
-    {
-        return bin2hex(random_bytes(self::TOKEN_LENGTH));
-    }
-
     private function isExpired(): bool
     {
         $tokenTime = $this->session->get(self::SESSION_TIME);
@@ -73,7 +73,7 @@ final class Csrf implements CsrfInterface
             return true;
         }
 
-        return (time() - $tokenTime) > self::TOKEN_TIMEOUT;
+        return (($this->now)() - $tokenTime) > self::TOKEN_TIMEOUT;
     }
 
     private function clear(): void

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core\Security;
 
-use App\Contracts\Security\LoginThrottleInterface;
 use App\Contracts\Http\SessionInterface;
+use App\Contracts\Security\LoginThrottleInterface;
 
 final class LoginThrottle implements LoginThrottleInterface
 {
@@ -18,16 +18,19 @@ final class LoginThrottle implements LoginThrottleInterface
     private const SESSION_ATTEMPTS = 'login_attempts';
     private const SESSION_TIME     = 'login_attempt_time';
 
-    public function __construct(private SessionInterface $session)
+    private $now;
+
+    public function __construct(private SessionInterface $session, ?callable $now = null)
     {
+        $this->now = $now ?? fn () => time();
     }
 
     public function isLocked(): bool
     {
         $attempts = (int) $this->session->get(self::SESSION_ATTEMPTS, 0);
         $last     = (int) $this->session->get(self::SESSION_TIME, 0);
-
-        if ($last && time() - $last > self::LOCK_TIMEOUT) {
+        if ($this->session->get(self::SESSION_TIME) !== null
+            && ($this->now)() - $last > self::LOCK_TIMEOUT) {
             $this->clear();
 
             return false;
@@ -41,7 +44,7 @@ final class LoginThrottle implements LoginThrottleInterface
         $attempts = (int) $this->session->get(self::SESSION_ATTEMPTS, 0) + 1;
 
         $this->session->set(self::SESSION_ATTEMPTS, $attempts);
-        $this->session->set(self::SESSION_TIME, time());
+        $this->session->set(self::SESSION_TIME, ($this->now)());
 
         return $attempts >= self::MAX_ATTEMPTS ? self::ERROR_LOCKED : null;
     }
