@@ -4,87 +4,54 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Database\Database;
+use App\Contracts\Database\DatabaseInterface;
 
 abstract class Repository
 {
-    final private function __construct()
+    public function __construct(protected DatabaseInterface $db)
     {
-        throw new \LogicException(
-            'Cannot instantiate ' . static::class
-        );
     }
 
-    final protected static function db(): \PDO
+    abstract protected function hydrate(array $row): object;
+
+    abstract protected function baseSelect(): string;
+
+    final protected function fetchOne(string $sql, array $params = []): ?object
     {
-        return Database::connect();
+        $row = $this->db->fetchOne($sql, $params);
+
+        return $row ? $this->hydrate($row) : null;
     }
 
-    abstract protected static function hydrate(array $row): object;
+    final protected function fetchAll(string $sql, array $params = []): array
+    {
+        $rows = $this->db->fetchAll($sql, $params);
 
-    abstract protected static function baseSelect(): string;
-
-    final protected static function execute(
-        string $sql,
-        array $params = []
-    ): \PDOStatement {
-
-        $stmt = static::db()->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt;
+        return array_map(fn(array $row) => $this->hydrate($row), $rows);
     }
 
-    final protected static function fetchOne(
-        string $sql,
-        array $params = []
-    ): ?object {
-
-        $row = static::execute($sql, $params)
-            ->fetch(\PDO::FETCH_ASSOC);
-
-        return $row ? static::hydrate($row) : null;
+    final protected function execute(string $sql, array $params = []): bool
+    {
+        return $this->db->execute($sql, $params);
     }
 
-    final protected static function fetchAll(
-        string $sql,
-        array $params = []
-    ): array {
+    final protected function findOneBy(string $where, array $params): ?object
+    {
+        $sql = $this->baseSelect() . sprintf(" WHERE %s = ?", $where);
 
-        $rows = static::execute($sql, $params)
-            ->fetchAll(\PDO::FETCH_ASSOC);
-
-        return array_map(
-            fn (array $row) => static::hydrate($row),
-            $rows
-        );
+        return $this->fetchOne($sql, $params);
     }
 
-    final protected static function findOneBy(
-        string $where,
-        array $params
-    ): ?object {
-
-        $sql = static::baseSelect()
-            . sprintf(" WHERE %s = ?", $where);
-
-        return static::fetchOne($sql, $params);
-    }
-
-    final protected static function findAllOrdered(
-        string $orderBy,
-        string $direction = 'ASC'
-    ): array {
-
+    final protected function findAllOrdered(string $orderBy, string $direction = 'ASC'): array
+    {
         $direction = strtoupper($direction);
 
         if (!in_array($direction, ['ASC', 'DESC'], true)) {
-            throw new \InvalidArgumentException('Invalid order direction');
+            throw new \InvalidArgumentException();
         }
 
-        $sql = static::baseSelect()
-            . sprintf(" ORDER BY %s %s", $orderBy, $direction);
+        $sql = $this->baseSelect() . sprintf(" ORDER BY %s %s", $orderBy, $direction);
 
-        return static::fetchAll($sql);
+        return $this->fetchAll($sql);
     }
 }
