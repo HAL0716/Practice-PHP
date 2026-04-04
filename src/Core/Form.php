@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Http\Request;
+use App\Contracts\Http\RequestInterface;
 
 abstract class Form
 {
@@ -12,15 +12,15 @@ abstract class Form
 
     public const TOKEN = 'token';
 
-    protected const ERROR_REQUIRED_FIELDS   = '未入力の項目があります';
-    protected const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
-    protected const ERROR_INVALID_PASSWORD  = 'パスワードは英字と数字を含む8文字以上である必要があります';
-    protected const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
-    protected const ERROR_INVALID_NUMBER    = '数字でなければなりません';
+    public const ERROR_REQUIRED_FIELDS   = '未入力の項目があります';
+    public const ERROR_INVALID_EMAIL     = '不正なメールアドレスです';
+    public const ERROR_INVALID_PASSWORD  = 'パスワードは英字と数字を含む8文字以上である必要があります';
+    public const ERROR_PASSWORD_MISMATCH = 'パスワードが一致しません';
+    public const ERROR_INVALID_NUMBER    = '数字でなければなりません';
 
     protected array $data = [];
 
-    public function __construct(array $fields = [])
+    public function __construct(protected RequestInterface $request, array $fields = [])
     {
         $this->data[self::TOKEN] = $this->post(self::TOKEN);
 
@@ -36,7 +36,7 @@ abstract class Form
 
     protected function post(string $key): string
     {
-        return Request::post($key, '');
+        return $this->request->post($key, '');
     }
 
     protected function normalized(string $key): string

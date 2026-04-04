@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\User;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class SignupForm extends Form
@@ -16,14 +17,9 @@ final class SignupForm extends Form
     public const PASS = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::NAME,
-            self::MAIL,
-            self::PASS,
-            self::PASS_CONFIRM,
-        ]);
+        parent::__construct($request, [self::NAME,self::MAIL,self::PASS,self::PASS_CONFIRM]);
     }
 
     public function name(): string

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\User;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class UpdateForm extends Form
@@ -17,15 +18,9 @@ final class UpdateForm extends Form
     public const PASS_CONFIRM = 'pass_confirm';
     public const PASS_CURRENT = 'pass_current';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::NAME,
-            self::MAIL,
-            self::PASS,
-            self::PASS_CONFIRM,
-            self::PASS_CURRENT,
-        ]);
+        parent::__construct($request, [self::NAME,self::MAIL,self::PASS,self::PASS_CONFIRM,self::PASS_CURRENT]);
     }
 
     public function name(): string

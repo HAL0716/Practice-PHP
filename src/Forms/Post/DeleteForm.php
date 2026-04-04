@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\Post;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class DeleteForm extends Form
@@ -13,11 +14,9 @@ final class DeleteForm extends Form
 
     public const ID = 'id';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::ID,
-        ]);
+        parent::__construct($request, [self::ID]);
     }
 
     public function id(): int
