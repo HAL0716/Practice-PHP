@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use App\Core\Http\Request;
 use App\Core\Http\Session;
+use App\Core\Http\Response;
+use App\Core\Security\Csrf;
+use App\Core\Security\LoginThrottle;
+use App\Database\Database;
+use App\Domain\User\UserRepository;
+use App\Domain\Post\PostRepository;
 use App\Constants\Routes;
 use App\Controllers\UserController;
 use App\Controllers\PostController;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-Session::init();
 
 $routes = [
     Routes::USER_SIGNUP  => [UserController::class, 'signup'],
@@ -23,7 +27,20 @@ $routes = [
     Routes::POST_DELETE => [PostController::class, 'delete'],
 ];
 
-$url = Request::path();
+$db = new Database();
+
+$request = new Request();
+$session = new Session();
+$response = new Response();
+$csrf = new Csrf($session);
+
+$userRepository = new UserRepository($db);
+$postRepository = new PostRepository($db);
+
+$throttle = new LoginThrottle($session);
+
+$session->init();
+$url = $request->path();
 
 if (!isset($routes[$url])) {
     http_response_code(404);
@@ -33,5 +50,25 @@ if (!isset($routes[$url])) {
 
 [$controllerClass, $method] = $routes[$url];
 
-$controller = new $controllerClass();
+$controller = match ($controllerClass) {
+    UserController::class => new UserController(
+        $request,
+        $session,
+        $response,
+        $csrf,
+        $userRepository,
+        $throttle
+    ),
+
+    PostController::class => new PostController(
+        $request,
+        $session,
+        $response,
+        $csrf,
+        $postRepository
+    ),
+
+    default => throw new RuntimeException('Unknown controller')
+};
+
 $controller->$method();
