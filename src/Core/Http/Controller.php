@@ -97,7 +97,7 @@ abstract class Controller
         require $this->viewFile(static::LAYOUT);
     }
 
-    final protected function userId(): int
+    final protected function userId(): ?int
     {
         return $this->session->userId();
     }

@@ -13,33 +13,19 @@ use Tests\Fake\Http\FakeSession;
 use Tests\Fake\Http\FakeResponse;
 use Tests\Fake\Http\RedirectException;
 use Tests\Fake\Security\FakeCsrf;
+use Tests\Fake\Form\FakeForm;
 
 #[CoversClass(Controller::class)]
 final class ControllerTest extends TestCase
 {
-    private FakeRequest $request;
-    private FakeSession $session;
-    private FakeResponse $response;
-    private FakeCsrf $csrf;
-    private TestController $controller;
-
-    protected function setUp(): void
-    {
-        $this->request = new FakeRequest();
-        $this->session = new FakeSession();
-        $this->response = new FakeResponse();
-        $this->csrf = new FakeCsrf();
-
-        $this->controller = $this->newController();
-    }
-
     public function testDispatchPost(): void
     {
-        $this->setMethod('POST');
+        $request = new FakeRequest([], [], 'POST');
+        $controller = $this->createController(request: $request);
 
         $called = false;
 
-        $this->controller->dispatchTest(
+        $controller->dispatchTest(
             post: function () use (&$called) {
                 $called = true;
             }
@@ -50,11 +36,12 @@ final class ControllerTest extends TestCase
 
     public function testDispatchGet(): void
     {
-        $this->setMethod('GET');
+        $request = new FakeRequest([], [], 'GET');
+        $controller = $this->createController(request: $request);
 
         $called = false;
 
-        $this->controller->dispatchTest(
+        $controller->dispatchTest(
             get: function () use (&$called) {
                 $called = true;
             }
@@ -65,87 +52,137 @@ final class ControllerTest extends TestCase
 
     public function testDispatchFallback(): void
     {
-        $this->request = new FakeRequest([], [], 'PUT', '/current');
-        $this->controller = $this->newController();
+        $request = new FakeRequest([], [], 'PUT', '/current');
+        $response = new FakeResponse();
+        $session = new FakeSession();
+        $controller = $this->createController(request: $request, response: $response, session: $session);
+
+        $this->expectException(RedirectException::class);
 
         try {
-            $this->controller->dispatchTest();
-        } catch (RedirectException) {
+            $controller->dispatchTest();
+        } finally {
+            $this->assertSame('/current', $response->redirectTo);
+            $this->assertSame(Controller::ERROR_SYSTEM, $session->error());
         }
-
-        $this->assertSame('/current', $this->response->redirectTo);
-        $this->assertSame(Controller::ERROR_SYSTEM, $this->session->error());
     }
 
     public function testRequireLoginRedirects(): void
     {
-        try {
-            $this->controller->requireLoginTest();
-        } catch (RedirectException) {
-        }
+        $response = new FakeResponse();
+        $controller = $this->createController(response: $response);
 
-        $this->assertSame(Routes::USER_SIGNIN, $this->response->redirectTo);
+        $this->expectException(RedirectException::class);
+
+        try {
+            $controller->requireLoginTest();
+        } finally {
+            $this->assertSame(Routes::USER_SIGNIN, $response->redirectTo);
+        }
     }
 
     public function testRequireLoginPasses(): void
     {
-        $this->session->set('user_id', 1);
+        $session = new FakeSession();
+        $session->set('user_id', 1);
+        $controller = $this->createController(session: $session);
 
-        $this->controller->requireLoginTest();
+        $controller->requireLoginTest();
 
-        $this->assertNull($this->response->redirectTo);
+        $this->assertNull($session->error());
     }
 
     public function testRedirect(): void
     {
-        try {
-            $this->controller->redirectTest('/test', 'error', ['a' => 1]);
-        } catch (RedirectException) {
-        }
+        $response = new FakeResponse();
+        $session = new FakeSession();
+        $controller = $this->createController(response: $response, session: $session);
 
-        $this->assertSame('/test', $this->response->redirectTo);
-        $this->assertSame('error', $this->session->error());
-        $this->assertSame(['a' => 1], $this->session->old());
+        $this->expectException(RedirectException::class);
+
+        try {
+            $controller->redirectTest('/test', 'error', ['a' => 1]);
+        } finally {
+            $this->assertSame('/test', $response->redirectTo);
+            $this->assertSame('error', $session->error());
+            $this->assertSame(['a' => 1], $session->old());
+        }
     }
 
     public function testRedirectSelf(): void
     {
-        $this->request = new FakeRequest([], [], 'GET', '/self');
-        $this->controller = $this->newController();
+        $request = new FakeRequest([], [], 'GET', '/self');
+        $response = new FakeResponse();
+        $controller = $this->createController(request: $request, response: $response);
+
+        $this->expectException(RedirectException::class);
 
         try {
-            $this->controller->redirectSelfTest('error');
-        } catch (RedirectException) {
+            $controller->redirectSelfTest('error');
+        } finally {
+            $this->assertSame('/self', $response->redirectTo);
         }
-
-        $this->assertSame('/self', $this->response->redirectTo);
     }
 
-    public function testCheckCsrf(): void
+    public function testCheckCsrfSuccess(): void
     {
-        $this->assertNull($this->controller->checkCsrfTest('token'));
+        $controller = $this->createController();
+        $this->assertNull($controller->checkCsrfTest('token'));
+    }
 
-        $this->csrf = new FakeCsrf();
-        $this->controller = $this->newController();
+    public function testCheckCsrfFail(): void
+    {
+        $csrf = new FakeCsrf();
+        $controller = $this->createController();
 
-        $this->assertSame(Controller::ERROR_CSRF, $this->controller->checkCsrfTest('TOKEN'));
+        $this->assertSame(Controller::ERROR_CSRF, $controller->checkCsrfTest('invalid'));
+    }
+
+    public function testEnsureValidFormSuccess(): void
+    {
+        $request = new FakeRequest(['token' => 'token']);
+        $form = new FakeForm($request, valid: true);
+        $response = new FakeResponse();
+
+        $controller = $this->createController(request: $request, response: $response);
+
+        $controller->ensureValidFormTest($form);
+
+        $this->assertNull($response->redirectTo);
+    }
+
+    public function testEnsureValidFormFail(): void
+    {
+        $request = new FakeRequest(['token' => 'token']);
+        $form = new FakeForm($request, valid: false);
+        $response = new FakeResponse();
+        $controller = $this->createController(request: $request, response: $response);
+
+        $this->expectException(RedirectException::class);
+
+        try {
+            $controller->ensureValidFormTest($form);
+        } finally {
+            $this->assertSame('/', $response->redirectTo);
+        }
     }
 
     public function testUserId(): void
     {
-        $this->session->set('user_id', 5);
+        $session = new FakeSession();
+        $session->set('user_id', 5);
+        $controller = $this->createController(session: $session);
 
-        $this->assertSame(5, $this->controller->userIdTest());
+        $this->assertSame(5, $controller->userIdTest());
     }
 
-    private function setMethod(string $method): void
+    private function createController(?FakeRequest $request = null, ?FakeSession $session = null, ?FakeResponse $response = null, ?FakeCsrf $csrf = null): TestController
     {
-        $this->request = new FakeRequest([], [], $method);
-        $this->controller = $this->newController();
-    }
+        $request ??= new FakeRequest();
+        $session ??= new FakeSession();
+        $response ??= new FakeResponse();
+        $csrf ??= new FakeCsrf();
 
-    private function newController(): TestController
-    {
-        return new TestController($this->request, $this->session, $this->response, $this->csrf);
+        return new TestController($request, $session, $response, $csrf);
     }
 }
