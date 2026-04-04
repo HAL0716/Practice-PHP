@@ -91,6 +91,7 @@ final class UserController extends Controller
 
         if ($this->users->findByEmail($form->mail())) {
             $this->redirectSelf(self::ERROR_EXISTS, $form->old());
+            return;
         }
 
         $user = $this->users->create(
@@ -101,6 +102,7 @@ final class UserController extends Controller
 
         if (!$user) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
+            return;
         }
 
         $this->session->login($user);
@@ -126,9 +128,11 @@ final class UserController extends Controller
 
             if ($error = $this->throttle->hit()) {
                 $this->redirectSelf($error, $form->old());
+                return;
             }
 
             $this->redirectSelf(self::ERROR_LOGIN, $form->old());
+            return;
         }
 
         $this->throttle->clear();
@@ -158,6 +162,7 @@ final class UserController extends Controller
 
         if (!$this->users->delete($this->userId())) {
             $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
+            return;
         }
 
         $this->logoutUser();
@@ -169,6 +174,7 @@ final class UserController extends Controller
 
         if ($user === null) {
             $this->logoutUser();
+            return;
         }
 
         $this->render('user/mypage', ['user' => $user]);
@@ -193,6 +199,7 @@ final class UserController extends Controller
             $this->nullable($form->pass())
         )) {
             $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
+            return;
         }
 
         $this->redirectSelf();
