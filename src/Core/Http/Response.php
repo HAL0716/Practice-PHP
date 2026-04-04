@@ -8,14 +8,17 @@ use App\Contracts\Http\ResponseInterface;
 
 final class Response implements ResponseInterface
 {
-    public function __construct()
+    private $headerSender;
+
+    public function __construct(?callable $headerSender = null)
     {
+        $this->headerSender = $headerSender ?? fn (string $header) => header($header);
     }
 
     public function redirect(string $url): void
     {
         if (!headers_sent()) {
-            header("Location: {$url}");
+            ($this->headerSender)("Location: {$url}");
         }
     }
 }

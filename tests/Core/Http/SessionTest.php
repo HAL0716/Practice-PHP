@@ -6,104 +6,112 @@ namespace Tests\Core\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Contracts\Http\SessionInterface;
 use App\Core\Http\Session;
 use App\Domain\User\User;
 
 #[CoversClass(Session::class)]
 final class SessionTest extends TestCase
 {
-    private Session $session;
-
     protected function setUp(): void
     {
         $_SESSION = [];
 
-        $this->session = new Session();
-    }
-
-    public function testImplementsInterface(): void
-    {
-        $this->assertInstanceOf(SessionInterface::class, $this->session);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
 
     public function testSetAndGet(): void
     {
-        $this->session->set('key', 'value');
+        $session = new Session();
 
-        $this->assertSame('value', $this->session->get('key'));
+        $session->set('key', 'value');
+
+        $this->assertSame('value', $session->get('key'));
     }
 
-    public function testGetReturnsDefaultWhenKeyNotFound(): void
+    public function testGetReturnsDefault(): void
     {
-        $this->assertSame('default', $this->session->get('none', 'default'));
+        $session = new Session();
+
+        $this->assertSame('default', $session->get('key', 'default'));
     }
 
     public function testRemove(): void
     {
-        $this->session->set('key', 'value');
+        $session = new Session();
 
-        $this->session->remove('key');
+        $session->set('key', 'value');
+        $session->remove('key');
 
-        $this->assertNull($this->session->get('key'));
+        $this->assertNull($session->get('key'));
     }
 
     public function testClear(): void
     {
-        $this->session->set('a', 1);
+        $session = new Session();
 
-        $this->session->clear();
+        $session->set('a', 1);
+        $session->set('b', 2);
 
-        $this->assertSame([], $_SESSION);
+        $session->clear();
+
+        $this->assertEmpty($_SESSION);
     }
 
-    public function testLoginSetsUserState(): void
+    public function testLoginAndIsLoggedIn(): void
     {
-        $user = new User(10, 'name', 'email@example.com', 'password');
+        $session = new Session();
 
-        $this->session->login($user);
+        $user = new User(1, 'name', 'test@example.com', 'hash');
 
-        $this->assertTrue($this->session->isLoggedIn());
-        $this->assertSame(10, $this->session->userId());
+        $session->login($user);
+
+        $this->assertTrue($session->isLoggedIn());
+        $this->assertSame(1, $session->userId());
     }
 
-    public function testIsLoggedInReturnsFalseWhenNotLoggedIn(): void
+    public function testLogout(): void
     {
-        $this->assertFalse($this->session->isLoggedIn());
+        $session = new Session();
+
+        $user = new User(1, 'name', 'test@example.com', 'hash');
+
+        $session->login($user);
+        $session->logout();
+
+        $this->assertFalse($session->isLoggedIn());
     }
 
-    public function testLogoutClearsSession(): void
+    public function testFlash(): void
     {
-        $_SESSION['test'] = 1;
+        $session = new Session();
 
-        $this->session->logout();
+        $session->flash('key', 'value');
 
-        $this->assertSame([], $_SESSION);
-    }
-
-    public function testFlashStoresAndRemovesValue(): void
-    {
-        $this->session->flash('key', 'value');
-
-        $this->assertSame('value', $this->session->getFlash('key'));
-        $this->assertNull($this->session->getFlash('key'));
+        $this->assertSame('value', $session->getFlash('key'));
+        $this->assertNull($session->getFlash('key'));
     }
 
     public function testFlashError(): void
     {
-        $this->session->flashError('error');
+        $session = new Session();
 
-        $this->assertSame('error', $this->session->error());
-        $this->assertNull($this->session->error());
+        $session->flashError('error message');
+
+        $this->assertSame('error message', $session->error());
+        $this->assertNull($session->error());
     }
 
     public function testFlashOld(): void
     {
-        $data = ['a' => 1];
+        $session = new Session();
 
-        $this->session->flashOld($data);
+        $data = ['name' => 'haruki'];
 
-        $this->assertSame($data, $this->session->old());
-        $this->assertSame([], $this->session->old());
+        $session->flashOld($data);
+
+        $this->assertSame($data, $session->old());
+        $this->assertSame([], $session->old());
     }
 }

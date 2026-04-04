@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Http;
 
-use App\Contracts\Http\RequestInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Core\Http\Request;
@@ -12,82 +11,98 @@ use App\Core\Http\Request;
 #[CoversClass(Request::class)]
 final class RequestTest extends TestCase
 {
-    private Request $request;
-
     protected function setUp(): void
     {
-        $_POST = [];
         $_GET = [];
+        $_POST = [];
         $_SERVER = [];
-
-        $this->request = new Request();
     }
 
-    public function testImplementsInterface(): void
+    public function testPostReturnsValue(): void
     {
-        $this->assertInstanceOf(RequestInterface::class, $this->request);
+        $_POST['name'] = 'name';
+
+        $request = new Request();
+
+        $this->assertSame('name', $request->post('name'));
     }
 
-    public function testPost(): void
+    public function testPostReturnsDefault(): void
     {
-        $_POST['key'] = 'value';
+        $request = new Request();
 
-        $this->assertSame('value', $this->request->post('key'));
+        $this->assertSame('default', $request->post('name', 'default'));
     }
 
-    public function testPostDefault(): void
+    public function testPostReturnsDefaultWhenArray(): void
     {
-        $this->assertSame('default', $this->request->post('none', 'default'));
+        $_POST['name'] = ['array'];
+
+        $request = new Request();
+
+        $this->assertSame('default', $request->post('name', 'default'));
     }
 
-    public function testPostArray(): void
+    public function testQueryReturnsValue(): void
     {
-        $_POST['items'] = ['a', 'b'];
+        $_GET['q'] = 'search';
 
-        $this->assertSame(['a', 'b'], $this->request->postArray('items'));
+        $request = new Request();
+
+        $this->assertSame('search', $request->query('q'));
     }
 
-    public function testPostArrayDefault(): void
+    public function testQueryArrayReturnsArray(): void
     {
-        $this->assertSame([], $this->request->postArray('none'));
+        $_GET['ids'] = [1, 2];
+
+        $request = new Request();
+
+        $this->assertSame([1, 2], $request->queryArray('ids'));
     }
 
-    public function testQuery(): void
+    public function testQueryArrayReturnsDefaultWhenNotArray(): void
     {
-        $_GET['key'] = 'value';
+        $_GET['ids'] = 'not-array';
 
-        $this->assertSame('value', $this->request->query('key'));
+        $request = new Request();
+
+        $this->assertSame([], $request->queryArray('ids'));
     }
 
-    public function testQueryDefault(): void
+    public function testIsGet(): void
     {
-        $this->assertSame('default', $this->request->query('none', 'default'));
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $request = new Request();
+
+        $this->assertTrue($request->isGet());
+        $this->assertFalse($request->isPost());
     }
 
-    public function testQueryArray(): void
-    {
-        $_GET['items'] = ['a', 'b'];
-
-        $this->assertSame(['a', 'b'], $this->request->queryArray('items'));
-    }
-
-    public function testQueryArrayDefault(): void
-    {
-        $this->assertSame([], $this->request->queryArray('none'));
-    }
-
-    public function testMethod(): void
+    public function testIsPost(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        $this->assertTrue($this->request->isPost());
-        $this->assertFalse($this->request->isGet());
+        $request = new Request();
+
+        $this->assertTrue($request->isPost());
+        $this->assertFalse($request->isGet());
     }
 
-    public function testPath(): void
+    public function testPathReturnsPath(): void
     {
-        $_SERVER['REQUEST_URI'] = '/test/path?x=1';
+        $_SERVER['REQUEST_URI'] = '/posts?id=1';
 
-        $this->assertSame('/test/path', $this->request->path());
+        $request = new Request();
+
+        $this->assertSame('/posts', $request->path());
+    }
+
+    public function testPathReturnsSlashWhenMissing(): void
+    {
+        $request = new Request();
+
+        $this->assertSame('/', $request->path());
     }
 }

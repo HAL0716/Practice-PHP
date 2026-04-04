@@ -11,25 +11,18 @@ use App\Core\Http\Response;
 #[CoversClass(Response::class)]
 final class ResponseTest extends TestCase
 {
-    private Response $response;
-
-    protected function setUp(): void
+    public function testRedirectSendsHeader(): void
     {
-        $this->response = new Response();
-    }
+        $captured = null;
 
-    public function testRedirectDoesNotThrow(): void
-    {
-        $this->response->redirect('/test');
+        $response = new Response(
+            headerSender: function (string $header) use (&$captured) {
+                $captured = $header;
+            }
+        );
 
-        $this->assertTrue(true);
-    }
+        $response->redirect('/home');
 
-    public function testRedirectCanBeCalledMultipleTimes(): void
-    {
-        $this->response->redirect('/a');
-        $this->response->redirect('/b');
-
-        $this->assertTrue(true);
+        $this->assertSame('Location: /home', $captured);
     }
 }
