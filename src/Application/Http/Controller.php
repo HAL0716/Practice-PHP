@@ -118,7 +118,7 @@ abstract class Controller
 
     private function viewFile(string $view): string
     {
-        $path = __DIR__ . '/../../Views/' . $view . '.php';
+        $path = __DIR__ . '/../Views/' . $view . '.php';
 
         if (!is_file($path)) {
             throw new \RuntimeException("View not found: {$view}");
