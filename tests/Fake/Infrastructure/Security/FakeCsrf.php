@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Infrastructure\Security;
 
-use App\Contracts\Security\CsrfInterface;
+use App\Application\Security\CsrfInterface;
 
 final class FakeCsrf implements CsrfInterface
 {

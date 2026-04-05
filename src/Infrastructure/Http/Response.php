@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http;
 
-use App\Contracts\Http\ResponseInterface;
+use App\Application\Http\ResponseInterface;
 
 final class Response implements ResponseInterface
 {

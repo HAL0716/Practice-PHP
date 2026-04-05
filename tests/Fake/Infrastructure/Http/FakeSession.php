@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Infrastructure\Http;
 
-use App\Contracts\Http\SessionInterface;
+use App\Application\Http\SessionInterface;
 use App\Domain\User\User;
 
 final class FakeSession implements SessionInterface

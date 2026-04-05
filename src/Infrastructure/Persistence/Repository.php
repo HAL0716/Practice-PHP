@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence;
 
-use App\Contracts\Database\DatabaseInterface;
+use App\Infrastructure\Database\DatabaseInterface;
 
 abstract class Repository
 {

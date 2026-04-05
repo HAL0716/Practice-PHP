@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Infrastructure\Database;
 
-use App\Contracts\Database\DatabaseInterface;
+use App\Infrastructure\Database\DatabaseInterface;
 
 final class FakeDatabase implements DatabaseInterface
 {

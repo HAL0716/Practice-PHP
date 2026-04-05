@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Application\Http;
 
 use App\Application\Http\Controller;
-use App\Contracts\Http\RequestInterface;
-use App\Contracts\Http\SessionInterface;
-use App\Contracts\Http\ResponseInterface;
-use App\Contracts\Security\CsrfInterface;
+use App\Application\Http\RequestInterface;
+use App\Application\Http\ResponseInterface;
+use App\Application\Http\SessionInterface;
+use App\Application\Security\CsrfInterface;
 use App\Support\Form;
 
 final class TestController extends Controller

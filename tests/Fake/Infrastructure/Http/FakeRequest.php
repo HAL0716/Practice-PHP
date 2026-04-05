@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Infrastructure\Http;
 
-use App\Contracts\Http\RequestInterface;
+use App\Application\Http\RequestInterface;
 
 final class FakeRequest implements RequestInterface
 {

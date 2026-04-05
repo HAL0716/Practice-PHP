@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Forms\Post;
 
 use App\Constants\Routes;
-use App\Contracts\Http\RequestInterface;
+use App\Application\Http\RequestInterface;
 use App\Support\Form;
 
 final class CreateForm extends Form

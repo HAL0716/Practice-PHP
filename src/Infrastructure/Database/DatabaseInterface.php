@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts\Database;
+namespace App\Infrastructure\Database;
 
 interface DatabaseInterface
 {

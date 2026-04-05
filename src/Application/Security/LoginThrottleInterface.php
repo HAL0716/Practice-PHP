@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts\Security;
+namespace App\Application\Security;
 
 interface LoginThrottleInterface
 {

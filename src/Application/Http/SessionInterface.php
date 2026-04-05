@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts\Http;
+namespace App\Application\Http;
 
 use App\Domain\User\User;
 

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
-use App\Application\Http\Controller;
 use App\Application\Forms\Post\CreateForm;
 use App\Application\Forms\Post\DeleteForm;
+use App\Application\Http\Controller;
+use App\Application\Http\RequestInterface;
+use App\Application\Http\ResponseInterface;
+use App\Application\Http\SessionInterface;
+use App\Application\Security\CsrfInterface;
 use App\Constants\Routes;
-use App\Contracts\Http\RequestInterface;
-use App\Contracts\Http\ResponseInterface;
-use App\Contracts\Http\SessionInterface;
-use App\Contracts\Security\CsrfInterface;
 use App\Domain\Post\PostRepositoryInterface;
 
 final class PostController extends Controller

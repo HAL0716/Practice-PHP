@@ -9,12 +9,12 @@ use App\Application\Forms\User\DeleteForm;
 use App\Application\Forms\User\UpdateForm;
 use App\Application\Forms\User\SigninForm;
 use App\Application\Forms\User\SignupForm;
+use App\Application\Http\RequestInterface;
+use App\Application\Http\ResponseInterface;
+use App\Application\Http\SessionInterface;
+use App\Application\Security\CsrfInterface;
+use App\Application\Security\LoginThrottleInterface;
 use App\Constants\Routes;
-use App\Contracts\Http\RequestInterface;
-use App\Contracts\Http\ResponseInterface;
-use App\Contracts\Http\SessionInterface;
-use App\Contracts\Security\CsrfInterface;
-use App\Contracts\Security\LoginThrottleInterface;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 

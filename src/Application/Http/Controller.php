@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Http;
 
+use App\Application\Security\CsrfInterface;
 use App\Constants\Routes;
-use App\Contracts\Http\RequestInterface;
-use App\Contracts\Http\SessionInterface;
-use App\Contracts\Http\ResponseInterface;
-use App\Contracts\Security\CsrfInterface;
 use App\Support\Form;
 
 abstract class Controller

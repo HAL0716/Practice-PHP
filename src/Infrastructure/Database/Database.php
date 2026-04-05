@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Database;
 
-use App\Contracts\Database\DatabaseInterface;
 use PDO;
 
 final class Database implements DatabaseInterface

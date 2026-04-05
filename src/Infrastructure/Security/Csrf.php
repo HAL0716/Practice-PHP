@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Security;
 
-use App\Contracts\Http\SessionInterface;
-use App\Contracts\Security\CsrfInterface;
+use App\Application\Http\SessionInterface;
+use App\Application\Security\CsrfInterface;
 
 final class Csrf implements CsrfInterface
 {

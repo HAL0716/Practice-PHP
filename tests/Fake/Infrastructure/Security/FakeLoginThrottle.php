@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Infrastructure\Security;
 
-use App\Contracts\Security\LoginThrottleInterface;
+use App\Application\Security\LoginThrottleInterface;
 
 final class FakeLoginThrottle implements LoginThrottleInterface
 {
