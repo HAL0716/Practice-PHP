@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core;
+namespace Tests\Infrastructure\Persistence;
 
 use App\Infrastructure\Persistence\Repository;
 

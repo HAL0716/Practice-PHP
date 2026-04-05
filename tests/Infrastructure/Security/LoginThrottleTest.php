@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security;
+namespace Tests\Infrastructure\Security;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;

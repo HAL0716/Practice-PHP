@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core;
+namespace Tests\Infrastructure\Persistence;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
