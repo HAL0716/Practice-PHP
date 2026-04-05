@@ -44,7 +44,7 @@ abstract class Controller
         }
     }
 
-    final protected function redirect(string $url, string $error = '', array $old = []): void
+    final protected function redirect(string $url, string $error = '', array $old = []): never
     {
         if ($error !== '') {
             $this->session->flashError($error);
@@ -55,6 +55,8 @@ abstract class Controller
         }
 
         $this->response->redirect($url);
+
+        throw new \RuntimeException("Failed to redirect to {$url}");
     }
 
     final protected function redirectSelf(string $error = '', array $old = []): void
