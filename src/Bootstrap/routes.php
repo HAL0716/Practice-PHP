@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Constants\Routes;
+use App\Application\Constants\Routes;
 use App\Application\Controllers\PostController;
 use App\Application\Controllers\UserController;
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
+use App\Application\Constants\Routes;
 use App\Application\Http\Controller;
 use App\Application\Forms\User\DeleteForm;
 use App\Application\Forms\User\UpdateForm;
@@ -14,7 +15,6 @@ use App\Application\Http\ResponseInterface;
 use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
 use App\Application\Security\LoginThrottleInterface;
-use App\Constants\Routes;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 

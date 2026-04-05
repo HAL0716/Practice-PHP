@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Http;
 
+use App\Application\Constants\Routes;
 use App\Application\Security\CsrfInterface;
-use App\Constants\Routes;
 use App\Support\Form;
 
 abstract class Controller

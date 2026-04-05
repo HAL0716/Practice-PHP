@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use App\Constants\Routes;
-use App\Support\Html;
+use App\Application\Constants\Routes;
 use App\Application\Forms\User\UpdateForm;
 use App\Application\Forms\User\DeleteForm;
+use App\Support\Html;
 
 ?>
 
