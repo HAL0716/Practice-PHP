@@ -47,7 +47,7 @@ abstract class Repository
         $direction = strtoupper($direction);
 
         if (!in_array($direction, ['ASC', 'DESC'], true)) {
-            throw new \InvalidArgumentException();
+            throw new \InvalidArgumentException(sprintf('Invalid order direction "%s".', $direction));
         }
 
         $sql = $this->baseSelect() . sprintf(" ORDER BY %s %s", $orderBy, $direction);
