@@ -6,7 +6,7 @@ namespace Tests\Core;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Html;
+use App\Support\Html;
 
 #[CoversClass(Html::class)]
 final class HtmlTest extends TestCase

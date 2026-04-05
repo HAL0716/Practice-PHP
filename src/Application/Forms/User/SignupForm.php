@@ -6,7 +6,7 @@ namespace App\Application\Forms\User;
 
 use App\Constants\Routes;
 use App\Contracts\Http\RequestInterface;
-use App\Core\Form;
+use App\Support\Form;
 
 final class SignupForm extends Form
 {

@@ -6,7 +6,7 @@ namespace Tests\Core;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Form;
+use App\Support\Form;
 use Tests\Fake\Form\FakeForm;
 use Tests\Fake\Http\FakeRequest;
 

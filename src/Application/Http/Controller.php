@@ -9,7 +9,7 @@ use App\Contracts\Http\RequestInterface;
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Http\ResponseInterface;
 use App\Contracts\Security\CsrfInterface;
-use App\Core\Form;
+use App\Support\Form;
 
 abstract class Controller
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Form;
 
-use App\Core\Form;
+use App\Support\Form;
 use Tests\Fake\Http\FakeRequest;
 
 final class FakeForm extends Form

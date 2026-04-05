@@ -6,7 +6,7 @@ namespace App\Application\Forms\Post;
 
 use App\Constants\Routes;
 use App\Contracts\Http\RequestInterface;
-use App\Core\Form;
+use App\Support\Form;
 
 final class DeleteForm extends Form
 {
