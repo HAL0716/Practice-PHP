@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Application\Controllers\UserController;
 use App\Application\Controllers\PostController;
-use App\Core\Container\Container;
+use App\Bootstrap\Container;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Session;
 use App\Infrastructure\Http\Response;
