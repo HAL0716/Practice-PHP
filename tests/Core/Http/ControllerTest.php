@@ -132,7 +132,6 @@ final class ControllerTest extends TestCase
 
     public function testCheckCsrfFail(): void
     {
-        $csrf = new FakeCsrf();
         $controller = $this->createController();
 
         $this->assertSame(Controller::ERROR_CSRF, $controller->checkCsrfTest('invalid'));
