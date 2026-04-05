@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\User;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class DeleteForm extends Form
@@ -13,16 +14,14 @@ final class DeleteForm extends Form
 
     public const PASS_CURRENT = 'pass_current';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::PASS_CURRENT,
-        ]);
+        parent::__construct($request, [self::PASS_CURRENT]);
     }
 
     public function passCurrent(): string
     {
-        return $this->data[self::PASS_CURRENT];
+        return $this->value(self::PASS_CURRENT);
     }
 
     public function validate(): ?string

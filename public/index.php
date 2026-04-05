@@ -3,27 +3,15 @@
 declare(strict_types=1);
 
 use App\Core\Http\Request;
-use App\Core\Http\Session;
-use App\Constants\Routes;
-use App\Controllers\UserController;
-use App\Controllers\PostController;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-Session::init();
+$container = require __DIR__ . '/../src/Bootstrap/container.php';
 
-$routes = [
-    Routes::USER_SIGNUP  => [UserController::class, 'signup'],
-    Routes::USER_SIGNIN  => [UserController::class, 'signin'],
-    Routes::USER_SIGNOUT => [UserController::class, 'signout'],
-    Routes::USER_DELETE  => [UserController::class, 'delete'],
-    Routes::USER_MYPAGE  => [UserController::class, 'mypage'],
+$request = $container->get(Request::class);
+$url = $request->path();
 
-    Routes::POST_HOME   => [PostController::class, 'home'],
-    Routes::POST_DELETE => [PostController::class, 'delete'],
-];
-
-$url = Request::path();
+$routes = require __DIR__ . '/../src/Bootstrap/routes.php';
 
 if (!isset($routes[$url])) {
     http_response_code(404);
@@ -33,5 +21,5 @@ if (!isset($routes[$url])) {
 
 [$controllerClass, $method] = $routes[$url];
 
-$controller = new $controllerClass();
+$controller = $container->get($controllerClass);
 $controller->$method();

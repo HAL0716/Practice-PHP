@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\Post;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class CreateForm extends Form
@@ -13,11 +14,9 @@ final class CreateForm extends Form
 
     public const COMMENT = 'comment';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::COMMENT,
-        ]);
+        parent::__construct($request, [self::COMMENT]);
     }
 
     public function comment(): string

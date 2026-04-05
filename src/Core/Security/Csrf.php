@@ -4,83 +4,81 @@ declare(strict_types=1);
 
 namespace App\Core\Security;
 
-use App\Core\Http\Session;
+use App\Contracts\Http\SessionInterface;
+use App\Contracts\Security\CsrfInterface;
 
-final class Csrf
+final class Csrf implements CsrfInterface
 {
-    private const TOKEN_LENGTH = 32;
-    private const TOKEN_MINUTE = 60;
+    private const TOKEN_LENGTH  = 32;
+    private const TOKEN_MINUTE  = 60;
     private const TOKEN_TIMEOUT = self::TOKEN_MINUTE * 60;
 
     private const SESSION_TOKEN = 'csrf_token';
     private const SESSION_TIME  = 'csrf_token_time';
 
-    private function __construct()
+    private $now;
+    private $random;
+
+    public function __construct(private SessionInterface $session, ?callable $now = null, ?callable $random = null)
     {
-        throw new \LogicException(
-            'Cannot instantiate ' . static::class
-        );
+        $this->now = $now ?? fn () => time();
+        $this->random = $random ?? fn (int $length) => random_bytes($length);
     }
 
-    public static function token(): string
+    public function token(): string
     {
-        if (self::isExpired()) {
-            self::clear();
+        if ($this->isExpired()) {
+            $this->clear();
         }
 
-        $token = Session::get(self::SESSION_TOKEN);
+        $token = $this->session->get(self::SESSION_TOKEN);
 
-        if (!$token) {
-            $token = self::generateToken();
+        if ($token === null) {
+            $token = bin2hex(($this->random)(self::TOKEN_LENGTH));
 
-            Session::set(self::SESSION_TOKEN, $token);
-            Session::set(self::SESSION_TIME, time());
+            $this->session->set(self::SESSION_TOKEN, $token);
+            $this->session->set(self::SESSION_TIME, ($this->now)());
         }
 
         return $token;
     }
 
-    public static function verify(string $token): bool
+    public function verify(string $token): bool
     {
-        if (self::isExpired()) {
-            self::clear();
+        if ($this->isExpired()) {
+            $this->clear();
             return false;
         }
 
-        $sessionToken = Session::get(self::SESSION_TOKEN);
+        $sessionToken = $this->session->get(self::SESSION_TOKEN);
 
-        if (!$sessionToken) {
+        if ($sessionToken === null) {
             return false;
         }
 
         $valid = hash_equals($sessionToken, $token);
 
         if ($valid) {
-            self::clear();
+            $this->clear();
         }
 
         return $valid;
     }
 
-    private static function generateToken(): string
+    private function isExpired(): bool
     {
-        return bin2hex(random_bytes(self::TOKEN_LENGTH));
-    }
+        $tokenTime = $this->session->get(self::SESSION_TIME);
 
-    private static function isExpired(): bool
-    {
-        $tokenTime = Session::get(self::SESSION_TIME);
-
-        if (!$tokenTime) {
+        if ($tokenTime === null) {
             return true;
         }
 
-        return (time() - $tokenTime) > self::TOKEN_TIMEOUT;
+        return (($this->now)() - $tokenTime) > self::TOKEN_TIMEOUT;
     }
 
-    private static function clear(): void
+    private function clear(): void
     {
-        Session::remove(self::SESSION_TOKEN);
-        Session::remove(self::SESSION_TIME);
+        $this->session->remove(self::SESSION_TOKEN);
+        $this->session->remove(self::SESSION_TIME);
     }
 }

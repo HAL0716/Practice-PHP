@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Forms\User;
 
 use App\Constants\Routes;
+use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
 final class SigninForm extends Form
@@ -14,12 +15,9 @@ final class SigninForm extends Form
     public const MAIL = 'mail';
     public const PASS = 'pass';
 
-    public function __construct()
+    public function __construct(RequestInterface $request)
     {
-        parent::__construct([
-            self::MAIL,
-            self::PASS,
-        ]);
+        parent::__construct($request, [self::MAIL,self::PASS]);
     }
 
     public function mail(): string
@@ -29,7 +27,7 @@ final class SigninForm extends Form
 
     public function pass(): string
     {
-        return $this->data[self::PASS];
+        return $this->value(self::PASS);
     }
 
     public function validate(): ?string

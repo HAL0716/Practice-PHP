@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Core\Http;
 
+use App\Contracts\Http\SessionInterface;
 use App\Domain\User\User;
 
-final class Session
+final class Session implements SessionInterface
 {
     private const USER_ID = 'user_id';
 
@@ -14,54 +15,61 @@ final class Session
     private const FLASH_ERROR  = 'error';
     private const FLASH_OLD    = 'old';
 
-    private function __construct()
+    public function __construct()
     {
-        throw new \LogicException(
-            'Cannot instantiate ' . static::class
-        );
     }
 
-    public static function init(): void
+    public function init(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
     }
 
-    private static function regenerate(bool $delete_old_session = true): void
+    private function regenerate(bool $deleteOldSession = true): void
     {
-        session_regenerate_id($delete_old_session);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id($deleteOldSession);
+        }
     }
 
-    public static function set(string $key, mixed $value): void
+    public function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
 
-    public static function get(string $key, mixed $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         return $_SESSION[$key] ?? $default;
     }
 
-    public static function remove(string $key): void
+    public function remove(string $key): void
     {
         unset($_SESSION[$key]);
     }
 
-    public static function clear(): void
+    public function clear(): void
     {
         $_SESSION = [];
     }
 
-    public static function login(User $user): void
+    public function destroy(): void
     {
-        self::regenerate();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+    }
+
+    public function login(User $user): void
+    {
+        $this->regenerate();
+
         $_SESSION[self::USER_ID] = $user->id();
     }
 
-    public static function logout(): void
+    public function logout(): void
     {
-        self::clear();
+        $this->clear();
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
@@ -77,54 +85,54 @@ final class Session
             );
         }
 
-        session_destroy();
+        $this->destroy();
     }
 
-    public static function isLoggedIn(): bool
+    public function isLoggedIn(): bool
     {
-        return self::userId() !== null;
+        return $this->userId() !== null;
     }
 
-    public static function userId(): ?int
+    public function userId(): ?int
     {
-        $id = self::get(self::USER_ID);
+        $id = $this->get(self::USER_ID);
 
         return is_int($id) ? $id : null;
     }
 
-    public static function flash(string $key, mixed $value): void
+    public function flash(string $key, mixed $value): void
     {
-        self::set(self::FLASH_PREFIX . $key, $value);
+        $this->set(self::FLASH_PREFIX . $key, $value);
     }
 
-    public static function getFlash(string $key, mixed $default = null): mixed
+    public function getFlash(string $key, mixed $default = null): mixed
     {
         $flashKey = self::FLASH_PREFIX . $key;
 
-        $value = self::get($flashKey, $default);
+        $value = $this->get($flashKey, $default);
 
-        self::remove($flashKey);
+        $this->remove($flashKey);
 
         return $value;
     }
 
-    public static function flashError(string $message): void
+    public function flashError(string $message): void
     {
-        self::flash(self::FLASH_ERROR, $message);
+        $this->flash(self::FLASH_ERROR, $message);
     }
 
-    public static function error(): ?string
+    public function error(): ?string
     {
-        return self::getFlash(self::FLASH_ERROR);
+        return $this->getFlash(self::FLASH_ERROR);
     }
 
-    public static function flashOld(array $data): void
+    public function flashOld(array $data): void
     {
-        self::flash(self::FLASH_OLD, $data);
+        $this->flash(self::FLASH_OLD, $data);
     }
 
-    public static function old(): array
+    public function old(): array
     {
-        return self::getFlash(self::FLASH_OLD, []);
+        return $this->getFlash(self::FLASH_OLD, []);
     }
 }

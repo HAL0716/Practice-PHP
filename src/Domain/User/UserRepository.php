@@ -4,40 +4,31 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
+use App\Contracts\Domain\User\UserRepositoryInterface;
 use App\Core\Repository;
 use App\Database\Schema\UsersTable;
 
-final class UserRepository extends Repository
+final class UserRepository extends Repository implements UserRepositoryInterface
 {
-    protected static function hydrate(array $row): User
+    protected function hydrate(array $row): User
     {
         return new User(
-            (int)$row[UsersTable::ID],
+            (int) $row[UsersTable::ID],
             $row[UsersTable::USERNAME],
             $row[UsersTable::EMAIL],
             $row[UsersTable::PASSWORD]
         );
     }
 
-    protected static function baseSelect(): string
+    protected function baseSelect(): string
     {
-        return sprintf(
-            "SELECT * FROM %s",
-            UsersTable::TABLE
-        );
+        return sprintf("SELECT * FROM %s", UsersTable::TABLE);
     }
 
-    public static function create(
-        string $name,
-        string $email,
-        string $password
-    ): ?User {
-
-        $db = self::db();
-
+    public function create(string $name, string $email, string $password): ?User
+    {
         $sql = sprintf(
-            "INSERT INTO %s (%s, %s, %s)
-             VALUES (?, ?, ?)",
+            "INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)",
             UsersTable::TABLE,
             UsersTable::USERNAME,
             UsersTable::EMAIL,
@@ -50,22 +41,25 @@ final class UserRepository extends Repository
             password_hash($password, PASSWORD_DEFAULT)
         ];
 
-        try {
-            self::execute($sql, $params);
-        } catch (\PDOException) {
+        if (!$this->execute($sql, $params)) {
             return null;
         }
 
-        return self::findById((int)$db->lastInsertId());
+        return $this->findById((int) $this->db->lastInsertId());
     }
 
-    public static function update(
-        int $id,
-        ?string $name = null,
-        ?string $email = null,
-        ?string $password = null
-    ): bool {
+    public function findById(int $id): ?User
+    {
+        return $this->findOneBy(UsersTable::ID, [$id]);
+    }
 
+    public function findByEmail(string $email): ?User
+    {
+        return $this->findOneBy(UsersTable::EMAIL, [$email]);
+    }
+
+    public function update(int $id, ?string $name = null, ?string $email = null, ?string $password = null): bool
+    {
         $fields = [];
         $params = [];
 
@@ -97,25 +91,10 @@ final class UserRepository extends Repository
             UsersTable::ID
         );
 
-        try {
-            self::execute($sql, $params);
-            return true;
-        } catch (\PDOException) {
-            return false;
-        }
+        return $this->execute($sql, $params);
     }
 
-    public static function findById(int $id): ?User
-    {
-        return self::findOneBy(UsersTable::ID, [$id]);
-    }
-
-    public static function findByEmail(string $email): ?User
-    {
-        return self::findOneBy(UsersTable::EMAIL, [$email]);
-    }
-
-    public static function delete(int $id): bool
+    public function delete(int $id): bool
     {
         $sql = sprintf(
             "DELETE FROM %s WHERE %s = ?",
@@ -123,11 +102,6 @@ final class UserRepository extends Repository
             UsersTable::ID
         );
 
-        try {
-            self::execute($sql, [$id]);
-            return true;
-        } catch (\PDOException) {
-            return false;
-        }
+        return $this->execute($sql, [$id]);
     }
 }

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Post;
 
+use App\Contracts\Domain\Post\PostRepositoryInterface;
 use App\Core\Repository;
 use App\Database\Schema\PostsTable;
 use App\Database\Schema\UsersTable;
 
-final class PostRepository extends Repository
+final class PostRepository extends Repository implements PostRepositoryInterface
 {
-    protected static function hydrate(array $row): Post
+    protected function hydrate(array $row): Post
     {
         $userId = $row[PostsTable::USER_ID];
         $username = $row[UsersTable::ALIAS . '_' . UsersTable::USERNAME];
@@ -24,7 +25,7 @@ final class PostRepository extends Repository
         );
     }
 
-    protected static function baseSelect(): string
+    protected function baseSelect(): string
     {
         return sprintf(
             "SELECT
@@ -59,16 +60,10 @@ final class PostRepository extends Repository
         );
     }
 
-    public static function create(
-        int $userId,
-        string $comment
-    ): ?Post {
-
-        $db = self::db();
-
+    public function create(int $userId, string $comment): ?Post
+    {
         $sql = sprintf(
-            "INSERT INTO %s (%s, %s)
-             VALUES (?, ?)",
+            "INSERT INTO %s (%s, %s) VALUES (?, ?)",
             PostsTable::TABLE,
             PostsTable::USER_ID,
             PostsTable::COMMENT
@@ -79,26 +74,24 @@ final class PostRepository extends Repository
             $comment
         ];
 
-        try {
-            self::execute($sql, $params);
-        } catch (\PDOException) {
+        if (!$this->execute($sql, $params)) {
             return null;
         }
 
-        return self::findById((int)$db->lastInsertId());
+        return $this->findById((int) $this->db->lastInsertId());
     }
 
-    public static function findById(int $id): ?Post
+    public function findById(int $id): ?Post
     {
-        return self::findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
+        return $this->findOneBy(PostsTable::ALIAS . '.' . PostsTable::ID, [$id]);
     }
 
-    public static function findAll(): array
+    public function findAll(): array
     {
-        return self::findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'DESC');
+        return $this->findAllOrdered(PostsTable::ALIAS . '.' . PostsTable::CREATED_AT, 'DESC');
     }
 
-    public static function delete(int $postId, int $userId): bool
+    public function delete(int $postId, int $userId): bool
     {
         $sql = sprintf(
             "DELETE FROM %s WHERE %s = ? AND %s = ?",
@@ -107,11 +100,6 @@ final class PostRepository extends Repository
             PostsTable::USER_ID
         );
 
-        try {
-            self::execute($sql, [$postId, $userId]);
-            return true;
-        } catch (\PDOException) {
-            return false;
-        }
+        return $this->execute($sql, [$postId, $userId]);
     }
 }
