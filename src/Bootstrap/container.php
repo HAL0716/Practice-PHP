@@ -16,21 +16,21 @@ use App\Core\Container\Container;
 
 $container = new Container();
 
-$container->set(Request::class, fn () => new Request());
+$container->set(Request::class, fn ($c) => new Request());
 
-$container->set(Session::class, function () {
+$container->set(Session::class, function ($c) {
     $session = new Session();
     $session->init();
     return $session;
 });
 
-$container->set(Response::class, fn () => new Response());
+$container->set(Response::class, fn ($c) => new Response());
 
 $container->set(Csrf::class, fn ($c) => new Csrf($c->get(Session::class)));
 
 $container->set(LoginThrottle::class, fn ($c) => new LoginThrottle($c->get(Session::class)));
 
-$container->set(Database::class, fn () => new Database());
+$container->set(Database::class, fn ($c) => new Database());
 
 $container->set(UserRepository::class, fn ($c) => new UserRepository($c->get(Database::class)));
 
