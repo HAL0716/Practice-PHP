@@ -45,17 +45,17 @@ final class UserRepository extends Repository implements UserRepositoryInterface
             return null;
         }
 
-        return self::findById((int) $this->db->lastInsertId());
+        return $this->findById((int) $this->db->lastInsertId());
     }
 
     public function findById(int $id): ?User
     {
-        return self::findOneBy(UsersTable::ID, [$id]);
+        return $this->findOneBy(UsersTable::ID, [$id]);
     }
 
     public function findByEmail(string $email): ?User
     {
-        return self::findOneBy(UsersTable::EMAIL, [$email]);
+        return $this->findOneBy(UsersTable::EMAIL, [$email]);
     }
 
     public function update(int $id, ?string $name = null, ?string $email = null, ?string $password = null): bool
