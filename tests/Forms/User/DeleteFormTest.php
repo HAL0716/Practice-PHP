@@ -6,7 +6,7 @@ namespace Tests\Forms\User;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Forms\User\DeleteForm;
+use App\Application\Forms\User\DeleteForm;
 use Tests\Fake\Http\FakeRequest;
 
 #[CoversClass(DeleteForm::class)]

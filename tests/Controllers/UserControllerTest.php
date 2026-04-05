@@ -6,7 +6,7 @@ namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Controllers\UserController;
+use App\Application\Controllers\UserController;
 use App\Domain\User\User;
 use Tests\Fake\Http\FakeRequest;
 use Tests\Fake\Http\FakeSession;

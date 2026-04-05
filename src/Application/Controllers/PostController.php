@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Application\Controllers;
 
 use App\Constants\Routes;
 use App\Contracts\Domain\Post\PostRepositoryInterface;
@@ -10,9 +10,9 @@ use App\Contracts\Http\RequestInterface;
 use App\Contracts\Http\ResponseInterface;
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Security\CsrfInterface;
-use App\Core\Http\Controller;
-use App\Forms\Post\CreateForm;
-use App\Forms\Post\DeleteForm;
+use App\Application\Http\Controller;
+use App\Application\Forms\Post\CreateForm;
+use App\Application\Forms\Post\DeleteForm;
 
 final class PostController extends Controller
 {

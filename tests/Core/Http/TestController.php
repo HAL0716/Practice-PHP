@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Http;
 
-use App\Core\Http\Controller;
+use App\Application\Http\Controller;
 use App\Contracts\Http\RequestInterface;
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Http\ResponseInterface;

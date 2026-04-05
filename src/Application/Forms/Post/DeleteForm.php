@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Forms\User;
+namespace App\Application\Forms\Post;
 
 use App\Constants\Routes;
 use App\Contracts\Http\RequestInterface;
@@ -10,26 +10,32 @@ use App\Core\Form;
 
 final class DeleteForm extends Form
 {
-    public const ACTION_URL = Routes::USER_DELETE;
+    public const ACTION_URL = Routes::POST_DELETE;
 
-    public const PASS_CURRENT = 'pass_current';
+    public const ID = 'id';
 
     public function __construct(RequestInterface $request)
     {
-        parent::__construct($request, [self::PASS_CURRENT]);
+        parent::__construct($request, [self::ID]);
     }
 
-    public function passCurrent(): string
+    public function id(): int
     {
-        return $this->value(self::PASS_CURRENT);
+        return (int) $this->value(self::ID);
     }
 
     public function validate(): ?string
     {
+        $id = $this->value(self::ID);
+
         if ($this->hasEmpty([
-            $this->passCurrent(),
+            $id
         ])) {
             return self::ERROR_REQUIRED_FIELDS;
+        }
+
+        if (!$this->isDigits($id)) {
+            return self::ERROR_INVALID_NUMBER;
         }
 
         return null;

@@ -10,8 +10,8 @@ use App\Core\Security\LoginThrottle;
 use App\Database\Database;
 use App\Domain\User\UserRepository;
 use App\Domain\Post\PostRepository;
-use App\Controllers\UserController;
-use App\Controllers\PostController;
+use App\Application\Controllers\UserController;
+use App\Application\Controllers\PostController;
 use App\Core\Container\Container;
 
 $container = new Container();

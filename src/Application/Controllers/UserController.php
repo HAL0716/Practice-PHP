@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Application\Controllers;
 
 use App\Constants\Routes;
 use App\Contracts\Domain\User\UserRepositoryInterface;
@@ -11,12 +11,12 @@ use App\Contracts\Http\ResponseInterface;
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Security\CsrfInterface;
 use App\Contracts\Security\LoginThrottleInterface;
-use App\Core\Http\Controller;
+use App\Application\Http\Controller;
 use App\Domain\User\User;
-use App\Forms\User\DeleteForm;
-use App\Forms\User\UpdateForm;
-use App\Forms\User\SigninForm;
-use App\Forms\User\SignupForm;
+use App\Application\Forms\User\DeleteForm;
+use App\Application\Forms\User\UpdateForm;
+use App\Application\Forms\User\SigninForm;
+use App\Application\Forms\User\SignupForm;
 
 final class UserController extends Controller
 {

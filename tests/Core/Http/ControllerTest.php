@@ -6,7 +6,7 @@ namespace Tests\Core\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Http\Controller;
+use App\Application\Http\Controller;
 use App\Constants\Routes;
 use Tests\Fake\Http\FakeRequest;
 use Tests\Fake\Http\FakeSession;

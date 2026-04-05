@@ -2,24 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Forms\User;
+namespace App\Application\Forms\User;
 
 use App\Constants\Routes;
 use App\Contracts\Http\RequestInterface;
 use App\Core\Form;
 
-final class SignupForm extends Form
+final class UpdateForm extends Form
 {
-    public const ACTION_URL = Routes::USER_SIGNUP;
+    public const ACTION_URL = Routes::USER_MYPAGE;
 
     public const NAME = 'name';
     public const MAIL = 'mail';
     public const PASS = 'pass';
     public const PASS_CONFIRM = 'pass_confirm';
+    public const PASS_CURRENT = 'pass_current';
 
     public function __construct(RequestInterface $request)
     {
-        parent::__construct($request, [self::NAME,self::MAIL,self::PASS,self::PASS_CONFIRM]);
+        parent::__construct($request, [self::NAME,self::MAIL,self::PASS,self::PASS_CONFIRM,self::PASS_CURRENT]);
     }
 
     public function name(): string
@@ -42,13 +43,17 @@ final class SignupForm extends Form
         return $this->value(self::PASS_CONFIRM);
     }
 
+    public function passCurrent(): string
+    {
+        return $this->value(self::PASS_CURRENT);
+    }
+
     public function validate(): ?string
     {
         if ($this->hasEmpty([
             $this->name(),
             $this->mail(),
-            $this->pass(),
-            $this->passConfirm(),
+            $this->passCurrent(),
         ])) {
             return self::ERROR_REQUIRED_FIELDS;
         }
@@ -57,12 +62,21 @@ final class SignupForm extends Form
             return self::ERROR_INVALID_EMAIL;
         }
 
-        if (!$this->isValidPassword($this->pass())) {
-            return self::ERROR_INVALID_PASSWORD;
-        }
+        // 新しいパスワードが入力された場合，確認用のパスワードも必須
+        if ($this->pass() !== '') {
+            if (!$this->isValidPassword($this->pass())) {
+                return self::ERROR_INVALID_PASSWORD;
+            }
 
-        if (!$this->isMatch($this->pass(), $this->passConfirm())) {
-            return self::ERROR_PASSWORD_MISMATCH;
+            if ($this->hasEmpty([
+                $this->passConfirm(),
+            ])) {
+                return self::ERROR_REQUIRED_FIELDS;
+            }
+
+            if (!$this->isMatch($this->pass(), $this->passConfirm())) {
+                return self::ERROR_PASSWORD_MISMATCH;
+            }
         }
 
         return null;

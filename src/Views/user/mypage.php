@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\User\UpdateForm;
-use App\Forms\User\DeleteForm;
+use App\Application\Forms\User\UpdateForm;
+use App\Application\Forms\User\DeleteForm;
 
 ?>
 

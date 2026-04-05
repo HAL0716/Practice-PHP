@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Constants\Routes;
 use App\Core\Html;
-use App\Forms\Post\CreateForm;
-use App\Forms\Post\DeleteForm;
+use App\Application\Forms\Post\CreateForm;
+use App\Application\Forms\Post\DeleteForm;
 
 ?>
 

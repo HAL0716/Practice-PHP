@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Forms\Post;
+namespace App\Application\Forms\Post;
 
 use App\Constants\Routes;
 use App\Contracts\Http\RequestInterface;
