@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Forms\Post;
+namespace Tests\Application\Forms\Post;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;

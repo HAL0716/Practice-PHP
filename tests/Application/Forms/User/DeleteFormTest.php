@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Forms\Post;
+namespace Tests\Application\Forms\User;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Application\Forms\Post\DeleteForm;
+use App\Application\Forms\User\DeleteForm;
 use Tests\Fake\Http\FakeRequest;
 
 #[CoversClass(DeleteForm::class)]
@@ -17,35 +17,30 @@ final class DeleteFormTest extends TestCase
         $form = $this->createForm();
 
         $this->assertNull($form->validate());
-        $this->assertSame(1, $form->id());
+        $this->assertSame('current123', $form->passCurrent());
     }
 
     public function testValidateRequired(): void
     {
-        $form = $this->createForm([ 'id' => '' ]);
+        $form = $this->createForm([
+            'pass_current' => '',
+        ]);
 
         $this->assertSame(DeleteForm::ERROR_REQUIRED_FIELDS, $form->validate());
     }
 
-    public function testValidateInvalidNumber(): void
+    public function testOldReturnsEmptyArray(): void
     {
-        $form = $this->createForm([ 'id' => 'abc' ]);
+        $form = $this->createForm();
 
-        $this->assertSame(DeleteForm::ERROR_INVALID_NUMBER, $form->validate());
-    }
-
-    public function testIdCastsToInt(): void
-    {
-        $form = $this->createForm([ 'id' => '10' ]);
-
-        $this->assertSame(10, $form->id());
+        $this->assertSame([], $form->old());
     }
 
     private function createForm(array $overrides = []): DeleteForm
     {
         $data = array_merge([
             'token' => 'token',
-            'id' => '1',
+            'pass_current' => 'current123',
         ], $overrides);
 
         return new DeleteForm(new FakeRequest(post: $data));

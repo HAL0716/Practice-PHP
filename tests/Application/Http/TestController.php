@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Http;
+namespace Tests\Application\Http;
 
 use App\Application\Http\Controller;
 use App\Contracts\Http\RequestInterface;
