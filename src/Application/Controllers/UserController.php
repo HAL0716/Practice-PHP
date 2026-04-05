@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
+use App\Application\Http\Controller;
+use App\Application\Forms\User\DeleteForm;
+use App\Application\Forms\User\UpdateForm;
+use App\Application\Forms\User\SigninForm;
+use App\Application\Forms\User\SignupForm;
 use App\Constants\Routes;
-use App\Contracts\Domain\User\UserRepositoryInterface;
 use App\Contracts\Http\RequestInterface;
 use App\Contracts\Http\ResponseInterface;
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Security\CsrfInterface;
 use App\Contracts\Security\LoginThrottleInterface;
-use App\Application\Http\Controller;
 use App\Domain\User\User;
-use App\Application\Forms\User\DeleteForm;
-use App\Application\Forms\User\UpdateForm;
-use App\Application\Forms\User\SigninForm;
-use App\Application\Forms\User\SignupForm;
+use App\Domain\User\UserRepositoryInterface;
 
 final class UserController extends Controller
 {

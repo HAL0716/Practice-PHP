@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts\Domain\Post;
-
-use App\Domain\Post\Post;
+namespace App\Domain\Post;
 
 interface PostRepositoryInterface
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence;
 
-use App\Contracts\Domain\Post\PostRepositoryInterface;
 use App\Domain\Post\Post;
+use App\Domain\Post\PostRepositoryInterface;
 use App\Infrastructure\Database\Schema\PostsTable;
 use App\Infrastructure\Database\Schema\UsersTable;
 

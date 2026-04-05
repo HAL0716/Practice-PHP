@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Domain;
 
-use App\Contracts\Domain\User\UserRepositoryInterface;
 use App\Domain\User\User;
+use App\Domain\User\UserRepositoryInterface;
 
 final class FakeUserRepository implements UserRepositoryInterface
 {

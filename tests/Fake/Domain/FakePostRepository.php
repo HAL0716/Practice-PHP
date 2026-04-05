@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Fake\Domain;
 
-use App\Contracts\Domain\Post\PostRepositoryInterface;
 use App\Domain\Post\Post;
+use App\Domain\Post\PostRepositoryInterface;
 
 final class FakePostRepository implements PostRepositoryInterface
 {
