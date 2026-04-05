@@ -7,7 +7,7 @@ namespace Tests\Application\Forms\Post;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Application\Forms\Post\DeleteForm;
-use Tests\Fake\Http\FakeRequest;
+use Tests\Fake\Infrastructure\Http\FakeRequest;
 
 #[CoversClass(DeleteForm::class)]
 final class DeleteFormTest extends TestCase

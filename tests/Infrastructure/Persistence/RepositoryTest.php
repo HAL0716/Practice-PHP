@@ -7,7 +7,7 @@ namespace Tests\Infrastructure\Persistence;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Infrastructure\Persistence\Repository;
-use Tests\Fake\Database\FakeDatabase;
+use Tests\Fake\Infrastructure\Database\FakeDatabase;
 
 #[CoversClass(Repository::class)]
 final class RepositoryTest extends TestCase

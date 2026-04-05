@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Application\Controllers\UserController;
 use App\Domain\User\User;
-use Tests\Fake\Http\FakeRequest;
-use Tests\Fake\Http\FakeSession;
-use Tests\Fake\Http\FakeResponse;
-use Tests\Fake\Http\RedirectException;
-use Tests\Fake\Security\FakeCsrf;
-use Tests\Fake\Security\FakeLoginThrottle;
 use Tests\Fake\Domain\FakeUserRepository;
+use Tests\Fake\Infrastructure\Http\FakeRequest;
+use Tests\Fake\Infrastructure\Http\FakeResponse;
+use Tests\Fake\Infrastructure\Http\FakeSession;
+use Tests\Fake\Infrastructure\Http\RedirectException;
+use Tests\Fake\Infrastructure\Security\FakeCsrf;
+use Tests\Fake\Infrastructure\Security\FakeLoginThrottle;
 
 #[CoversClass(UserController::class)]
 final class UserControllerTest extends TestCase

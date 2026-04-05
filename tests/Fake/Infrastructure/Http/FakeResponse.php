@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fake\Http;
+namespace Tests\Fake\Infrastructure\Http;
 
 use App\Contracts\Http\ResponseInterface;
 

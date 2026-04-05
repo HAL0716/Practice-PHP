@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fake\Form;
+namespace Tests\Fake\Support;
 
 use App\Support\Form;
-use Tests\Fake\Http\FakeRequest;
+use Tests\Fake\Infrastructure\Http\FakeRequest;
 
 final class FakeForm extends Form
 {

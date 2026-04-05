@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fake\Database;
+namespace Tests\Fake\Infrastructure\Database;
 
 use App\Contracts\Database\DatabaseInterface;
 

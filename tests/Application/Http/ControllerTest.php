@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Application\Http\Controller;
 use App\Constants\Routes;
-use Tests\Fake\Http\FakeRequest;
-use Tests\Fake\Http\FakeSession;
-use Tests\Fake\Http\FakeResponse;
-use Tests\Fake\Http\RedirectException;
-use Tests\Fake\Security\FakeCsrf;
-use Tests\Fake\Form\FakeForm;
+use Tests\Fake\Infrastructure\Http\FakeRequest;
+use Tests\Fake\Infrastructure\Http\FakeResponse;
+use Tests\Fake\Infrastructure\Http\FakeSession;
+use Tests\Fake\Infrastructure\Http\RedirectException;
+use Tests\Fake\Infrastructure\Security\FakeCsrf;
+use Tests\Fake\Support\FakeForm;
 
 #[CoversClass(Controller::class)]
 final class ControllerTest extends TestCase

@@ -7,7 +7,7 @@ namespace Tests\Application\Forms\Post;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Application\Forms\Post\CreateForm;
-use Tests\Fake\Http\FakeRequest;
+use Tests\Fake\Infrastructure\Http\FakeRequest;
 
 #[CoversClass(CreateForm::class)]
 final class CreateFormTest extends TestCase

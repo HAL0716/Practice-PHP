@@ -7,7 +7,7 @@ namespace Tests\Infrastructure\Security;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Infrastructure\Security\LoginThrottle;
-use Tests\Fake\Http\FakeSession;
+use Tests\Fake\Infrastructure\Http\FakeSession;
 
 #[CoversClass(LoginThrottle::class)]
 final class LoginThrottleTest extends TestCase

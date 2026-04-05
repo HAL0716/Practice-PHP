@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fake\Security;
+namespace Tests\Fake\Infrastructure\Security;
 
 use App\Contracts\Security\LoginThrottleInterface;
 
