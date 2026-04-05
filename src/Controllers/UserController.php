@@ -124,7 +124,7 @@ final class UserController extends Controller
             ? $user->verifyPassword($form->pass())
             : password_verify($form->pass(), self::DUMMY_HASH);
 
-        if (!$valid) {
+        if (!$valid || $user === null) {
 
             if ($error = $this->throttle->hit()) {
                 $this->redirectSelf($error, $form->old());
