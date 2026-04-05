@@ -6,7 +6,7 @@ namespace Tests\Core\Security;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Security\Csrf;
+use App\Infrastructure\Security\Csrf;
 use Tests\Fake\Http\FakeSession;
 
 #[CoversClass(Csrf::class)]

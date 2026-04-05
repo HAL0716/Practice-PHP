@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core;
 
-use App\Core\Repository;
+use App\Infrastructure\Persistence\Repository;
 
 final class TestRepository extends Repository
 {

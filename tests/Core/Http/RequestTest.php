@@ -6,7 +6,7 @@ namespace Tests\Core\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Http\Request;
+use App\Infrastructure\Http\Request;
 
 #[CoversClass(Request::class)]
 final class RequestTest extends TestCase

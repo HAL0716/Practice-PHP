@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Database\Schema;
+namespace App\Infrastructure\Database\Schema;
 
 final class UsersTable
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Post;
+namespace App\Infrastructure\Persistence;
 
 use App\Contracts\Domain\Post\PostRepositoryInterface;
-use App\Core\Repository;
-use App\Database\Schema\PostsTable;
-use App\Database\Schema\UsersTable;
+use App\Domain\Post\Post;
+use App\Infrastructure\Database\Schema\PostsTable;
+use App\Infrastructure\Database\Schema\UsersTable;
 
 final class PostRepository extends Repository implements PostRepositoryInterface
 {

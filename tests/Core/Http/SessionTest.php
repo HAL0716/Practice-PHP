@@ -6,7 +6,7 @@ namespace Tests\Core\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Http\Session;
+use App\Infrastructure\Http\Session;
 use App\Domain\User\User;
 
 #[CoversClass(Session::class)]

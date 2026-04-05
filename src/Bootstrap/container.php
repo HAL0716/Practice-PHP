@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use App\Core\Http\Request;
-use App\Core\Http\Session;
-use App\Core\Http\Response;
-use App\Core\Security\Csrf;
-use App\Core\Security\LoginThrottle;
-use App\Database\Database;
-use App\Domain\User\UserRepository;
-use App\Domain\Post\PostRepository;
 use App\Application\Controllers\UserController;
 use App\Application\Controllers\PostController;
 use App\Core\Container\Container;
+use App\Infrastructure\Http\Request;
+use App\Infrastructure\Http\Session;
+use App\Infrastructure\Http\Response;
+use App\Infrastructure\Security\Csrf;
+use App\Infrastructure\Security\LoginThrottle;
+use App\Infrastructure\Database\Database;
+use App\Infrastructure\Persistence\PostRepository;
+use App\Infrastructure\Persistence\UserRepository;
 
 $container = new Container();
 

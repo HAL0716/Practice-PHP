@@ -7,7 +7,7 @@ namespace Tests\Domain\Post;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Domain\Post\Post;
-use App\Domain\Post\PostRepository;
+use App\Infrastructure\Persistence\PostRepository;
 use Tests\Fake\Database\FakeDatabase;
 
 #[CoversClass(PostRepository::class)]

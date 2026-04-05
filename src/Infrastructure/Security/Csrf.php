@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Security;
+namespace App\Infrastructure\Security;
 
 use App\Contracts\Http\SessionInterface;
 use App\Contracts\Security\CsrfInterface;

@@ -6,7 +6,7 @@ namespace Tests\Core\Security;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Core\Security\LoginThrottle;
+use App\Infrastructure\Security\LoginThrottle;
 use Tests\Fake\Http\FakeSession;
 
 #[CoversClass(LoginThrottle::class)]
@@ -23,7 +23,7 @@ final class LoginThrottleTest extends TestCase
     {
         $session = new FakeSession();
 
-        $throttle = new LoginThrottle($session, now: fn() => 1000);
+        $throttle = new LoginThrottle($session, now: fn () => 1000);
 
         for ($i = 0; $i < 4; $i++) {
             $this->assertNull($throttle->hit());
@@ -37,7 +37,7 @@ final class LoginThrottleTest extends TestCase
     {
         $session = new FakeSession();
 
-        $throttle = new LoginThrottle($session, now: fn() => 1000);
+        $throttle = new LoginThrottle($session, now: fn () => 1000);
 
         $throttle->hit();
         $throttle->hit();
@@ -50,7 +50,7 @@ final class LoginThrottleTest extends TestCase
         $session = new FakeSession();
 
         // ロック状態まで進める
-        $throttle = new LoginThrottle($session, now: fn() => 1000);
+        $throttle = new LoginThrottle($session, now: fn () => 1000);
 
         for ($i = 0; $i < 5; $i++) {
             $throttle->hit();
@@ -59,7 +59,7 @@ final class LoginThrottleTest extends TestCase
         $this->assertTrue($throttle->isLocked());
 
         // 時間経過後
-        $throttle = new LoginThrottle($session, now: fn() => 100000);
+        $throttle = new LoginThrottle($session, now: fn () => 100000);
 
         $this->assertFalse($throttle->isLocked());
     }
@@ -68,7 +68,7 @@ final class LoginThrottleTest extends TestCase
     {
         $session = new FakeSession();
 
-        $throttle = new LoginThrottle($session, now: fn() => 1000);
+        $throttle = new LoginThrottle($session, now: fn () => 1000);
 
         $throttle->hit();
         $throttle->clear();

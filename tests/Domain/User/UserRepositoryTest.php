@@ -7,7 +7,7 @@ namespace Tests\Domain\User;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Domain\User\User;
-use App\Domain\User\UserRepository;
+use App\Infrastructure\Persistence\UserRepository;
 use Tests\Fake\Database\FakeDatabase;
 
 #[CoversClass(UserRepository::class)]

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\User;
+namespace App\Infrastructure\Persistence;
 
 use App\Contracts\Domain\User\UserRepositoryInterface;
-use App\Core\Repository;
-use App\Database\Schema\UsersTable;
+use App\Domain\User\User;
+use App\Infrastructure\Database\Schema\UsersTable;
 
 final class UserRepository extends Repository implements UserRepositoryInterface
 {
