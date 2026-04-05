@@ -101,7 +101,13 @@ abstract class Controller
 
     final protected function userId(): ?int
     {
-        return $this->session->userId();
+        $id = $this->session->userId();
+
+        if ($id === null) {
+            $this->redirect(Routes::USER_SIGNIN);
+        }
+
+        return $id;
     }
 
     private function viewData(array $data): array
