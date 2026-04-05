@@ -33,7 +33,7 @@ final class Csrf implements CsrfInterface
 
         $token = $this->session->get(self::SESSION_TOKEN);
 
-        if (!$token) {
+        if ($token === null) {
             $token = bin2hex(($this->random)(self::TOKEN_LENGTH));
 
             $this->session->set(self::SESSION_TOKEN, $token);
@@ -52,7 +52,7 @@ final class Csrf implements CsrfInterface
 
         $sessionToken = $this->session->get(self::SESSION_TOKEN);
 
-        if (!$sessionToken) {
+        if ($sessionToken === null) {
             return false;
         }
 
@@ -69,7 +69,7 @@ final class Csrf implements CsrfInterface
     {
         $tokenTime = $this->session->get(self::SESSION_TIME);
 
-        if (!$tokenTime) {
+        if ($tokenTime === null) {
             return true;
         }
 
