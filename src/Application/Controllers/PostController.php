@@ -1,0 +1,91 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Application\Controllers;
+
+use App\Application\Constants\Routes;
+use App\Application\Forms\Post\CreateForm;
+use App\Application\Forms\Post\DeleteForm;
+use App\Application\Http\Controller;
+use App\Application\Http\RequestInterface;
+use App\Application\Http\ResponseInterface;
+use App\Application\Http\SessionInterface;
+use App\Application\Security\CsrfInterface;
+use App\Domain\Post\PostRepositoryInterface;
+
+final class PostController extends Controller
+{
+    public function __construct(
+        RequestInterface $request,
+        SessionInterface $session,
+        ResponseInterface $response,
+        CsrfInterface $csrf,
+        private PostRepositoryInterface $posts
+    ) {
+        parent::__construct($request, $session, $response, $csrf);
+    }
+
+    public function home(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            get: fn () => $this->showPosts(),
+            post: fn () => $this->createPost()
+        );
+    }
+
+    public function delete(): void
+    {
+        $this->requireLogin();
+
+        $this->dispatch(
+            post: fn () => $this->deletePost()
+        );
+    }
+
+    private function showPosts(): void
+    {
+        $this->render('post/home', [
+            'user_id' => $this->userId(),
+            'posts'   => $this->posts->findAll(),
+        ]);
+    }
+
+    private function createPost(): void
+    {
+        $form = new CreateForm($this->request);
+
+        if (!$this->ensureValidForm($form)) {
+            return;
+        }
+
+        $userId = $this->userId();
+
+        if (!$this->posts->create($userId, $form->comment())) {
+            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
+            return;
+        }
+
+        $this->redirectSelf();
+    }
+
+    private function deletePost(): void
+    {
+        $form = new DeleteForm($this->request);
+
+        if (!$this->ensureValidForm($form)) {
+            return;
+        }
+
+        $userId = $this->userId();
+
+        if (!$this->posts->delete($form->id(), $userId)) {
+            $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
+            return;
+        }
+
+        $this->redirect(Routes::POST_HOME);
+    }
+}

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Core\Http\Request;
+use App\Infrastructure\Http\Request;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$container = require __DIR__ . '/../src/Bootstrap/container.php';
+$container = require __DIR__ . '/../src/Bootstrap/dependencies.php';
 
 $request = $container->get(Request::class);
 $url = $request->path();

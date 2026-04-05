@@ -7,8 +7,8 @@ namespace Tests\Domain\User;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Domain\User\User;
-use App\Domain\User\UserRepository;
-use Tests\Fake\Database\FakeDatabase;
+use App\Infrastructure\Persistence\UserRepository;
+use Tests\Fake\Infrastructure\Database\FakeDatabase;
 
 #[CoversClass(UserRepository::class)]
 final class UserRepositoryTest extends TestCase
