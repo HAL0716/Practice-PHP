@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Application;
 
 use App\Application\Http\RequestInterface;
+use App\Application\Http\ResponseInterface;
 use App\Bootstrap\Container;
+use App\Infrastructure\Http\Response;
 
 final class App
 {
@@ -13,27 +15,26 @@ final class App
         private RequestInterface $request,
         private Router $router,
         private Container $container
-    ) {}
+    ) {
+    }
 
-    public function run(): void
+    public function run(): ResponseInterface
     {
         $route = $this->router->resolve($this->request);
 
         if ($route === null) {
-            $this->notFound();
-            return;
+            return $this->notFound();
         }
 
         [$controllerClass, $method] = $route;
 
         $controller = $this->container->get($controllerClass);
 
-        $controller->$method();
+        return $controller->$method();
     }
 
-    private function notFound(): void
+    private function notFound(): ResponseInterface
     {
-        http_response_code(404);
-        echo '404 Not Found';
+        return new Response(404, [], '404 Not Found');
     }
 }

@@ -22,6 +22,7 @@ use App\Infrastructure\Security\Csrf;
 use App\Infrastructure\Security\LoginThrottle;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\DatabaseInterface;
+use App\Infrastructure\Http\ResponseEmitter;
 use App\Infrastructure\Persistence\PostRepository;
 use App\Infrastructure\Persistence\UserRepository;
 
@@ -45,6 +46,8 @@ $container->set(SessionInterface::class, function ($c) {
 
 $container->set(ResponseInterface::class, fn ($c) => new Response());
 
+$container->set(ResponseEmitter::class, fn ($c) => new ResponseEmitter());
+
 $container->set(CsrfInterface::class, fn ($c) => new Csrf($c->get(SessionInterface::class)));
 
 $container->set(LoginThrottleInterface::class, fn ($c) => new LoginThrottle($c->get(SessionInterface::class)));
@@ -61,7 +64,6 @@ $container->set(
     new UserController(
         $c->get(RequestInterface::class),
         $c->get(SessionInterface::class),
-        $c->get(ResponseInterface::class),
         $c->get(CsrfInterface::class),
         $c->get(UserRepositoryInterface::class),
         $c->get(LoginThrottleInterface::class),
@@ -74,7 +76,6 @@ $container->set(
     new PostController(
         $c->get(RequestInterface::class),
         $c->get(SessionInterface::class),
-        $c->get(ResponseInterface::class),
         $c->get(CsrfInterface::class),
         $c->get(PostRepositoryInterface::class),
     )

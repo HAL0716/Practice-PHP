@@ -6,6 +6,7 @@ namespace App\Application\Http;
 
 use App\Application\Constants\RoutePaths;
 use App\Application\Security\CsrfInterface;
+use App\Infrastructure\Http\Response;
 use App\Support\Form;
 
 abstract class Controller
@@ -15,33 +16,36 @@ abstract class Controller
 
     protected const LAYOUT = 'layouts/default';
 
-    public function __construct(protected RequestInterface $request, protected SessionInterface $session, protected ResponseInterface $response, protected CsrfInterface $csrf)
-    {
+    public function __construct(
+        protected RequestInterface $request,
+        protected SessionInterface $session,
+        protected CsrfInterface $csrf
+    ) {
     }
 
-    final protected function dispatch(?callable $post = null, ?callable $get = null): void
+    final protected function dispatch(?callable $post = null, ?callable $get = null): ResponseInterface
     {
         if ($this->request->isPost() && $post) {
-            $post();
-            return;
+            return $post();
         }
 
         if ($this->request->isGet() && $get) {
-            $get();
-            return;
+            return $get();
         }
 
-        $this->redirectSelf(self::ERROR_SYSTEM);
+        return $this->redirectSelf(self::ERROR_SYSTEM);
     }
 
-    protected function requireLogin(): void
+    protected function requireLogin(): ?ResponseInterface
     {
         if (!$this->session->isLoggedIn()) {
-            $this->redirect(RoutePaths::USER_SIGNIN);
+            return $this->redirect(RoutePaths::USER_SIGNIN);
         }
+
+        return null;
     }
 
-    final protected function redirect(string $url, string $error = '', array $old = []): never
+    final protected function redirect(string $url, string $error = '', array $old = []): ResponseInterface
     {
         if ($error !== '') {
             $this->session->flashError($error);
@@ -51,28 +55,25 @@ abstract class Controller
             $this->session->flashOld($old);
         }
 
-        $this->response->redirect($url);
-
-        throw new \RuntimeException("Failed to redirect to {$url}");
+        return Response::redirect($url);
     }
 
-    final protected function redirectSelf(string $error = '', array $old = []): void
+    final protected function redirectSelf(string $error = '', array $old = []): ResponseInterface
     {
-        $this->redirect($this->request->path(), $error, $old);
+        return $this->redirect($this->request->path(), $error, $old);
     }
 
-    final protected function ensureValidForm(Form $form, ?string $redirect = null): bool
+    final protected function ensureValidForm(Form $form, ?string $redirect = null): ?ResponseInterface
     {
         $redirect ??= $this->request->path();
 
         $error = $this->checkCsrf($form->token()) ?? $form->validate();
 
         if ($error !== null) {
-            $this->redirect($redirect, $error, $form->old());
-            return false;
+            return $this->redirect($redirect, $error, $form->old());
         }
 
-        return true;
+        return null;
     }
 
     final protected function checkCsrf(string $token): ?string
@@ -80,7 +81,7 @@ abstract class Controller
         return $this->csrf->verify($token) ? null : static::ERROR_CSRF;
     }
 
-    final protected function render(string $view, array $data = [], bool $useLayout = true): void
+    final protected function render(string $view, array $data = [], bool $useLayout = true): ResponseInterface
     {
         extract($this->viewData($data), EXTR_SKIP);
 
@@ -88,20 +89,21 @@ abstract class Controller
         require $this->viewFile($view);
         $content = (string) ob_get_clean();
 
-        if (!$useLayout) {
-            echo $content;
-            return;
+        if ($useLayout) {
+            ob_start();
+            require $this->viewFile(static::LAYOUT);
+            $content = (string) ob_get_clean();
         }
 
-        require $this->viewFile(static::LAYOUT);
+        return new Response(200, [], $content);
     }
 
-    final protected function userId(): ?int
+    final protected function userId(): int|ResponseInterface
     {
         $id = $this->session->userId();
 
         if ($id === null) {
-            $this->redirect(RoutePaths::USER_SIGNIN);
+            return $this->redirect(RoutePaths::USER_SIGNIN);
         }
 
         return $id;
