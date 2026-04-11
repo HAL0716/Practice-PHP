@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Http\Controller;
 use App\Application\Forms\User\DeleteForm;
 use App\Application\Forms\User\UpdateForm;
@@ -107,7 +107,7 @@ final class UserController extends Controller
 
         $this->session->login($user);
 
-        $this->redirect(Routes::POST_HOME);
+        $this->redirect(RoutePaths::POST_HOME);
     }
 
     private function authUser(): void
@@ -139,29 +139,29 @@ final class UserController extends Controller
 
         $this->session->login($user);
 
-        $this->redirect(Routes::POST_HOME);
+        $this->redirect(RoutePaths::POST_HOME);
     }
 
     private function logoutUser(): void
     {
         $this->session->logout();
-        $this->redirect(Routes::USER_SIGNIN);
+        $this->redirect(RoutePaths::USER_SIGNIN);
     }
 
     private function deleteUser(): void
     {
         $form = new DeleteForm($this->request);
 
-        if (!$this->ensureValidForm($form, Routes::USER_MYPAGE)) {
+        if (!$this->ensureValidForm($form, RoutePaths::USER_MYPAGE)) {
             return;
         }
 
-        if (!$this->ensureValidPassword($form->passCurrent(), Routes::USER_MYPAGE)) {
+        if (!$this->ensureValidPassword($form->passCurrent(), RoutePaths::USER_MYPAGE)) {
             return;
         }
 
         if (!$this->users->delete($this->userId())) {
-            $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
+            $this->redirect(RoutePaths::USER_MYPAGE, self::ERROR_SYSTEM);
             return;
         }
 

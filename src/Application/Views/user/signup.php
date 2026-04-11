@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Forms\User\SignupForm;
 use App\Support\Html;
 
@@ -42,5 +42,5 @@ use App\Support\Html;
 </form>
 
 <p>
-    <a href="<?= Html::escape(Routes::USER_SIGNIN) ?>">サインインはこちら</a>
+    <a href="<?= Html::escape(RoutePaths::USER_SIGNIN) ?>">サインインはこちら</a>
 </p>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Forms\Post\CreateForm;
 use App\Application\Forms\Post\DeleteForm;
 use App\Support\Html;
@@ -11,7 +11,7 @@ use App\Support\Html;
 
 <h2><?= Html::escape('ホーム') ?></h2>
 
-<p><a href="<?= Html::escape(Routes::USER_MYPAGE) ?>">マイページはこちら</a></p>
+<p><a href="<?= Html::escape(RoutePaths::USER_MYPAGE) ?>">マイページはこちら</a></p>
 
 <?php if (empty($posts)) : ?>
     <p>投稿がありません。</p>

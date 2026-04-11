@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Forms\Post\CreateForm;
 use App\Application\Forms\Post\DeleteForm;
 use App\Application\Http\Controller;
@@ -82,10 +82,10 @@ final class PostController extends Controller
         $userId = $this->userId();
 
         if (!$this->posts->delete($form->id(), $userId)) {
-            $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
+            $this->redirect(RoutePaths::POST_HOME, self::ERROR_SYSTEM);
             return;
         }
 
-        $this->redirect(Routes::POST_HOME);
+        $this->redirect(RoutePaths::POST_HOME);
     }
 }

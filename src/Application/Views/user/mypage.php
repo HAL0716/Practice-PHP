@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Forms\User\UpdateForm;
 use App\Application\Forms\User\DeleteForm;
 use App\Support\Html;
@@ -14,7 +14,7 @@ use App\Support\Html;
     <p style="color:red;"><?= Html::escape($error) ?></p>
 <?php endif; ?>
 
-<p><a href="<?= Html::escape(Routes::POST_HOME) ?>">ホームへ戻る</a></p>
+<p><a href="<?= Html::escape(RoutePaths::POST_HOME) ?>">ホームへ戻る</a></p>
 
 <form action="<?= Html::escape(UpdateForm::ACTION_URL) ?>" method="post" class="update-form">
     <input type="hidden" name="<?= Html::escape(UpdateForm::TOKEN) ?>" value="<?= Html::escape($token) ?>">
@@ -51,7 +51,7 @@ use App\Support\Html;
     <button type="button" class="open-modal-delete" style="color: red;">アカウント削除</button>
 </form>
 
-<p><a href="<?= Html::escape(Routes::USER_SIGNOUT) ?>">サインアウトはこちら</a></p>
+<p><a href="<?= Html::escape(RoutePaths::USER_SIGNOUT) ?>">サインアウトはこちら</a></p>
 
 <div class="modal">
     <div class="modal-content">

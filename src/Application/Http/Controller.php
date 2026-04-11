@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Http;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Security\CsrfInterface;
 use App\Support\Form;
 
@@ -37,7 +37,7 @@ abstract class Controller
     protected function requireLogin(): void
     {
         if (!$this->session->isLoggedIn()) {
-            $this->redirect(Routes::USER_SIGNIN);
+            $this->redirect(RoutePaths::USER_SIGNIN);
         }
     }
 
@@ -101,7 +101,7 @@ abstract class Controller
         $id = $this->session->userId();
 
         if ($id === null) {
-            $this->redirect(Routes::USER_SIGNIN);
+            $this->redirect(RoutePaths::USER_SIGNIN);
         }
 
         return $id;

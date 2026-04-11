@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\Forms\User;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Http\RequestInterface;
 use App\Support\Form;
 
 final class SigninForm extends Form
 {
-    public const ACTION_URL = Routes::USER_SIGNIN;
+    public const ACTION_URL = RoutePaths::USER_SIGNIN;
 
     public const MAIL = 'mail';
     public const PASS = 'pass';

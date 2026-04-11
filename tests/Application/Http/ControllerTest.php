@@ -6,7 +6,7 @@ namespace Tests\Application\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Http\Controller;
 use Tests\Fake\Infrastructure\Http\FakeRequest;
 use Tests\Fake\Infrastructure\Http\FakeResponse;
@@ -77,7 +77,7 @@ final class ControllerTest extends TestCase
         try {
             $controller->requireLoginTest();
         } finally {
-            $this->assertSame(Routes::USER_SIGNIN, $response->redirectTo);
+            $this->assertSame(RoutePaths::USER_SIGNIN, $response->redirectTo);
         }
     }
 
