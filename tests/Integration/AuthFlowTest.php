@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use App\Application\App;
 use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
+use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Database\DatabaseInterface;
 
@@ -74,5 +75,21 @@ final class AuthFlowTest extends TestCase
 
         $session = $this->container->get(SessionInterface::class);
         $this->assertTrue($session->isLoggedIn());
+    }
+
+    public function testSignoutRedirectsToSignin(): void
+    {
+        $session = $this->container->get(SessionInterface::class);
+        $session->login(new User(1, 'テストユーザー', 'test@example.com', password_hash('pass1234', PASSWORD_DEFAULT)));
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/user/signout';
+
+        $app = $this->container->get(App::class);
+
+        $response = $app->run();
+
+        $this->assertFalse($session->isLoggedIn());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 }
