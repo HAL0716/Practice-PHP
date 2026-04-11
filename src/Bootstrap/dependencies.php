@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Application\App;
 use App\Application\Controllers\UserController;
 use App\Application\Controllers\PostController;
+use App\Application\Router;
 use App\Bootstrap\Container;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Session;
@@ -19,6 +20,10 @@ $container = new Container();
 
 $container->set('routes', function ($c) {
     return require __DIR__ . '/routes.php';
+});
+
+$container->set(Router::class, function ($c) {
+    return new Router($c->get('routes'));
 });
 
 $container->set(Request::class, fn ($c) => new Request());
@@ -69,7 +74,7 @@ $container->set(
 $container->set(App::class, function ($c) {
     return new App(
         $c->get(Request::class),
-        $c->get('routes'),
+        $c->get(Router::class),
         $c
     );
 });

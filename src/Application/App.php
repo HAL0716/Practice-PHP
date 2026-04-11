@@ -11,20 +11,20 @@ final class App
 {
     public function __construct(
         private RequestInterface $request,
-        private array $routes,
+        private Router $router,
         private Container $container
     ) {}
 
     public function run(): void
     {
-        $path = $this->request->path();
+        $route = $this->router->resolve($this->request);
 
-        if (!isset($this->routes[$path])) {
+        if ($route === null) {
             $this->notFound();
             return;
         }
 
-        [$controllerClass, $method] = $this->routes[$path];
+        [$controllerClass, $method] = $route;
 
         $controller = $this->container->get($controllerClass);
 
