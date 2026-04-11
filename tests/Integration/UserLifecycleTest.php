@@ -13,7 +13,7 @@ use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Database\DatabaseInterface;
 
 #[CoversNothing]
-final class AuthFlowTest extends TestCase
+final class UserLifecycleTest extends TestCase
 {
     private $container;
     private $db;
