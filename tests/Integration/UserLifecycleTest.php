@@ -51,6 +51,13 @@ final class UserLifecycleTest extends TestCase
         $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
+    public function testSignupPage(): void
+    {
+        $response = $this->getResponse('GET', '/user/signup');
+
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
     public function testSignin(): void
     {
         $this->users()->create('テストユーザー', 'test@example.com', 'pass1234');
@@ -63,6 +70,13 @@ final class UserLifecycleTest extends TestCase
 
         $this->assertTrue($this->session()->isLoggedIn());
         $this->assertSame('/post/home', $response->getHeader('Location'));
+    }
+
+    public function testSigninPage(): void
+    {
+        $response = $this->getResponse('GET', '/user/signin');
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 
     public function testSignout(): void
@@ -95,6 +109,17 @@ final class UserLifecycleTest extends TestCase
         $user = $this->users()->findByEmail('test2@example.com');
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame('テストユーザー2', $user->username());
+    }
+
+    public function testUpdatePage(): void
+    {
+        $this->users()->create('テストユーザー', 'test@example.com', 'pass1234');
+
+        $this->session()->login($this->users()->findByEmail('test@example.com'));
+
+        $response = $this->getResponse('GET', '/user/mypage');
+
+        $this->assertSame(200, $response->getStatusCode());
     }
 
     public function testDelete(): void
