@@ -92,4 +92,37 @@ final class AuthFlowTest extends TestCase
         $this->assertFalse($session->isLoggedIn());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
+
+    public function testDeleteRedirectsToSignin(): void
+    {
+        $_POST = [
+            'token' => $this->container->get(CsrfInterface::class)->token(),
+            'name' => 'テストユーザー',
+            'mail' => 'test@example.com',
+            'pass' => 'pass1234',
+            'pass_confirm' => 'pass1234',
+        ];
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/user/signup';
+
+        $app = $this->container->get(App::class);
+        $app->run();
+
+        $_POST = [
+            'token' => $this->container->get(CsrfInterface::class)->token(),
+            'pass_current' => 'pass1234',
+        ];
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/user/delete';
+
+        $app = $this->container->get(App::class);
+        $response = $app->run();
+
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
+
+        $session = $this->container->get(SessionInterface::class);
+        $this->assertFalse($session->isLoggedIn());
+    }
 }
