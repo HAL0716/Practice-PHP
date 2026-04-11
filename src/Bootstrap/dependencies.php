@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Application\App;
 use App\Application\Controllers\UserController;
 use App\Application\Controllers\PostController;
 use App\Bootstrap\Container;
@@ -15,6 +16,10 @@ use App\Infrastructure\Persistence\PostRepository;
 use App\Infrastructure\Persistence\UserRepository;
 
 $container = new Container();
+
+$container->set('routes', function ($c) {
+    return require __DIR__ . '/routes.php';
+});
 
 $container->set(Request::class, fn ($c) => new Request());
 
@@ -34,7 +39,7 @@ $container->set(Database::class, fn ($c) => new Database());
 
 $container->set(UserRepository::class, fn ($c) => new UserRepository($c->get(Database::class)));
 
-$container->set(PostRepository::class, fn ($c) =>    new PostRepository($c->get(Database::class)));
+$container->set(PostRepository::class, fn ($c) => new PostRepository($c->get(Database::class)));
 
 $container->set(
     UserController::class,
@@ -60,5 +65,13 @@ $container->set(
         $c->get(PostRepository::class),
     )
 );
+
+$container->set(App::class, function ($c) {
+    return new App(
+        $c->get(Request::class),
+        $c->get('routes'),
+        $c
+    );
+});
 
 return $container;
