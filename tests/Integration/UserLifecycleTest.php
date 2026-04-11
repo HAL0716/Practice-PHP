@@ -48,6 +48,7 @@ final class UserLifecycleTest extends TestCase
         ]);
 
         $this->assertTrue($this->session()->isLoggedIn());
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
@@ -69,6 +70,7 @@ final class UserLifecycleTest extends TestCase
         ]);
 
         $this->assertTrue($this->session()->isLoggedIn());
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
@@ -88,6 +90,7 @@ final class UserLifecycleTest extends TestCase
         $response = $this->getResponse('GET', '/user/signout');
 
         $this->assertFalse($this->session()->isLoggedIn());
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
@@ -104,6 +107,7 @@ final class UserLifecycleTest extends TestCase
             'pass_current' => 'pass1234',
         ]);
 
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/user/mypage', $response->getHeader('Location'));
 
         $user = $this->users()->findByEmail('test2@example.com');
@@ -134,6 +138,7 @@ final class UserLifecycleTest extends TestCase
         ]);
 
         $this->assertFalse($this->session()->isLoggedIn());
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 

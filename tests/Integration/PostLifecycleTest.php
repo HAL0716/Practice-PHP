@@ -48,6 +48,7 @@ final class PostLifecycleTest extends TestCase
             'comment' => 'テスト投稿'
         ]);
 
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/post/home', $response->getHeader('Location'));
 
         $posts = $this->posts()->findAll();
@@ -71,6 +72,7 @@ final class PostLifecycleTest extends TestCase
             'id' => $postId
         ]);
 
+        $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/post/home', $response->getHeader('Location'));
 
         $this->assertNull($this->posts()->findById($postId));
