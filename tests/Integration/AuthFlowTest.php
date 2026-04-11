@@ -8,6 +8,7 @@ use App\Application\App;
 use App\Application\Http\ResponseInterface;
 use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
+use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Database\DatabaseInterface;
 
@@ -74,6 +75,26 @@ final class AuthFlowTest extends TestCase
 
         $this->assertFalse($this->session()->isLoggedIn());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
+    }
+
+    public function testUpdate(): void
+    {
+        $this->users()->create('テストユーザー', 'test@example.com', 'pass1234');
+
+        $this->session()->login($this->users()->findByEmail('test@example.com'));
+
+        $response = $this->getResponse('POST', '/user/mypage', [
+            'token' => $this->csrf(),
+            'name' => 'テストユーザー2',
+            'mail' => 'test2@example.com',
+            'pass_current' => 'pass1234',
+        ]);
+
+        $this->assertSame('/user/mypage', $response->getHeader('Location'));
+
+        $user = $this->users()->findByEmail('test2@example.com');
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertSame('テストユーザー2', $user->username());
     }
 
     public function testDelete(): void
