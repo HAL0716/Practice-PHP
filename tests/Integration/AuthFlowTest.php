@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use App\Application\App;
+use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
 use App\Infrastructure\Database\DatabaseInterface;
 
@@ -31,13 +32,11 @@ final class AuthFlowTest extends TestCase
 
         $app = $container->get(App::class);
 
-        $this->expectException(\RuntimeException::class);
+        $response = $app->run();
 
-        $app->run();
+        $this->assertSame('/post/home', $response->getHeader('Location'));
 
-        $this->assertSame('/post/home', $response->redirectTo);
-
-        $session = $container->get(\App\Application\Http\SessionInterface::class);
+        $session = $container->get(SessionInterface::class);
         $this->assertTrue($session->isLoggedIn());
 
         $db->rollBack();

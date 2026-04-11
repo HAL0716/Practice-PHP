@@ -6,127 +6,20 @@ namespace Tests\Application\Http;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use App\Application\Constants\RoutePaths;
 use App\Application\Http\Controller;
+use App\Application\Constants\RoutePaths;
 use Tests\Fake\Infrastructure\Http\FakeRequest;
-use Tests\Fake\Infrastructure\Http\FakeResponse;
 use Tests\Fake\Infrastructure\Http\FakeSession;
-use Tests\Fake\Infrastructure\Http\RedirectException;
 use Tests\Fake\Infrastructure\Security\FakeCsrf;
 use Tests\Fake\Support\FakeForm;
 
 #[CoversClass(Controller::class)]
 final class ControllerTest extends TestCase
 {
-    public function testDispatchPost(): void
-    {
-        $request = new FakeRequest([], [], 'POST');
-        $controller = $this->createController(request: $request);
-
-        $called = false;
-
-        $controller->dispatchTest(
-            post: function () use (&$called) {
-                $called = true;
-            }
-        );
-
-        $this->assertTrue($called);
-    }
-
-    public function testDispatchGet(): void
-    {
-        $request = new FakeRequest([], [], 'GET');
-        $controller = $this->createController(request: $request);
-
-        $called = false;
-
-        $controller->dispatchTest(
-            get: function () use (&$called) {
-                $called = true;
-            }
-        );
-
-        $this->assertTrue($called);
-    }
-
-    public function testDispatchFallback(): void
-    {
-        $request = new FakeRequest([], [], 'PUT', '/current');
-        $response = new FakeResponse();
-        $session = new FakeSession();
-        $controller = $this->createController(request: $request, response: $response, session: $session);
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->dispatchTest();
-        } finally {
-            $this->assertSame('/current', $response->redirectTo);
-            $this->assertSame(Controller::ERROR_SYSTEM, $session->error());
-        }
-    }
-
-    public function testRequireLoginRedirects(): void
-    {
-        $response = new FakeResponse();
-        $controller = $this->createController(response: $response);
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->requireLoginTest();
-        } finally {
-            $this->assertSame(RoutePaths::USER_SIGNIN, $response->redirectTo);
-        }
-    }
-
-    public function testRequireLoginPasses(): void
-    {
-        $session = new FakeSession();
-        $session->set('user_id', 1);
-        $controller = $this->createController(session: $session);
-
-        $controller->requireLoginTest();
-
-        $this->assertNull($session->error());
-    }
-
-    public function testRedirect(): void
-    {
-        $response = new FakeResponse();
-        $session = new FakeSession();
-        $controller = $this->createController(response: $response, session: $session);
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->redirectTest('/test', 'error', ['a' => 1]);
-        } finally {
-            $this->assertSame('/test', $response->redirectTo);
-            $this->assertSame('error', $session->error());
-            $this->assertSame(['a' => 1], $session->old());
-        }
-    }
-
-    public function testRedirectSelf(): void
-    {
-        $request = new FakeRequest([], [], 'GET', '/self');
-        $response = new FakeResponse();
-        $controller = $this->createController(request: $request, response: $response);
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->redirectSelfTest('error');
-        } finally {
-            $this->assertSame('/self', $response->redirectTo);
-        }
-    }
-
     public function testCheckCsrfSuccess(): void
     {
         $controller = $this->createController();
+
         $this->assertNull($controller->checkCsrfTest('token'));
     }
 
@@ -134,54 +27,64 @@ final class ControllerTest extends TestCase
     {
         $controller = $this->createController();
 
-        $this->assertSame(Controller::ERROR_CSRF, $controller->checkCsrfTest('invalid'));
+        $this->assertSame(
+            Controller::ERROR_CSRF,
+            $controller->checkCsrfTest('invalid')
+        );
     }
 
     public function testEnsureValidFormSuccess(): void
     {
         $request = new FakeRequest(['token' => 'token']);
         $form = new FakeForm($request, valid: true);
-        $response = new FakeResponse();
 
-        $controller = $this->createController(request: $request, response: $response);
+        $controller = $this->createController(request: $request);
 
-        $controller->ensureValidFormTest($form);
+        $response = $controller->ensureValidFormTest($form);
 
-        $this->assertNull($response->redirectTo);
+        $this->assertNull($response);
     }
 
     public function testEnsureValidFormFail(): void
     {
         $request = new FakeRequest(['token' => 'token']);
         $form = new FakeForm($request, valid: false);
-        $response = new FakeResponse();
-        $controller = $this->createController(request: $request, response: $response);
 
-        $this->expectException(RedirectException::class);
+        $controller = $this->createController(request: $request);
 
-        try {
-            $controller->ensureValidFormTest($form);
-        } finally {
-            $this->assertSame('/', $response->redirectTo);
-        }
+        $response = $controller->ensureValidFormTest($form);
+
+        $this->assertSame('/', $response->getHeader('Location'));
     }
 
     public function testUserId(): void
     {
         $session = new FakeSession();
         $session->set('user_id', 5);
+
         $controller = $this->createController(session: $session);
 
         $this->assertSame(5, $controller->userIdTest());
     }
 
-    private function createController(?FakeRequest $request = null, ?FakeSession $session = null, ?FakeResponse $response = null, ?FakeCsrf $csrf = null): TestController
+    public function testUserIdRedirectsWhenNotLoggedIn(): void
     {
-        $request ??= new FakeRequest();
-        $session ??= new FakeSession();
-        $response ??= new FakeResponse();
-        $csrf ??= new FakeCsrf();
+        $controller = $this->createController();
 
-        return new TestController($request, $session, $response, $csrf);
+        $response = $controller->userIdTest();
+
+        $this->assertSame(RoutePaths::USER_SIGNIN, $response->getHeader('Location'));
+    }
+
+    private function createController(
+        ?FakeRequest $request = null,
+        ?FakeSession $session = null,
+        ?FakeCsrf $csrf = null
+    ): TestController {
+        return new TestController(
+            $request ?? new FakeRequest(),
+            $session ?? new FakeSession(),
+            $csrf ?? new FakeCsrf()
+        );
     }
 }

@@ -10,9 +10,7 @@ use App\Application\Controllers\UserController;
 use App\Domain\User\User;
 use Tests\Fake\Domain\FakeUserRepository;
 use Tests\Fake\Infrastructure\Http\FakeRequest;
-use Tests\Fake\Infrastructure\Http\FakeResponse;
 use Tests\Fake\Infrastructure\Http\FakeSession;
-use Tests\Fake\Infrastructure\Http\RedirectException;
 use Tests\Fake\Infrastructure\Security\FakeCsrf;
 use Tests\Fake\Infrastructure\Security\FakeLoginThrottle;
 
@@ -22,7 +20,6 @@ final class UserControllerTest extends TestCase
     public function testSignupSuccess(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $users = new FakeUserRepository();
 
         $users->createResult = new User(1, 'name', 'test@example.com', 'hash');
@@ -30,18 +27,14 @@ final class UserControllerTest extends TestCase
         $controller = $this->createController(
             request: new FakeRequest(post: $this->validSignupData(), method: 'POST'),
             session: $session,
-            response: $response,
             users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signup();
 
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertTrue($session->isLoggedIn());
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->assertTrue($session->isLoggedIn());
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
     public function testSignupFailsWhenEmailExists(): void
@@ -57,13 +50,10 @@ final class UserControllerTest extends TestCase
             users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signup();
 
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertSame(UserController::ERROR_EXISTS, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_EXISTS, $session->error());
+        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testSignupFailsWhenCreateFails(): void
@@ -79,19 +69,15 @@ final class UserControllerTest extends TestCase
             users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signup();
 
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertSame(UserController::ERROR_SYSTEM, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_SYSTEM, $session->error());
+        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testSigninSuccess(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $users = new FakeUserRepository();
         $throttle = new FakeLoginThrottle();
 
@@ -105,42 +91,36 @@ final class UserControllerTest extends TestCase
         $controller = $this->createController(
             request: new FakeRequest(post: $this->validSigninData(), method: 'POST'),
             session: $session,
-            response: $response,
             users: $users,
             throttle: $throttle
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signin();
 
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertTrue($session->isLoggedIn());
-            $this->assertTrue($throttle->cleared);
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->assertTrue($session->isLoggedIn());
+        $this->assertTrue($throttle->cleared);
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
     public function testSigninFails(): void
     {
         $session = new FakeSession();
         $users = new FakeUserRepository();
-        $throttle = new FakeLoginThrottle();
 
         $controller = $this->createController(
-            request: new FakeRequest(post: $this->invalidSigninData(), method: 'POST'),
+            request: new FakeRequest(
+                post: $this->invalidSigninData(),
+                method: 'POST',
+                path: '/user/signin'
+            ),
             session: $session,
-            users: $users,
-            throttle: $throttle
+            users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signin();
 
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertSame(UserController::ERROR_LOGIN, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_LOGIN, $session->error());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
     public function testSigninLocked(): void
@@ -150,41 +130,35 @@ final class UserControllerTest extends TestCase
         $throttle->hitResult = 'locked';
 
         $controller = $this->createController(
-            request: new FakeRequest(post: $this->invalidSigninData(), method: 'POST'),
+            request: new FakeRequest(
+                post: $this->invalidSigninData(),
+                method: 'POST',
+                path: '/user/signin'
+            ),
             session: $session,
             throttle: $throttle
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signin();
 
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertSame('locked', $session->error());
-        }
+        $this->assertSame('locked', $session->error());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
     public function testSignout(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
-
         $session->set('user_id', 1);
 
         $controller = $this->createController(
             request: new FakeRequest(method: 'GET'),
-            session: $session,
-            response: $response
+            session: $session
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signout();
 
-        try {
-            $controller->signout();
-        } finally {
-            $this->assertFalse($session->isLoggedIn());
-            $this->assertSame('/user/signin', $response->redirectTo);
-        }
+        $this->assertFalse($session->isLoggedIn());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
     public function testDeleteSuccess(): void
@@ -194,20 +168,29 @@ final class UserControllerTest extends TestCase
 
         $users = new FakeUserRepository();
         $users->deleteResult = true;
-        $users->findByIdResult = new User(1, 'name', 'test@example.com', password_hash('pass1234', PASSWORD_DEFAULT));
+        $users->findByIdResult = new User(
+            1,
+            'name',
+            'test@example.com',
+            password_hash('pass1234', PASSWORD_DEFAULT)
+        );
 
         $controller = $this->createController(
-            request: new FakeRequest(post: [
-                'token' => 'token',
-                'pass_current' => 'pass1234'
-            ], method: 'POST'),
+            request: new FakeRequest(
+                post: [
+                    'token' => 'token',
+                    'pass_current' => 'pass1234'
+                ],
+                method: 'POST',
+                path: '/user/delete'
+            ),
             session: $session,
             users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->delete();
 
-        $controller->delete();
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
     public function testUpdateFailsWhenPasswordInvalid(): void
@@ -216,32 +199,37 @@ final class UserControllerTest extends TestCase
         $session->set('user_id', 1);
 
         $users = new FakeUserRepository();
-        $users->findByIdResult = new User(1, 'name', 'test@example.com', password_hash('correct', PASSWORD_DEFAULT));
+        $users->findByIdResult = new User(
+            1,
+            'name',
+            'test@example.com',
+            password_hash('correct', PASSWORD_DEFAULT)
+        );
 
         $controller = $this->createController(
-            request: new FakeRequest(post: [
-                'token' => 'token',
-                'name' => 'name',
-                'mail' => 'test@example.com',
-                'pass_current' => 'wrong'
-            ], method: 'POST'),
+            request: new FakeRequest(
+                post: [
+                    'token' => 'token',
+                    'name' => 'name',
+                    'mail' => 'test@example.com',
+                    'pass_current' => 'wrong'
+                ],
+                method: 'POST',
+                path: '/user/mypage'
+            ),
             session: $session,
             users: $users
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->mypage();
 
-        try {
-            $controller->mypage();
-        } finally {
-            $this->assertSame(UserController::ERROR_PASSWORD, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_PASSWORD, $session->error());
+        $this->assertSame('/user/mypage', $response->getHeader('Location'));
     }
 
     private function createController(
         ?FakeRequest $request = null,
         ?FakeSession $session = null,
-        ?FakeResponse $response = null,
         ?FakeCsrf $csrf = null,
         ?FakeUserRepository $users = null,
         ?FakeLoginThrottle $throttle = null
@@ -249,7 +237,6 @@ final class UserControllerTest extends TestCase
         return new UserController(
             $request ?? new FakeRequest(),
             $session ?? new FakeSession(),
-            $response ?? new FakeResponse(),
             $csrf ?? new FakeCsrf(),
             $users ?? new FakeUserRepository(),
             $throttle ?? new FakeLoginThrottle()

@@ -9,33 +9,15 @@ use App\Application\Http\RequestInterface;
 use App\Application\Http\ResponseInterface;
 use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
-use App\Support\Form;
 
 final class TestController extends Controller
 {
-    public function __construct(RequestInterface $request, SessionInterface $session, ResponseInterface $response, CsrfInterface $csrf)
-    {
-        parent::__construct($request, $session, $response, $csrf);
-    }
-
-    public function dispatchTest(?callable $post = null, ?callable $get = null): void
-    {
-        $this->dispatch($post, $get);
-    }
-
-    public function requireLoginTest(): void
-    {
-        $this->requireLogin();
-    }
-
-    public function redirectTest(string $url, string $error = '', array $old = []): void
-    {
-        $this->redirect($url, $error, $old);
-    }
-
-    public function redirectSelfTest(string $error = '', array $old = []): void
-    {
-        $this->redirectSelf($error, $old);
+    public function __construct(
+        RequestInterface $request,
+        SessionInterface $session,
+        CsrfInterface $csrf
+    ) {
+        parent::__construct($request, $session, $csrf);
     }
 
     public function checkCsrfTest(string $token): ?string
@@ -43,12 +25,12 @@ final class TestController extends Controller
         return $this->checkCsrf($token);
     }
 
-    public function userIdTest(): int
+    public function userIdTest(): int|ResponseInterface
     {
         return $this->userId();
     }
 
-    public function ensureValidFormTest(Form $form, ?string $redirect = null): bool
+    public function ensureValidFormTest($form, ?string $redirect = null)
     {
         return $this->ensureValidForm($form, $redirect);
     }

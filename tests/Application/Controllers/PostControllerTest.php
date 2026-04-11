@@ -10,9 +10,7 @@ use App\Application\Controllers\PostController;
 use App\Domain\Post\Post;
 use Tests\Fake\Domain\FakePostRepository;
 use Tests\Fake\Infrastructure\Http\FakeRequest;
-use Tests\Fake\Infrastructure\Http\FakeResponse;
 use Tests\Fake\Infrastructure\Http\FakeSession;
-use Tests\Fake\Infrastructure\Http\RedirectException;
 use Tests\Fake\Infrastructure\Security\FakeCsrf;
 
 #[CoversClass(PostController::class)]
@@ -21,7 +19,6 @@ final class PostControllerTest extends TestCase
     public function testCreatePostSuccess(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
@@ -35,23 +32,18 @@ final class PostControllerTest extends TestCase
                 path: '/post/home'
             ),
             session: $session,
-            response: $response,
             posts: $posts
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->home();
 
-        try {
-            $controller->home();
-        } finally {
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->assertSame('/post/home', $response->getHeader('Location'));
+        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testCreatePostFails(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
@@ -64,26 +56,22 @@ final class PostControllerTest extends TestCase
                 path: '/post/home'
             ),
             session: $session,
-            response: $response,
             posts: $posts
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->home();
 
-        try {
-            $controller->home();
-        } finally {
-            $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
-        }
+        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
     public function testDeletePostSuccess(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
+        $posts->deleteResult = true;
 
         $controller = $this->createController(
             request: new FakeRequest(
@@ -92,23 +80,18 @@ final class PostControllerTest extends TestCase
                 path: '/post/home'
             ),
             session: $session,
-            response: $response,
             posts: $posts
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->delete();
 
-        try {
-            $controller->delete();
-        } finally {
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->assertSame('/post/home', $response->getHeader('Location'));
+        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testDeletePostFails(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
         $posts = new FakePostRepository();
 
         $session->set('user_id', 1);
@@ -121,74 +104,56 @@ final class PostControllerTest extends TestCase
                 path: '/post/home'
             ),
             session: $session,
-            response: $response,
             posts: $posts
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->delete();
 
-        try {
-            $controller->delete();
-        } finally {
-            $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
-        }
+        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
     public function testRequiresLogin(): void
     {
-        $response = new FakeResponse();
-
         $controller = $this->createController(
-            request: new FakeRequest(method: 'GET'),
-            response: $response
+            request: new FakeRequest(method: 'GET')
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->home();
 
-        try {
-            $controller->home();
-        } finally {
-            $this->assertSame('/user/signin', $response->redirectTo);
-        }
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
     public function testCsrfFails(): void
     {
         $session = new FakeSession();
-        $response = new FakeResponse();
-
         $session->set('user_id', 1);
 
         $controller = $this->createController(
             request: new FakeRequest(
                 post: ['token' => 'invalid', 'comment' => 'hello'],
-                method: 'POST'
+                method: 'POST',
+                path: '/post/home'
             ),
             session: $session,
-            response: $response,
             csrf: new FakeCsrf('token')
         );
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->home();
 
-        try {
-            $controller->home();
-        } finally {
-            $this->assertSame(PostController::ERROR_CSRF, $session->error());
-        }
+        $this->assertSame(PostController::ERROR_CSRF, $session->error());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
     private function createController(
         ?FakeRequest $request = null,
         ?FakeSession $session = null,
-        ?FakeResponse $response = null,
         ?FakeCsrf $csrf = null,
         ?FakePostRepository $posts = null
     ): PostController {
         return new PostController(
             $request ?? new FakeRequest(),
             $session ?? new FakeSession(),
-            $response ?? new FakeResponse(),
             $csrf ?? new FakeCsrf(),
             $posts ?? new FakePostRepository()
         );
