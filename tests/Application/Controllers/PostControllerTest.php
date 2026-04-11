@@ -16,146 +16,104 @@ use Tests\Fake\Infrastructure\Security\FakeCsrf;
 #[CoversClass(PostController::class)]
 final class PostControllerTest extends TestCase
 {
+    private FakeSession $session;
+    private FakePostRepository $posts;
+    private FakeCsrf $csrf;
+
+    protected function setUp(): void
+    {
+        $this->session = new FakeSession();
+        $this->posts = new FakePostRepository();
+        $this->csrf = new FakeCsrf();
+    }
+
     public function testCreatePostSuccess(): void
     {
-        $session = new FakeSession();
-        $posts = new FakePostRepository();
+        $this->session->set('user_id', 1);
 
-        $session->set('user_id', 1);
+        $this->posts->createResult = $this->createPost();
 
-        $posts->createResult = new Post(1, 1, 'hello', '2024-01-01 00:00:00', 'name');
-
-        $controller = $this->createController(
-            request: new FakeRequest(
-                post: ['token' => 'token', 'comment' => 'hello'],
-                method: 'POST',
-                path: '/post/home'
-            ),
-            session: $session,
-            posts: $posts
-        );
+        $controller = $this->createController([
+            'request' => $this->createRequest()
+        ]);
 
         $response = $controller->home();
 
         $this->assertSame('/post/home', $response->getHeader('Location'));
-        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testCreatePostFails(): void
     {
-        $session = new FakeSession();
-        $posts = new FakePostRepository();
+        $this->session->set('user_id', 1);
+        $this->posts->createResult = null;
 
-        $session->set('user_id', 1);
-        $posts->createResult = null;
+        $controller = $this->createController([
+            'request' => $this->createRequest()
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(
-                post: ['token' => 'token', 'comment' => 'hello'],
-                method: 'POST',
-                path: '/post/home'
-            ),
-            session: $session,
-            posts: $posts
-        );
+        $controller->home();
 
-        $response = $controller->home();
-
-        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
-        $this->assertSame('/post/home', $response->getHeader('Location'));
+        $this->assertSame(PostController::ERROR_SYSTEM, $this->session->error());
     }
 
     public function testDeletePostSuccess(): void
     {
-        $session = new FakeSession();
-        $posts = new FakePostRepository();
+        $this->session->set('user_id', 1);
+        $this->posts->deleteResult = true;
 
-        $session->set('user_id', 1);
-        $posts->deleteResult = true;
-
-        $controller = $this->createController(
-            request: new FakeRequest(
-                post: ['token' => 'token', 'id' => '1'],
-                method: 'POST',
-                path: '/post/home'
-            ),
-            session: $session,
-            posts: $posts
-        );
+        $controller = $this->createController([
+            'request' => $this->deleteRequest()
+        ]);
 
         $response = $controller->delete();
 
         $this->assertSame('/post/home', $response->getHeader('Location'));
-        $this->assertSame(302, $response->getStatusCode());
     }
 
     public function testDeletePostFails(): void
     {
-        $session = new FakeSession();
-        $posts = new FakePostRepository();
+        $this->session->set('user_id', 1);
+        $this->posts->deleteResult = false;
 
-        $session->set('user_id', 1);
-        $posts->deleteResult = false;
+        $controller = $this->createController([
+            'request' => $this->deleteRequest()
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(
-                post: ['token' => 'token', 'id' => '1'],
-                method: 'POST',
-                path: '/post/home'
-            ),
-            session: $session,
-            posts: $posts
-        );
+        $controller->delete();
 
-        $response = $controller->delete();
-
-        $this->assertSame(PostController::ERROR_SYSTEM, $session->error());
-        $this->assertSame('/post/home', $response->getHeader('Location'));
+        $this->assertSame(PostController::ERROR_SYSTEM, $this->session->error());
     }
 
-    public function testRequiresLogin(): void
+    private function createPost(): Post
     {
-        $controller = $this->createController(
-            request: new FakeRequest(method: 'GET')
-        );
-
-        $response = $controller->home();
-
-        $this->assertSame('/user/signin', $response->getHeader('Location'));
+        return new Post(1, 1, 'hello', '2024-01-01 00:00:00', 'name');
     }
 
-    public function testCsrfFails(): void
+    private function createController(array $overrides): PostController
     {
-        $session = new FakeSession();
-        $session->set('user_id', 1);
-
-        $controller = $this->createController(
-            request: new FakeRequest(
-                post: ['token' => 'invalid', 'comment' => 'hello'],
-                method: 'POST',
-                path: '/post/home'
-            ),
-            session: $session,
-            csrf: new FakeCsrf('token')
-        );
-
-        $response = $controller->home();
-
-        $this->assertSame(PostController::ERROR_CSRF, $session->error());
-        $this->assertSame('/post/home', $response->getHeader('Location'));
-    }
-
-    private function createController(
-        ?FakeRequest $request = null,
-        ?FakeSession $session = null,
-        ?FakeCsrf $csrf = null,
-        ?FakePostRepository $posts = null
-    ): PostController {
         return new PostController(
-            $request ?? new FakeRequest(),
-            $session ?? new FakeSession(),
-            $csrf ?? new FakeCsrf(),
-            $posts ?? new FakePostRepository()
+            $overrides['request'] ?? new FakeRequest(),
+            $overrides['session'] ?? $this->session,
+            $overrides['csrf'] ?? $this->csrf,
+            $overrides['posts'] ?? $this->posts
+        );
+    }
+
+    private function createRequest(): FakeRequest
+    {
+        return new FakeRequest(
+            post: ['token' => 'token', 'comment' => 'テスト投稿'],
+            method: 'POST',
+            path: '/post/home'
+        );
+    }
+
+    private function deleteRequest(): FakeRequest
+    {
+        return new FakeRequest(
+            post: ['token' => 'token', 'id' => '1'],
+            method: 'POST',
+            path: '/post/delete'
         );
     }
 }

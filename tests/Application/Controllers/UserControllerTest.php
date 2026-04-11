@@ -30,6 +30,20 @@ final class UserControllerTest extends TestCase
         $this->throttle = new FakeLoginThrottle();
     }
 
+    public function testSignupSuccess(): void
+    {
+        $this->users->createResult = $this->createUser();
+
+        $controller = $this->createController([
+            'request' => $this->signupRequest()
+        ]);
+
+        $response = $controller->signup();
+
+        $this->assertTrue($this->session->isLoggedIn());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
+    }
+
     public function testSignupFailsWhenEmailAlreadyExists(): void
     {
         $this->users->findByEmailResult = $this->createUser();
@@ -58,6 +72,20 @@ final class UserControllerTest extends TestCase
         $this->assertSame('/user/signup', $response->getHeader('Location'));
     }
 
+    public function testSigninSuccess(): void
+    {
+        $this->users->findByEmailResult = $this->createUser();
+
+        $controller = $this->createController([
+            'request' => $this->signinRequest()
+        ]);
+
+        $response = $controller->signin();
+
+        $this->assertTrue($this->session->isLoggedIn());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
+    }
+
     public function testSigninFailsWithInvalidPassword(): void
     {
         $this->users->findByEmailResult = $this->createUser();
@@ -82,7 +110,21 @@ final class UserControllerTest extends TestCase
 
         $response = $controller->signin();
 
-        $this->assertSame($this->throttle->hitResult, $this->session->error());
+        $this->assertSame('locked', $this->session->error());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
+    }
+
+    public function testSignoutSuccess(): void
+    {
+        $this->session->set('user_id', 1);
+
+        $controller = $this->createController([
+            'request' => new FakeRequest(method: 'GET')
+        ]);
+
+        $response = $controller->signout();
+
+        $this->assertFalse($this->session->isLoggedIn());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
@@ -94,14 +136,35 @@ final class UserControllerTest extends TestCase
 
         $response = $controller->signout();
 
-        $this->assertFalse($this->session->isLoggedIn());
         $this->assertSame('/user/signin', $response->getHeader('Location'));
+    }
+
+    public function testUpdateSuccess(): void
+    {
+        $this->session->set('user_id', 1);
+        $this->users->findByIdResult = $this->createUser();
+
+        $controller = $this->createController([
+            'request' => new FakeRequest(
+                post: [
+                    'token' => 'token',
+                    'name' => 'テストユーザー2',
+                    'mail' => 'test2@example.com',
+                    'pass_current' => 'pass1234'
+                ],
+                method: 'POST',
+                path: '/user/mypage'
+            )
+        ]);
+
+        $response = $controller->mypage();
+
+        $this->assertSame('/user/mypage', $response->getHeader('Location'));
     }
 
     public function testUpdateFailsWhenPasswordInvalid(): void
     {
         $this->session->set('user_id', 1);
-
         $this->users->findByIdResult = $this->createUser();
 
         $controller = $this->createController([
@@ -132,10 +195,10 @@ final class UserControllerTest extends TestCase
     {
         return new UserController(
             $override['request'] ?? new FakeRequest(),
-            $this->session,
-            $this->csrf,
-            $this->users,
-            $this->throttle
+            $override['session'] ?? $this->session,
+            $override['csrf'] ?? $this->csrf,
+            $override['users'] ?? $this->users,
+            $override['throttle'] ?? $this->throttle
         );
     }
 
