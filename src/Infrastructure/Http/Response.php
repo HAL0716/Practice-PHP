@@ -10,6 +10,8 @@ final class Response implements ResponseInterface
 {
     private $headerSender;
 
+    public ?string $redirectTo = null;
+
     public function __construct(?callable $headerSender = null)
     {
         $this->headerSender = $headerSender ?? fn (string $header) => header($header);
@@ -17,6 +19,8 @@ final class Response implements ResponseInterface
 
     public function redirect(string $url): void
     {
+        $this->redirectTo = $url;
+
         if (!headers_sent()) {
             ($this->headerSender)("Location: {$url}");
         }
