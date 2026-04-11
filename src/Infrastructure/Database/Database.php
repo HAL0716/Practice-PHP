@@ -30,6 +30,16 @@ final class Database implements DatabaseInterface
         );
     }
 
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
+    }
+
     public function fetchOne(string $sql, array $params = []): ?array
     {
         $stmt = $this->pdo->prepare($sql);
