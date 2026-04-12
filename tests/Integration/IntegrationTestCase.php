@@ -17,6 +17,9 @@ use PHPUnit\Framework\TestCase;
 
 abstract class IntegrationTestCase extends TestCase
 {
+    protected const SIGNIN_URL = '/user/signin';
+    protected const HOME_URL = '/post/home';
+
     protected const DEFAULT_EMAIL = 'test@example.com';
     protected const DEFAULT_PASSWORD = 'password123';
 
@@ -87,9 +90,9 @@ abstract class IntegrationTestCase extends TestCase
         return $this->container->get(PostRepositoryInterface::class);
     }
 
-    final protected function createUser(): void
+    final protected function createUser(): ?User
     {
-        $this->users()->create('Test User', self::DEFAULT_EMAIL, self::DEFAULT_PASSWORD);
+        return $this->users()->create('Test User', self::DEFAULT_EMAIL, self::DEFAULT_PASSWORD);
     }
 
     protected function login(User $user): void

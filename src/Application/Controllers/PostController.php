@@ -60,7 +60,7 @@ final class PostController extends Controller
     {
         $form = new CreateForm($this->request);
 
-        if ($res = $this->ensureValidForm($form)) {
+        if ($res = $this->ensureValidForm($form, RoutePaths::POST_HOME)) {
             return $res;
         }
 
@@ -77,7 +77,7 @@ final class PostController extends Controller
     {
         $form = new DeleteForm($this->request);
 
-        if ($res = $this->ensureValidForm($form)) {
+        if ($res = $this->ensureValidForm($form, RoutePaths::POST_HOME)) {
             return $res;
         }
 
