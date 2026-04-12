@@ -191,6 +191,10 @@ final class UserController extends Controller
             return $res;
         }
 
+        if ($form->mail() && $this->users->findByEmail($form->mail())) {
+            return $this->redirectSelf(self::ERROR_EXISTS, $form->old());
+        }
+
         if (!$this->users->update(
             $this->userId(),
             $this->nullable($form->name()),
