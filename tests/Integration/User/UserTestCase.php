@@ -57,7 +57,7 @@ abstract class UserTestCase extends AuthTestCase
         );
     }
 
-    protected function postDelete(array $override = [])
+    protected function postDelete(array $override = []): ResponseInterface
     {
         return $this->post(
             self::DELETE_URL,
