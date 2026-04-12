@@ -8,7 +8,7 @@ interface DatabaseInterface
 {
     public function beginTransaction(): void;
 
-    public function rollback(): void;
+    public function rollBack(): void;
 
     public function fetchOne(string $sql, array $params = []): ?array;
 

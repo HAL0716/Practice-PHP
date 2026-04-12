@@ -19,7 +19,7 @@ final class FakeDatabase implements DatabaseInterface
         $this->inTransaction = true;
     }
 
-    public function rollback(): void
+    public function rollBack(): void
     {
         $this->inTransaction = false;
     }

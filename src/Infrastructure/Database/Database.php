@@ -35,7 +35,7 @@ final class Database implements DatabaseInterface
         $this->pdo->beginTransaction();
     }
 
-    public function rollback(): void
+    public function rollBack(): void
     {
         $this->pdo->rollBack();
     }
