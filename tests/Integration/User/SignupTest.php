@@ -7,7 +7,6 @@ namespace Tests\Integration\User;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use App\Application\Controllers\UserController;
 use App\Application\Forms\User\SignupForm;
-use App\Application\Http\ResponseInterface;
 use App\Domain\User\User;
 
 #[CoversNothing]
@@ -102,24 +101,5 @@ final class SignupTest extends UserTestCase
     private function assertUserNotCreated(string $email): void
     {
         $this->assertNull($this->users()->findByEmail($email));
-    }
-
-    // =========================
-    // Request Helper
-    // =========================
-
-    private function postSignup(array $override = []): ResponseInterface
-    {
-        return $this->getResponse(
-            'POST',
-            self::SIGNUP_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-                'name' => 'Test User',
-                'mail' => self::DEFAULT_EMAIL,
-                'pass' => 'password123',
-                'pass_confirm' => 'password123',
-            ], $override)
-        );
     }
 }

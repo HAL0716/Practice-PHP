@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Post;
 
+use Tests\Integration\Auth\AuthTestCase;
+use App\Application\Http\ResponseInterface;
 use App\Domain\Post\Post;
-use Tests\Integration\IntegrationTestCase;
 
-abstract class PostTestCase extends IntegrationTestCase
+abstract class PostTestCase extends AuthTestCase
 {
     protected const DELETE_URL = '/post/delete';
 
@@ -21,5 +22,26 @@ abstract class PostTestCase extends IntegrationTestCase
         ], $overrides);
 
         return $this->posts()->create($this->session()->get('user_id'), $data['comment']);
+    }
+
+    protected function postCreate(array $override = []): ResponseInterface
+    {
+        return $this->post(
+            self::HOME_URL,
+            array_merge([
+                'token' => $this->csrfToken(),
+                'comment' => self::DEFAULT_COMMENT,
+            ], $override)
+        );
+    }
+
+    protected function postDelete(array $override = []): ResponseInterface
+    {
+        return $this->post(
+            self::DELETE_URL,
+            array_merge([
+                'token' => $this->csrfToken(),
+            ], $override)
+        );
     }
 }

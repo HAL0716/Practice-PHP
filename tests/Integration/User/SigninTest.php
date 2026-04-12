@@ -6,7 +6,6 @@ namespace Tests\Integration\User;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use App\Application\Controllers\UserController;
-use App\Application\Http\ResponseInterface;
 
 #[CoversNothing]
 final class SigninTest extends UserTestCase
@@ -63,22 +62,5 @@ final class SigninTest extends UserTestCase
         $this->assertGuest();
         $this->assertError(UserController::ERROR_LOGIN);
         $this->assertRedirect($response, self::SIGNIN_URL);
-    }
-
-    // =========================
-    // Request Helper
-    // =========================
-
-    private function postSignin(array $override = []): ResponseInterface
-    {
-        return $this->getResponse(
-            'POST',
-            self::SIGNIN_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-                'mail' => self::DEFAULT_EMAIL,
-                'pass' => self::DEFAULT_PASSWORD,
-            ], $override)
-        );
     }
 }

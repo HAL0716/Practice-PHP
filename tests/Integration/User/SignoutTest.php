@@ -11,10 +11,9 @@ final class SignoutTest extends UserTestCase
 {
     public function testSignoutSuccess(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
-        $response = $this->getResponse('GET', self::SIGNOUT_URL);
+        $response = $this->get(self::SIGNOUT_URL);
 
         $this->assertGuest();
         $this->assertRedirect($response, self::SIGNIN_URL);
@@ -24,7 +23,7 @@ final class SignoutTest extends UserTestCase
     {
         $this->assertGuest();
 
-        $response = $this->getResponse('GET', self::SIGNOUT_URL);
+        $response = $this->get(self::SIGNOUT_URL);
 
         $this->assertGuest();
         $this->assertRedirect($response, self::SIGNIN_URL);

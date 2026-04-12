@@ -14,8 +14,7 @@ final class UpdateTest extends UserTestCase
 {
     public function testUpdateSuccess(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'name' => 'Updated User',
@@ -32,8 +31,7 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateWithoutToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'token' => null
@@ -45,8 +43,7 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateInvalidToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'token' => 'invalid-token'
@@ -58,8 +55,7 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateWrongPassword(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'pass_current' => 'wrong-password'
@@ -71,10 +67,11 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateDuplicateEmail(): void
     {
-        $this->createUser();
-        $this->users()->create('Other User', 'other@example.com', 'password123');
+        $this->loginAsUser();
 
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->createUser([
+            'email' => 'other@example.com'
+        ]);
 
         $response = $this->postUpdate([
             'mail' => 'other@example.com'
@@ -86,8 +83,7 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateInvalidEmail(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'mail' => 'invalid-email'
@@ -99,8 +95,7 @@ final class UpdateTest extends UserTestCase
 
     public function testUpdateEmptyName(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postUpdate([
             'name' => ''
@@ -118,23 +113,5 @@ final class UpdateTest extends UserTestCase
 
         $this->assertGuest();
         $this->assertRedirect($response, self::SIGNIN_URL);
-    }
-
-    // =========================
-    // Request Helper
-    // =========================
-
-    private function postUpdate(array $override = [])
-    {
-        return $this->getResponse(
-            'POST',
-            self::MYPAGE_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-                'name' => 'Test User',
-                'mail' => self::DEFAULT_EMAIL,
-                'pass_current' => self::DEFAULT_PASSWORD,
-            ], $override)
-        );
     }
 }

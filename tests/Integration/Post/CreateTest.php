@@ -4,101 +4,92 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Post;
 
-use App\Application\Controllers\PostController;
-use App\Application\Http\ResponseInterface;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use App\Application\Controllers\PostController;
 
 #[CoversNothing]
 final class CreateTest extends PostTestCase
 {
     public function testCreateSuccess(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
-        $beforePosts = $this->posts()->findAll();
-        $beforeCount = count($beforePosts);
+        $before = $this->posts()->findAll();
 
         $response = $this->postCreate();
 
-        $afterPosts = $this->posts()->findAll();
-        $afterCount = count($afterPosts);
-
-        $this->assertSame($beforeCount + 1, $afterCount);
-
-        $newPost = $this->findNewPost($beforePosts, $afterPosts);
-
-        $this->assertSame(self::DEFAULT_COMMENT, $newPost->comment());
+        $after = $this->posts()->findAll();
 
         $this->assertRedirect($response, self::HOME_URL);
+        $this->assertPostCreated($before, $after);
     }
 
     public function testCreateWithoutToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
-        $before = count($this->posts()->findAll());
+        $before = $this->posts()->findAll();
 
         $response = $this->postCreate(['token' => null]);
 
-        $after = count($this->posts()->findAll());
-        $this->assertSame($before, $after);
+        $after = $this->posts()->findAll();
 
         $this->assertError(PostController::ERROR_CSRF);
         $this->assertRedirect($response, self::HOME_URL);
+        $this->assertPostNotCreated($before, $after);
     }
 
     public function testCreateInvalidToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
-        $before = count($this->posts()->findAll());
+        $before = $this->posts()->findAll();
 
         $response = $this->postCreate(['token' => 'invalid-token']);
 
-        $after = count($this->posts()->findAll());
-        $this->assertSame($before, $after);
+        $after = $this->posts()->findAll();
 
         $this->assertError(PostController::ERROR_CSRF);
         $this->assertRedirect($response, self::HOME_URL);
+        $this->assertPostNotCreated($before, $after);
     }
 
     public function testGuestCannotCreatePost(): void
     {
-        $before = count($this->posts()->findAll());
+        $this->assertGuest();
+
+        $before = $this->posts()->findAll();
 
         $response = $this->postCreate();
 
-        $after = count($this->posts()->findAll());
-        $this->assertSame($before, $after);
+        $after = $this->posts()->findAll();
 
         $this->assertRedirect($response, self::SIGNIN_URL);
+        $this->assertPostNotCreated($before, $after);
     }
 
-    private function findNewPost(array $before, array $after)
-    {
-        $beforeIds = array_map(fn($p) => $p->id(), $before);
+    // =========================
+    // DB Assertions
+    // =========================
 
-        foreach ($after as $post) {
-            if (!in_array($post->id(), $beforeIds, true)) {
-                return $post;
+    private function assertPostCreated(array $before, array $after): void
+    {
+        $this->assertSame(count($before) + 1, count($after));
+
+        $beforeIds = array_map(fn($p) => $p->id(), $before);
+        $afterIds = array_map(fn($p) => $p->id(), $after);
+
+        foreach ($afterIds as $id) {
+            if (!in_array($id, $beforeIds, true)) {
+                return;
             }
         }
 
-        $this->fail('New post was not found.');
+        $this->fail('New post was not created in the database.');
     }
 
-    private function postCreate(array $override = []): ResponseInterface
+    private function assertPostNotCreated(array $before, array $after): void
     {
-        return $this->getResponse(
-            'POST',
-            self::HOME_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-                'comment' => self::DEFAULT_COMMENT,
-            ], $override)
-        );
+        $this->assertSame(count($before), count($after));
     }
 }

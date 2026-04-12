@@ -13,8 +13,7 @@ final class DeleteTest extends UserTestCase
 
     public function testDeleteSuccess(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postDelete();
 
@@ -26,8 +25,7 @@ final class DeleteTest extends UserTestCase
 
     public function testDeleteWithoutToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postDelete([
             'token' => null
@@ -42,8 +40,7 @@ final class DeleteTest extends UserTestCase
 
     public function testDeleteInvalidToken(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postDelete([
             'token' => 'invalid-token'
@@ -58,8 +55,7 @@ final class DeleteTest extends UserTestCase
 
     public function testDeleteWrongPassword(): void
     {
-        $this->createUser();
-        $this->login($this->users()->findByEmail(self::DEFAULT_EMAIL));
+        $this->loginAsUser();
 
         $response = $this->postDelete([
             'pass_current' => 'wrong-password',
@@ -94,21 +90,5 @@ final class DeleteTest extends UserTestCase
     private function assertUserExists(string $email): void
     {
         $this->assertNotNull($this->users()->findByEmail($email));
-    }
-
-    // =========================
-    // Request Helper
-    // =========================
-
-    private function postDelete(array $override = [])
-    {
-        return $this->getResponse(
-            'POST',
-            self::DELETE_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-                'pass_current' => self::DEFAULT_PASSWORD,
-            ], $override)
-        );
     }
 }

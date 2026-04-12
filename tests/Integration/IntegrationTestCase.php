@@ -10,7 +10,6 @@ use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
 use App\Bootstrap\Container;
 use App\Domain\Post\PostRepositoryInterface;
-use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Database\DatabaseInterface;
 use PHPUnit\Framework\TestCase;
@@ -19,9 +18,6 @@ abstract class IntegrationTestCase extends TestCase
 {
     protected const SIGNIN_URL = '/user/signin';
     protected const HOME_URL = '/post/home';
-
-    protected const DEFAULT_EMAIL = 'test@example.com';
-    protected const DEFAULT_PASSWORD = 'password123';
 
     protected App $app;
     protected Container $container;
@@ -50,13 +46,23 @@ abstract class IntegrationTestCase extends TestCase
         $this->db->rollBack();
     }
 
-    protected function getResponse(string $method, string $uri, array $post = [])
+    private function getResponse(string $method, string $uri, array $post = [])
     {
         $_SERVER['REQUEST_METHOD'] = $method;
         $_SERVER['REQUEST_URI'] = $uri;
         $_POST = $post;
 
         return $this->app->run();
+    }
+
+    protected function get(string $uri): ResponseInterface
+    {
+        return $this->getResponse('GET', $uri);
+    }
+
+    protected function post(string $uri, array $data = []): ResponseInterface
+    {
+        return $this->getResponse('POST', $uri, $data);
     }
 
     final protected function assertError(string $expectedError): void
@@ -88,15 +94,5 @@ abstract class IntegrationTestCase extends TestCase
     protected function posts(): PostRepositoryInterface
     {
         return $this->container->get(PostRepositoryInterface::class);
-    }
-
-    final protected function createUser(): ?User
-    {
-        return $this->users()->create('Test User', self::DEFAULT_EMAIL, self::DEFAULT_PASSWORD);
-    }
-
-    protected function login(User $user): void
-    {
-        $this->session()->login($user);
     }
 }

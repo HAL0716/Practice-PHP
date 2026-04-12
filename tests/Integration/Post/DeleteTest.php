@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Post;
 
-use App\Application\Controllers\PostController;
-use App\Application\Http\ResponseInterface;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use App\Application\Controllers\PostController;
 
 #[CoversNothing]
 final class DeleteTest extends PostTestCase
@@ -27,7 +26,7 @@ final class DeleteTest extends PostTestCase
         $after = count($this->posts()->findAll());
         $this->assertSame($before - 1, $after);
 
-        $this->assertNull($this->posts()->findById($post->id()));
+        $this->assertPostDeleted($post->id());
         $this->assertRedirect($response, self::HOME_URL);
     }
 
@@ -48,7 +47,7 @@ final class DeleteTest extends PostTestCase
         $after = count($this->posts()->findAll());
         $this->assertSame($before, $after);
 
-        $this->assertNotNull($this->posts()->findById($post->id()));
+        $this->assertPostExists($post->id());
         $this->assertError(PostController::ERROR_CSRF);
         $this->assertRedirect($response, self::HOME_URL);
     }
@@ -70,7 +69,7 @@ final class DeleteTest extends PostTestCase
         $after = count($this->posts()->findAll());
         $this->assertSame($before, $after);
 
-        $this->assertNotNull($this->posts()->findById($post->id()));
+        $this->assertPostExists($post->id());
         $this->assertError(PostController::ERROR_CSRF);
         $this->assertRedirect($response, self::HOME_URL);
     }
@@ -91,7 +90,7 @@ final class DeleteTest extends PostTestCase
         $after = count($this->posts()->findAll());
         $this->assertSame($before, $after);
 
-        $this->assertNotNull($this->posts()->findById($post->id()));
+        $this->assertPostExists($post->id());
         $this->assertRedirect($response, self::SIGNIN_URL);
     }
 
@@ -118,18 +117,21 @@ final class DeleteTest extends PostTestCase
         $after = count($this->posts()->findAll());
         $this->assertSame($before, $after);
 
-        $this->assertNotNull($this->posts()->findById($post->id()));
+        $this->assertPostExists($post->id());
         $this->assertRedirect($response, self::HOME_URL);
     }
 
-    private function postDelete(array $override = []): ResponseInterface
+    // =========================
+    // DB Assertions
+    // =========================
+
+    private function assertPostDeleted(int $postId): void
     {
-        return $this->getResponse(
-            'POST',
-            self::DELETE_URL,
-            array_merge([
-                'token' => $this->csrfToken(),
-            ], $override)
-        );
+        $this->assertNull($this->posts()->findById($postId));
+    }
+
+    private function assertPostExists(int $postId): void
+    {
+        $this->assertNotNull($this->posts()->findById($postId));
     }
 }
