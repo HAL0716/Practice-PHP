@@ -12,15 +12,16 @@ final class FakeDatabase implements DatabaseInterface
     public int $lastId = 1;
 
     public bool $shouldFail = false;
+    public bool $inTransaction = false;
 
     public function beginTransaction(): void
     {
-        throw new \Exception('Not implemented');
+        $this->inTransaction = true;
     }
 
     public function rollback(): void
     {
-        throw new \Exception('Not implemented');
+        $this->inTransaction = false;
     }
 
     public function fetchOne(string $sql, array $params = []): ?array
