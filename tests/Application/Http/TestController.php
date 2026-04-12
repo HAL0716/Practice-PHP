@@ -9,6 +9,7 @@ use App\Application\Http\RequestInterface;
 use App\Application\Http\ResponseInterface;
 use App\Application\Http\SessionInterface;
 use App\Application\Security\CsrfInterface;
+use App\Support\Form;
 
 final class TestController extends Controller
 {
@@ -30,7 +31,7 @@ final class TestController extends Controller
         return $this->userId();
     }
 
-    public function ensureValidFormTest($form, ?string $redirect = null)
+    public function ensureValidFormTest(Form $form, ?string $redirect = null)
     {
         return $this->ensureValidForm($form, $redirect);
     }
