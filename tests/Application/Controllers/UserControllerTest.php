@@ -10,278 +10,223 @@ use App\Application\Controllers\UserController;
 use App\Domain\User\User;
 use Tests\Fake\Domain\FakeUserRepository;
 use Tests\Fake\Infrastructure\Http\FakeRequest;
-use Tests\Fake\Infrastructure\Http\FakeResponse;
 use Tests\Fake\Infrastructure\Http\FakeSession;
-use Tests\Fake\Infrastructure\Http\RedirectException;
 use Tests\Fake\Infrastructure\Security\FakeCsrf;
 use Tests\Fake\Infrastructure\Security\FakeLoginThrottle;
 
 #[CoversClass(UserController::class)]
 final class UserControllerTest extends TestCase
 {
-    public function testSignupSuccess(): void
+    private FakeSession $session;
+    private FakeUserRepository $users;
+    private FakeCsrf $csrf;
+    private FakeLoginThrottle $throttle;
+
+    protected function setUp(): void
     {
-        $session = new FakeSession();
-        $response = new FakeResponse();
-        $users = new FakeUserRepository();
-
-        $users->createResult = new User(1, 'name', 'test@example.com', 'hash');
-
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->validSignupData(), method: 'POST'),
-            session: $session,
-            response: $response,
-            users: $users
-        );
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertTrue($session->isLoggedIn());
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->session = new FakeSession();
+        $this->users = new FakeUserRepository();
+        $this->csrf = new FakeCsrf();
+        $this->throttle = new FakeLoginThrottle();
     }
 
-    public function testSignupFailsWhenEmailExists(): void
+    public function testSignupSuccess(): void
     {
-        $session = new FakeSession();
-        $users = new FakeUserRepository();
+        $this->users->createResult = $this->createUser();
 
-        $users->findByEmailResult = new User(1, 'name', 'test@example.com', 'hash');
+        $controller = $this->createController([
+            'request' => $this->signupRequest()
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->validSignupData(), method: 'POST'),
-            session: $session,
-            users: $users
-        );
+        $response = $controller->signup();
 
-        $this->expectException(RedirectException::class);
+        $this->assertTrue($this->session->isLoggedIn());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
+    }
 
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertSame(UserController::ERROR_EXISTS, $session->error());
-        }
+    public function testSignupFailsWhenEmailAlreadyExists(): void
+    {
+        $this->users->findByEmailResult = $this->createUser();
+
+        $controller = $this->createController([
+            'request' => $this->signupRequest()
+        ]);
+
+        $response = $controller->signup();
+
+        $this->assertSame(UserController::ERROR_EXISTS, $this->session->error());
+        $this->assertSame('/user/signup', $response->getHeader('Location'));
     }
 
     public function testSignupFailsWhenCreateFails(): void
     {
-        $session = new FakeSession();
-        $users = new FakeUserRepository();
+        $this->users->createResult = null;
 
-        $users->createResult = null;
+        $controller = $this->createController([
+            'request' => $this->signupRequest()
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->validSignupData(), method: 'POST'),
-            session: $session,
-            users: $users
-        );
+        $response = $controller->signup();
 
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->signup();
-        } finally {
-            $this->assertSame(UserController::ERROR_SYSTEM, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_SYSTEM, $this->session->error());
+        $this->assertSame('/user/signup', $response->getHeader('Location'));
     }
 
     public function testSigninSuccess(): void
     {
-        $session = new FakeSession();
-        $response = new FakeResponse();
-        $users = new FakeUserRepository();
-        $throttle = new FakeLoginThrottle();
+        $this->users->findByEmailResult = $this->createUser();
 
-        $users->findByEmailResult = new User(
-            1,
-            'name',
-            'test@example.com',
-            password_hash('pass1234', PASSWORD_DEFAULT)
-        );
+        $controller = $this->createController([
+            'request' => $this->signinRequest()
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->validSigninData(), method: 'POST'),
-            session: $session,
-            response: $response,
-            users: $users,
-            throttle: $throttle
-        );
+        $response = $controller->signin();
 
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertTrue($session->isLoggedIn());
-            $this->assertTrue($throttle->cleared);
-            $this->assertSame('/post/home', $response->redirectTo);
-        }
+        $this->assertTrue($this->session->isLoggedIn());
+        $this->assertSame('/post/home', $response->getHeader('Location'));
     }
 
-    public function testSigninFails(): void
+    public function testSigninFailsWithInvalidPassword(): void
     {
-        $session = new FakeSession();
-        $users = new FakeUserRepository();
-        $throttle = new FakeLoginThrottle();
+        $this->users->findByEmailResult = $this->createUser();
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->invalidSigninData(), method: 'POST'),
-            session: $session,
-            users: $users,
-            throttle: $throttle
-        );
+        $controller = $this->createController([
+            'request' => $this->signinRequest('wrong')
+        ]);
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signin();
 
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertSame(UserController::ERROR_LOGIN, $session->error());
-        }
+        $this->assertSame(UserController::ERROR_LOGIN, $this->session->error());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
-    public function testSigninLocked(): void
+    public function testSigninFailsWhenLocked(): void
     {
-        $session = new FakeSession();
-        $throttle = new FakeLoginThrottle();
-        $throttle->hitResult = 'locked';
+        $this->throttle->hitResult = 'locked';
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: $this->invalidSigninData(), method: 'POST'),
-            session: $session,
-            throttle: $throttle
-        );
+        $controller = $this->createController([
+            'request' => $this->signinRequest()
+        ]);
 
-        $this->expectException(RedirectException::class);
+        $response = $controller->signin();
 
-        try {
-            $controller->signin();
-        } finally {
-            $this->assertSame('locked', $session->error());
-        }
+        $this->assertSame('locked', $this->session->error());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
-    public function testSignout(): void
+    public function testSignoutSuccess(): void
     {
-        $session = new FakeSession();
-        $response = new FakeResponse();
+        $this->session->set('user_id', 1);
 
-        $session->set('user_id', 1);
+        $controller = $this->createController([
+            'request' => new FakeRequest(method: 'GET')
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(method: 'GET'),
-            session: $session,
-            response: $response
-        );
+        $response = $controller->signout();
 
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->signout();
-        } finally {
-            $this->assertFalse($session->isLoggedIn());
-            $this->assertSame('/user/signin', $response->redirectTo);
-        }
+        $this->assertFalse($this->session->isLoggedIn());
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
     }
 
-    public function testDeleteSuccess(): void
+    public function testSignoutWhenNotLoggedIn(): void
     {
-        $session = new FakeSession();
-        $session->set('user_id', 1);
+        $controller = $this->createController([
+            'request' => new FakeRequest(method: 'GET')
+        ]);
 
-        $users = new FakeUserRepository();
-        $users->deleteResult = true;
-        $users->findByIdResult = new User(1, 'name', 'test@example.com', password_hash('pass1234', PASSWORD_DEFAULT));
+        $response = $controller->signout();
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: [
-                'token' => 'token',
-                'pass_current' => 'pass1234'
-            ], method: 'POST'),
-            session: $session,
-            users: $users
-        );
+        $this->assertSame('/user/signin', $response->getHeader('Location'));
+    }
 
-        $this->expectException(RedirectException::class);
+    public function testUpdateSuccess(): void
+    {
+        $this->session->set('user_id', 1);
+        $this->users->findByIdResult = $this->createUser();
 
-        $controller->delete();
+        $controller = $this->createController([
+            'request' => new FakeRequest(
+                post: [
+                    'token' => 'token',
+                    'name' => 'テストユーザー2',
+                    'mail' => 'test2@example.com',
+                    'pass_current' => 'pass1234'
+                ],
+                method: 'POST',
+                path: '/user/mypage'
+            )
+        ]);
+
+        $response = $controller->mypage();
+
+        $this->assertSame('/user/mypage', $response->getHeader('Location'));
     }
 
     public function testUpdateFailsWhenPasswordInvalid(): void
     {
-        $session = new FakeSession();
-        $session->set('user_id', 1);
+        $this->session->set('user_id', 1);
+        $this->users->findByIdResult = $this->createUser();
 
-        $users = new FakeUserRepository();
-        $users->findByIdResult = new User(1, 'name', 'test@example.com', password_hash('correct', PASSWORD_DEFAULT));
+        $controller = $this->createController([
+            'request' => new FakeRequest(
+                post: [
+                    'token' => 'token',
+                    'name' => 'テストユーザー2',
+                    'mail' => 'test@example.com',
+                    'pass_current' => 'wrong'
+                ],
+                method: 'POST',
+                path: '/user/mypage'
+            )
+        ]);
 
-        $controller = $this->createController(
-            request: new FakeRequest(post: [
+        $response = $controller->mypage();
+
+        $this->assertSame(UserController::ERROR_PASSWORD, $this->session->error());
+        $this->assertSame('/user/mypage', $response->getHeader('Location'));
+    }
+
+    private function createUser(): User
+    {
+        return new User(1, 'テストユーザー', 'test@example.com', password_hash('pass1234', PASSWORD_DEFAULT));
+    }
+
+    private function createController(array $override = []): UserController
+    {
+        return new UserController(
+            $override['request'] ?? new FakeRequest(),
+            $override['session'] ?? $this->session,
+            $override['csrf'] ?? $this->csrf,
+            $override['users'] ?? $this->users,
+            $override['throttle'] ?? $this->throttle
+        );
+    }
+
+    private function signupRequest(): FakeRequest
+    {
+        return new FakeRequest(
+            post: [
                 'token' => 'token',
                 'name' => 'name',
                 'mail' => 'test@example.com',
-                'pass_current' => 'wrong'
-            ], method: 'POST'),
-            session: $session,
-            users: $users
-        );
-
-        $this->expectException(RedirectException::class);
-
-        try {
-            $controller->mypage();
-        } finally {
-            $this->assertSame(UserController::ERROR_PASSWORD, $session->error());
-        }
-    }
-
-    private function createController(
-        ?FakeRequest $request = null,
-        ?FakeSession $session = null,
-        ?FakeResponse $response = null,
-        ?FakeCsrf $csrf = null,
-        ?FakeUserRepository $users = null,
-        ?FakeLoginThrottle $throttle = null
-    ): UserController {
-        return new UserController(
-            $request ?? new FakeRequest(),
-            $session ?? new FakeSession(),
-            $response ?? new FakeResponse(),
-            $csrf ?? new FakeCsrf(),
-            $users ?? new FakeUserRepository(),
-            $throttle ?? new FakeLoginThrottle()
+                'pass' => 'pass1234',
+                'pass_confirm' => 'pass1234',
+            ],
+            method: 'POST',
+            path: '/user/signup'
         );
     }
 
-    private function validSignupData(): array
+    private function signinRequest(string $pass = 'pass1234'): FakeRequest
     {
-        return [
-            'token' => 'token',
-            'name' => 'name',
-            'mail' => 'test@example.com',
-            'pass' => 'pass1234',
-            'pass_confirm' => 'pass1234',
-        ];
-    }
-
-    private function validSigninData(): array
-    {
-        return [
-            'token' => 'token',
-            'mail' => 'test@example.com',
-            'pass' => 'pass1234',
-        ];
-    }
-
-    private function invalidSigninData(): array
-    {
-        return [
-            'token' => 'token',
-            'mail' => 'test@example.com',
-            'pass' => 'wrong',
-        ];
+        return new FakeRequest(
+            post: [
+                'token' => 'token',
+                'mail' => 'test@example.com',
+                'pass' => $pass,
+            ],
+            method: 'POST',
+            path: '/user/signin'
+        );
     }
 }

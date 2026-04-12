@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Http\Controller;
 use App\Application\Forms\User\DeleteForm;
 use App\Application\Forms\User\UpdateForm;
@@ -29,69 +29,73 @@ final class UserController extends Controller
     public function __construct(
         RequestInterface $request,
         SessionInterface $session,
-        ResponseInterface $response,
         CsrfInterface $csrf,
         private UserRepositoryInterface $users,
         private LoginThrottleInterface $throttle
     ) {
-        parent::__construct($request, $session, $response, $csrf);
+        parent::__construct($request, $session, $csrf);
     }
 
-    public function signup(): void
+    public function signup(): ResponseInterface
     {
-        $this->dispatch(
+        return $this->dispatch(
             post: fn () => $this->createUser(),
             get:  fn () => $this->render('user/signup')
         );
     }
 
-    public function signin(): void
+    public function signin(): ResponseInterface
     {
-        $this->dispatch(
+        return $this->dispatch(
             post: fn () => $this->authUser(),
             get:  fn () => $this->render('user/signin')
         );
     }
 
-    public function signout(): void
+    public function signout(): ResponseInterface
     {
-        $this->requireLogin();
+        if ($res = $this->requireLogin()) {
+            return $res;
+        }
 
-        $this->dispatch(
+        return $this->dispatch(
             get: fn () => $this->logoutUser()
         );
     }
 
-    public function delete(): void
+    public function delete(): ResponseInterface
     {
-        $this->requireLogin();
+        if ($res = $this->requireLogin()) {
+            return $res;
+        }
 
-        $this->dispatch(
+        return $this->dispatch(
             post: fn () => $this->deleteUser()
         );
     }
 
-    public function mypage(): void
+    public function mypage(): ResponseInterface
     {
-        $this->requireLogin();
+        if ($res = $this->requireLogin()) {
+            return $res;
+        }
 
-        $this->dispatch(
+        return $this->dispatch(
             post: fn () => $this->updateUser(),
             get:  fn () => $this->showMypage()
         );
     }
 
-    private function createUser(): void
+    private function createUser(): ResponseInterface
     {
         $form = new SignupForm($this->request);
 
-        if (!$this->ensureValidForm($form)) {
-            return;
+        if ($res = $this->ensureValidForm($form)) {
+            return $res;
         }
 
         if ($this->users->findByEmail($form->mail())) {
-            $this->redirectSelf(self::ERROR_EXISTS, $form->old());
-            return;
+            return $this->redirectSelf(self::ERROR_EXISTS, $form->old());
         }
 
         $user = $this->users->create(
@@ -101,21 +105,20 @@ final class UserController extends Controller
         );
 
         if (!$user) {
-            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
+            return $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
         $this->session->login($user);
 
-        $this->redirect(Routes::POST_HOME);
+        return $this->redirect(RoutePaths::POST_HOME);
     }
 
-    private function authUser(): void
+    private function authUser(): ResponseInterface
     {
         $form = new SigninForm($this->request);
 
-        if (!$this->ensureValidForm($form)) {
-            return;
+        if ($res = $this->ensureValidForm($form)) {
+            return $res;
         }
 
         $user = $this->users->findByEmail($form->mail());
@@ -127,69 +130,71 @@ final class UserController extends Controller
         if (!$valid || $user === null) {
 
             if ($error = $this->throttle->hit()) {
-                $this->redirectSelf($error, $form->old());
-                return;
+                return $this->redirectSelf($error, $form->old());
             }
 
-            $this->redirectSelf(self::ERROR_LOGIN, $form->old());
-            return;
+            return $this->redirectSelf(self::ERROR_LOGIN, $form->old());
         }
 
         $this->throttle->clear();
 
         $this->session->login($user);
 
-        $this->redirect(Routes::POST_HOME);
+        return $this->redirect(RoutePaths::POST_HOME);
     }
 
-    private function logoutUser(): void
+    private function logoutUser(): ResponseInterface
     {
         $this->session->logout();
-        $this->redirect(Routes::USER_SIGNIN);
+        return $this->redirect(RoutePaths::USER_SIGNIN);
     }
 
-    private function deleteUser(): void
+    private function deleteUser(): ResponseInterface
     {
         $form = new DeleteForm($this->request);
 
-        if (!$this->ensureValidForm($form, Routes::USER_MYPAGE)) {
-            return;
+        if ($res = $this->ensureValidForm($form, RoutePaths::USER_MYPAGE)) {
+            return $res;
         }
 
-        if (!$this->ensureValidPassword($form->passCurrent(), Routes::USER_MYPAGE)) {
-            return;
+        if ($res = $this->ensureValidPassword($form->passCurrent(), RoutePaths::USER_MYPAGE)) {
+            return $res;
         }
 
         if (!$this->users->delete($this->userId())) {
-            $this->redirect(Routes::USER_MYPAGE, self::ERROR_SYSTEM);
-            return;
+            return $this->redirect(RoutePaths::USER_MYPAGE, self::ERROR_SYSTEM);
         }
 
-        $this->logoutUser();
+        return $this->logoutUser();
     }
 
-    private function showMypage(): void
+    private function showMypage(): ResponseInterface
     {
         $user = $this->currentUser();
 
         if ($user === null) {
-            $this->logoutUser();
-            return;
+            return $this->logoutUser();
         }
 
-        $this->render('user/mypage', ['user' => $user]);
+        return $this->render('user/mypage', ['user' => $user]);
     }
 
-    private function updateUser(): void
+    private function updateUser(): ResponseInterface
     {
         $form = new UpdateForm($this->request);
 
-        if (!$this->ensureValidForm($form)) {
-            return;
+        if ($res = $this->ensureValidForm($form)) {
+            return $res;
         }
 
-        if (!$this->ensureValidPassword($form->passCurrent())) {
-            return;
+        if ($res = $this->ensureValidPassword($form->passCurrent())) {
+            return $res;
+        }
+
+        $existingUser = $this->users->findByEmail($form->mail());
+
+        if ($existingUser !== null && $existingUser->id() !== $this->userId()) {
+            return $this->redirectSelf(self::ERROR_EXISTS, $form->old());
         }
 
         if (!$this->users->update(
@@ -198,11 +203,10 @@ final class UserController extends Controller
             $this->nullable($form->mail()),
             $this->nullable($form->pass())
         )) {
-            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
+            return $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        $this->redirectSelf();
+        return $this->redirectSelf();
     }
 
     private function currentUser(): ?User
@@ -210,18 +214,17 @@ final class UserController extends Controller
         return $this->users->findById($this->userId());
     }
 
-    private function ensureValidPassword(string $password, ?string $redirect = null): bool
+    private function ensureValidPassword(string $password, ?string $redirect = null): ?ResponseInterface
     {
         $redirect ??= $this->request->path();
 
         $user = $this->currentUser();
 
         if (!$user || !$user->verifyPassword($password)) {
-            $this->redirect($redirect, self::ERROR_PASSWORD);
-            return false;
+            return $this->redirect($redirect, self::ERROR_PASSWORD);
         }
 
-        return true;
+        return null;
     }
 
     private function nullable(string $value): ?string

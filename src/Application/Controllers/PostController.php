@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Controllers;
 
-use App\Application\Constants\Routes;
+use App\Application\Constants\RoutePaths;
 use App\Application\Forms\Post\CreateForm;
 use App\Application\Forms\Post\DeleteForm;
 use App\Application\Http\Controller;
@@ -19,73 +19,74 @@ final class PostController extends Controller
     public function __construct(
         RequestInterface $request,
         SessionInterface $session,
-        ResponseInterface $response,
         CsrfInterface $csrf,
         private PostRepositoryInterface $posts
     ) {
-        parent::__construct($request, $session, $response, $csrf);
+        parent::__construct($request, $session, $csrf);
     }
 
-    public function home(): void
+    public function home(): ResponseInterface
     {
-        $this->requireLogin();
+        if ($res = $this->requireLogin()) {
+            return $res;
+        }
 
-        $this->dispatch(
+        return $this->dispatch(
             get: fn () => $this->showPosts(),
             post: fn () => $this->createPost()
         );
     }
 
-    public function delete(): void
+    public function delete(): ResponseInterface
     {
-        $this->requireLogin();
+        if ($res = $this->requireLogin()) {
+            return $res;
+        }
 
-        $this->dispatch(
+        return $this->dispatch(
             post: fn () => $this->deletePost()
         );
     }
 
-    private function showPosts(): void
+    private function showPosts(): ResponseInterface
     {
-        $this->render('post/home', [
+        return $this->render('post/home', [
             'user_id' => $this->userId(),
             'posts'   => $this->posts->findAll(),
         ]);
     }
 
-    private function createPost(): void
+    private function createPost(): ResponseInterface
     {
         $form = new CreateForm($this->request);
 
-        if (!$this->ensureValidForm($form)) {
-            return;
+        if ($res = $this->ensureValidForm($form, RoutePaths::POST_HOME)) {
+            return $res;
         }
 
         $userId = $this->userId();
 
         if (!$this->posts->create($userId, $form->comment())) {
-            $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
-            return;
+            return $this->redirectSelf(self::ERROR_SYSTEM, $form->old());
         }
 
-        $this->redirectSelf();
+        return $this->redirectSelf();
     }
 
-    private function deletePost(): void
+    private function deletePost(): ResponseInterface
     {
         $form = new DeleteForm($this->request);
 
-        if (!$this->ensureValidForm($form)) {
-            return;
+        if ($res = $this->ensureValidForm($form, RoutePaths::POST_HOME)) {
+            return $res;
         }
 
         $userId = $this->userId();
 
         if (!$this->posts->delete($form->id(), $userId)) {
-            $this->redirect(Routes::POST_HOME, self::ERROR_SYSTEM);
-            return;
+            return $this->redirect(RoutePaths::POST_HOME, self::ERROR_SYSTEM);
         }
 
-        $this->redirect(Routes::POST_HOME);
+        return $this->redirect(RoutePaths::POST_HOME);
     }
 }

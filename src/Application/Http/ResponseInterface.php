@@ -6,5 +6,11 @@ namespace App\Application\Http;
 
 interface ResponseInterface
 {
-    public function redirect(string $url): void;
+    public function getStatusCode(): int;
+
+    public function getHeaders(): array;
+
+    public function getHeader(string $name): ?string;
+
+    public function getBody(): string;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Constants;
 
-final class Routes
+final class RoutePaths
 {
     public const USER_SIGNUP  = '/user/signup';
     public const USER_SIGNIN  = '/user/signin';

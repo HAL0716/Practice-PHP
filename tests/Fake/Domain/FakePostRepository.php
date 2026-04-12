@@ -19,6 +19,11 @@ final class FakePostRepository implements PostRepositoryInterface
         return $this->createResult;
     }
 
+    public function findById(int $id): ?Post
+    {
+        return null;
+    }
+
     public function findAll(): array
     {
         return $this->findAllResult;

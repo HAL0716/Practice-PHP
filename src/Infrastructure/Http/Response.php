@@ -8,17 +8,35 @@ use App\Application\Http\ResponseInterface;
 
 final class Response implements ResponseInterface
 {
-    private $headerSender;
-
-    public function __construct(?callable $headerSender = null)
-    {
-        $this->headerSender = $headerSender ?? fn (string $header) => header($header);
+    public function __construct(
+        private int $statusCode = 200,
+        private array $headers = [],
+        private string $body = ''
+    ) {
     }
 
-    public function redirect(string $url): void
+    public static function redirect(string $url): self
     {
-        if (!headers_sent()) {
-            ($this->headerSender)("Location: {$url}");
-        }
+        return new self(302, ['Location' => $url]);
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function getHeader(string $name): ?string
+    {
+        return $this->headers[$name] ?? null;
+    }
+
+    public function getBody(): string
+    {
+        return $this->body;
     }
 }

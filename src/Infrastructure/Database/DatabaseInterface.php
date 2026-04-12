@@ -6,6 +6,10 @@ namespace App\Infrastructure\Database;
 
 interface DatabaseInterface
 {
+    public function beginTransaction(): void;
+
+    public function rollBack(): void;
+
     public function fetchOne(string $sql, array $params = []): ?array;
 
     public function fetchAll(string $sql, array $params = []): array;
